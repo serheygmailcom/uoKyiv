@@ -1,0 +1,20 @@
+[
+  {
+    "type": "Spawner",
+    "name": "Spawner",
+    "guid": "33bd77e0-88fa-4e59-93f8-bd9df3211af7",
+    "location": {
+      "x": 1420,
+      "y": 1703,
+      "z": 7
+    },
+    "map": "Felucca",
+    "count": 1,
+    "minDelay": "00:05:00",
+    "maxDelay": "00:10:00",
+    "team": 0,
+    "homeRange": 4,
+    "walkingRange": -1,
+    "entries": []
+  }
+]

@@ -11,7 +11,8 @@ namespace Server.Mobiles
         {
             Name = NameList.RandomName("evil mage");
             Title = "the evil mage";
-            Body = Core.UOR ? 124 : 0x190;
+            //Body = Core.UOR ? 124 : 0x190;
+            Body = 0x190;
 
             SetStr(81, 105);
             SetDex(91, 115);

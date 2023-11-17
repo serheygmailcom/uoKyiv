@@ -1,5 +1,43 @@
 [
   {
+    "src": { "map": "Felucca", "loc": [5136, 1764, 0] },
+    "dst": { "map": "Felucca", "loc": [1424, 1697, 0] },
+    "back": false,
+    "note": "Teleroom-Brit"
+  },
+    {
+    "src": { "map": "Felucca", "loc": [1415, 1687, 0] },
+    "dst": { "map": "Felucca", "loc": [5140, 1764, 0] },
+    "back": false,
+    "note": "Brit-Teleroom"
+  },
+  {
+    "src": { "map": "Felucca", "loc": [5136, 1770, 0] },
+    "dst": { "map": "Felucca", "loc": [1798, 2777, 0] },
+    "back": false,
+    "note": "Teleroom-Trinsic"
+  },
+    {
+    "src": { "map": "Felucca", "loc": [1811, 2774, 0] },
+    "dst": { "map": "Felucca", "loc": [5140, 1764, 0] },
+    "back": false,
+    "note": "Trinsic-Teleroom"
+  },
+  {
+    "src": { "map": "Felucca", "loc": [4471, 1138, 0] },
+    "dst": { "map": "Felucca", "loc": [5140, 1764, 0] },
+    "back": false,
+    "note": "MoonGlow-Teleroom"
+  },
+
+  {
+    "src": { "map": "Felucca", "loc": [5143, 1757, 0] },
+    "dst": { "map": "Felucca", "loc": [4457, 1145, 0] } ,
+    "back": false,
+    "note": "Teleroom-MoonGlow"
+  },
+  
+  {
     "src": { "map": "Felucca", "loc": [311, 786, -24] },
     "dst": { "map": "Felucca", "loc": [314, 784, 0] },
     "back": false
