@@ -158,7 +158,7 @@ namespace Server.Spells
                 return false;
             }
 
-            foreach (var multi in map.GetMultisAt(p))
+            foreach (var multi in map.GetMultisInSector(p))
             {
                 if (multi is BaseHouse bh)
                 {
@@ -509,7 +509,7 @@ namespace Server.Spells
 
             if (scaleDuration)
             {
-                duration = TimeSpan.FromSeconds(duration.TotalSeconds * scale);
+                duration *= scale;
             }
 
             if (scaleStats)
