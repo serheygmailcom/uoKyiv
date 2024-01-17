@@ -469,7 +469,9 @@ public partial class NetState : IComparable<NetState>, IValueLinkListNode<NetSta
                 Console.WriteLine("Attempting to get pipe buffer from wrong thread!");
                 Console.WriteLine(new StackTrace());
                 Utility.PopColor();
-                return;
+
+                buffer = Array.Empty<byte>();
+                return false;
             }
 #endif
         buffer = SendPipe.Writer.AvailableToWrite();
@@ -847,7 +849,12 @@ public partial class NetState : IComparable<NetState>, IValueLinkListNode<NetSta
             LogPacket(packetReader.Buffer[..packetLength], true);
         }
 
-        handler.OnReceive(this, packetReader, packetLength);
+        // Make a new SpanReader that is limited to the length of the packet.
+        // This allows us to use reader.Remaining for VendorBuyReply packet
+        var start = packetReader.Position;
+        var remainingLength = packetLength - packetReader.Position;
+
+        handler.OnReceive(this, new SpanReader(packetReader.Buffer.Slice(start, remainingLength)));
 
         prof?.Finish(packetLength);
 

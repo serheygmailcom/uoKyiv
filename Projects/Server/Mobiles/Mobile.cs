@@ -3715,6 +3715,14 @@ public partial class Mobile : IHued, IComparable<Mobile>, ISpawnable, IObjectPro
         return Math.Sqrt(xDelta * xDelta + yDelta * yDelta);
     }
 
+    public double GetDistanceToSqrt(Point2D p)
+    {
+        var xDelta = m_Location.m_X - p.X;
+        var yDelta = m_Location.m_Y - p.Y;
+
+        return Math.Sqrt(xDelta * xDelta + yDelta * yDelta);
+    }
+
     public double GetDistanceToSqrt(IPoint2D p)
     {
         var xDelta = m_Location.m_X - p.X;
@@ -5884,7 +5892,7 @@ public partial class Mobile : IHued, IComparable<Mobile>, ISpawnable, IObjectPro
 
     public virtual bool CanBeDamaged() => !m_Blessed;
 
-    public virtual void Damage(int amount, Mobile from = null, bool informMount = true)
+    public virtual void Damage(int amount, Mobile from = null, bool informMount = true, bool ignoreEvilOmen = false)
     {
         if (amount <= 0)
         {
