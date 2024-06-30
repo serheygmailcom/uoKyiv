@@ -1,122 +1,134 @@
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using ModernUO.Serialization;
+using Server.Json;
 
-namespace Server.Engines.Spawners
+namespace Server.Engines.Spawners;
+
+[SerializationGenerator(1, false)]
+public partial class SpawnerEntry
 {
-    public class SpawnerEntry
+    [DirtyTrackingEntity]
+    private BaseSpawner _parent;
+
+    [SerializableField(0)]
+    [SerializedJsonPropertyName("name")]
+    private string _spawnedName;
+
+    [SerializableField(1)]
+    [SerializedJsonPropertyName("probability")]
+    private int _spawnedProbability;
+
+    [SerializableField(2)]
+    [SerializedJsonPropertyName("maxCount")]
+    private int _spawnedMaxCount;
+
+    [SerializableField(3)]
+    [SerializedJsonPropertyName("properties")]
+    private string _properties;
+
+    [SerializableField(4)]
+    [SerializedJsonPropertyName("parameters")]
+    private string _parameters;
+
+    [Tidy]
+    [SerializedJsonIgnore]
+    [SerializableField(5)]
+    private List<ISpawnable> _spawned;
+
+    public SpawnerEntry(BaseSpawner parent)
     {
-        public SpawnerEntry() => Spawned = new List<ISpawnable>();
+        _parent = parent;
+        _spawned = [];
+    }
 
-        public SpawnerEntry(
-            string name,
-            int probability,
-            int maxcount,
-            string properties = null,
-            string parameters = null
-        ) : this()
+    [JsonConstructor]
+    public SpawnerEntry(
+        string spawnedName,
+        int spawnedProbability = 100,
+        int spawnedMaxCount = 1,
+        string properties = null,
+        string parameters = null
+    ) : this(null, spawnedName, spawnedProbability, spawnedMaxCount, properties, parameters)
+    {
+    }
+
+    public SpawnerEntry(
+        BaseSpawner parent,
+        string name,
+        int probability = 100,
+        int maxCount = 1,
+        string properties = null,
+        string parameters = null
+    ) : this(parent)
+    {
+        SpawnedName = name;
+        SpawnedProbability = probability;
+        SpawnedMaxCount = maxCount;
+        Properties = properties;
+        Parameters = parameters;
+    }
+
+    private void Deserialize(IGenericReader reader, int version)
+    {
+        SpawnedName = reader.ReadString();
+        SpawnedProbability = reader.ReadInt();
+        SpawnedMaxCount = reader.ReadInt();
+
+        Properties = reader.ReadString();
+        Parameters = reader.ReadString();
+
+        var count = reader.ReadInt();
+
+        Spawned = new List<ISpawnable>(count);
+
+        for (var i = 0; i < count; ++i)
         {
-            SpawnedName = name;
-            SpawnedProbability = probability;
-            SpawnedMaxCount = maxcount;
-            Properties = properties;
-            Parameters = parameters;
-        }
+            var e = reader.ReadEntity<ISpawnable>();
 
-        public SpawnerEntry(BaseSpawner parent, IGenericReader reader)
-        {
-            var version = reader.ReadInt();
-
-            SpawnedName = reader.ReadString();
-            SpawnedProbability = reader.ReadInt();
-            SpawnedMaxCount = reader.ReadInt();
-
-            Properties = reader.ReadString();
-            Parameters = reader.ReadString();
-
-            var count = reader.ReadInt();
-
-            Spawned = new List<ISpawnable>(count);
-
-            for (var i = 0; i < count; ++i)
+            if (e != null)
             {
-                var e = reader.ReadEntity<ISpawnable>();
+                Spawned.Add(e);
+            }
+        }
+    }
 
-                if (e != null)
-                {
-                    e.Spawner = parent;
-
-                    Spawned.Add(e);
-                    parent.Spawned.TryAdd(e, this);
-                }
+    [AfterDeserialization]
+    private void AfterDeserialization()
+    {
+        // This wasn't tidy in the original code, but it is after generating the code.
+        for (var i = Spawned.Count - 1; i >= 0; i--)
+        {
+            var e = Spawned[i];
+            if (e == null)
+            {
+                Spawned.RemoveAt(i);
+            }
+            else
+            {
+                e.Spawner = _parent;
             }
         }
 
-        [JsonPropertyName("name")]
-        public string SpawnedName { get; set; }
+        Spawned.TrimExcess();
+    }
 
-        [JsonPropertyName("parameters")]
-        public string Parameters { get; set; }
+    [JsonIgnore]
+    public EntryFlags Valid { get; set; }
 
-        [JsonPropertyName("properties")]
-        public string Properties { get; set; }
+    [JsonIgnore]
+    public bool IsFull => Spawned.Count >= SpawnedMaxCount;
 
-        [JsonPropertyName("maxCount")]
-        public int SpawnedMaxCount { get; set; }
-
-        [JsonPropertyName("probability")]
-        public int SpawnedProbability { get; set; }
-
-        [JsonIgnore]
-        public EntryFlags Valid { get; set; }
-
-        [JsonIgnore]
-        public List<ISpawnable> Spawned { get; }
-
-        [JsonIgnore]
-        public bool IsFull => Spawned.Count >= SpawnedMaxCount;
-
-        public void Serialize(IGenericWriter writer)
+    public void Defrag(BaseSpawner parent)
+    {
+        for (var i = 0; i < Spawned.Count; ++i)
         {
-            writer.Write(0); // version
+            var spawned = Spawned[i];
 
-            writer.Write(SpawnedName);
-            writer.Write(SpawnedProbability);
-            writer.Write(SpawnedMaxCount);
-
-            writer.Write(Properties);
-            writer.Write(Parameters);
-
-            writer.Write(Spawned.Count);
-
-            for (var i = 0; i < Spawned.Count; ++i)
+            if (parent.OnDefragSpawn(spawned, false))
             {
-                object o = Spawned[i];
-
-                if (o is Item item)
-                {
-                    writer.Write(item);
-                }
-                else if (o is Mobile mobile)
-                {
-                    writer.Write(mobile);
-                }
-                else
-                {
-                    writer.Write(Serial.MinusOne);
-                }
-            }
-        }
-
-        public void Defrag(BaseSpawner parent)
-        {
-            for (var i = 0; i < Spawned.Count; ++i)
-            {
-                var spawned = Spawned[i];
-
-                if (parent.OnDefragSpawn(spawned, false))
-                {
-                    Spawned.RemoveAt(i--);
-                }
+                Spawned.RemoveAt(i--);
+                _parent.MarkDirty();
             }
         }
     }

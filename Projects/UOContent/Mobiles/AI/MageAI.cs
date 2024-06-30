@@ -1,4 +1,5 @@
 using System;
+using Server.Items;
 using Server.Spells;
 using Server.Spells.Fifth;
 using Server.Spells.First;
@@ -720,7 +721,7 @@ public class MageAI : BaseAI
         if (!Core.AOS && SmartAI && !m_Mobile.StunReady && m_Mobile.Skills.Wrestling.Value >= 80.0 &&
             m_Mobile.Skills.Anatomy.Value >= 80.0)
         {
-            EventSink.InvokeStunRequest(m_Mobile);
+            Fists.StunRequest(m_Mobile);
         }
 
         if (!m_Mobile.InRange(c, m_Mobile.RangePerception))
@@ -769,7 +770,6 @@ public class MageAI : BaseAI
             }
         }
 
-        m_Mobile.Direction = m_Mobile.GetDirectionTo(c);
         if (m_Mobile.TriggerAbility(MonsterAbilityTrigger.CombatAction, c))
         {
             if (m_Mobile.Debug)
@@ -838,6 +838,11 @@ public class MageAI : BaseAI
         else if (m_Mobile.Spell?.IsCasting != true)
         {
             RunTo(c);
+        }
+
+        if (m_Mobile.Spell != null || !m_Mobile.InRange(c, 1) || Core.TickCount - m_Mobile.LastMoveTime > 800)
+        {
+            m_Mobile.Direction = m_Mobile.GetDirectionTo(c);
         }
 
         m_LastTarget = c;
@@ -1062,8 +1067,8 @@ public class MageAI : BaseAI
     }
 
     public bool CanDispel(Mobile m) =>
-        m is BaseCreature creature && creature.Summoned && m_Mobile.CanBeHarmful(creature, false) &&
-        !creature.IsAnimatedDead;
+        m is BaseCreature creature && creature.Summoned && creature.SummonMaster != m_Mobile &&
+        m_Mobile.CanBeHarmful(creature, false) && !creature.IsAnimatedDead;
 
     private bool ProcessTarget()
     {

@@ -1,3 +1,4 @@
+using System;
 using Server.Factions;
 using Server.Gumps;
 using Server.Mobiles;
@@ -84,7 +85,7 @@ namespace Server.Guilds
             AddHtmlLocalized(480, 373, 60, 26, 3006115, m_IsResigning ? 0x5000 : 0); // Resign
         }
 
-        public override void OnResponse(NetState sender, RelayInfo info)
+        public override void OnResponse(NetState sender, in RelayInfo info)
         {
             base.OnResponse(sender, info);
 
@@ -173,7 +174,7 @@ namespace Server.Guilds
                 return;
             }
 
-            var charter = Utility.FixHtml(text.Trim());
+            var charter = text.AsSpan().Trim().FixHtml();
 
             if (charter.Length > 50)
             {
@@ -193,7 +194,7 @@ namespace Server.Guilds
                 return;
             }
 
-            var site = Utility.FixHtml(text.Trim());
+            var site = text.AsSpan().Trim().FixHtml();
 
             if (site.Length > 50)
             {

@@ -1,3 +1,4 @@
+using System;
 using Server.Gumps;
 using Server.Mobiles;
 using Server.Network;
@@ -66,7 +67,7 @@ namespace Server.Guilds
             AddHtmlLocalized(210, 213, 110, 26, 1062997, m_toKick ? 0x5000 : 0); // Kick
         }
 
-        public override void OnResponse(NetState sender, RelayInfo info)
+        public override void OnResponse(NetState sender, in RelayInfo info)
         {
             if (sender.Mobile is not PlayerMobile pm || !IsMember(pm, guild) || !IsMember(m_Member, guild))
             {
@@ -265,7 +266,7 @@ namespace Server.Guilds
                 return;
             }
 
-            var title = Utility.FixHtml(text.Trim());
+            var title = text.AsSpan().Trim().FixHtml();
 
             if (title.Length > 20)
             {

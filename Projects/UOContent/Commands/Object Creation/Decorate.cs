@@ -8,7 +8,6 @@ using Server.Engines.Quests.Necro;
 using Server.Engines.Spawners;
 using Server.Items;
 using Server.Network;
-using Server.Utilities;
 using MemoryExtensions = System.MemoryExtensions;
 
 namespace Server.Commands
@@ -18,9 +17,9 @@ namespace Server.Commands
         private static Mobile m_Mobile;
         private static int m_Count;
 
-        public static void Initialize()
+        public static void Configure()
         {
-            CommandSystem.Register("Decorate", AccessLevel.Administrator, Decorate_OnCommand);
+            CommandSystem.Register("Decorate", AccessLevel.Developer, Decorate_OnCommand);
         }
 
         [Usage("Decorate")]
@@ -1045,7 +1044,7 @@ namespace Server.Commands
 
             using var queue = PooledRefQueue<Item>.Create();
 
-            foreach (var item in map.GetItemsInRange(new Point3D(x, y, z), 1))
+            foreach (var item in map.GetItemsAt(x, y))
             {
                 if (srcItem is BaseDoor)
                 {
@@ -1118,12 +1117,9 @@ namespace Server.Commands
                         }
                     }
                 }
-                else
+                else if (item.Z == z && item.ItemID == itemID)
                 {
-                    if (item.Z == z && item.ItemID == itemID)
-                    {
-                        return true;
-                    }
+                    return true;
                 }
             }
 

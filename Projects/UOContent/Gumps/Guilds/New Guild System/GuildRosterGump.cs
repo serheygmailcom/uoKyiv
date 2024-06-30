@@ -61,11 +61,11 @@ namespace Server.Guilds
 
             if (pm == player)
             {
-                name = Color(name, 0x006600);
+                name = name.Color(0x006600);
             }
             else if (pm.NetState != null)
             {
-                name = Color(name, 0x000066);
+                name = name.Color(0x000066);
             }
 
             defs[0] = name;
@@ -95,7 +95,7 @@ namespace Server.Guilds
         public override Gump GetObjectInfoGump(PlayerMobile pm, Guild g, PlayerMobile o) =>
             new GuildMemberInfoGump(pm, g, o, false, false);
 
-        public override void OnResponse(NetState sender, RelayInfo info)
+        public override void OnResponse(NetState sender, in RelayInfo info)
         {
             base.OnResponse(sender, info);
 

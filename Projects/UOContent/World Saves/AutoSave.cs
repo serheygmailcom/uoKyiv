@@ -37,11 +37,7 @@ namespace Server.Saves
         {
             Delay = ServerConfiguration.GetOrUpdateSetting("autosave.saveDelay", TimeSpan.FromMinutes(5.0));
             Warning = ServerConfiguration.GetOrUpdateSetting("autosave.warningDelay", TimeSpan.Zero);
-        }
-
-        public static void Initialize()
-        {
-            SavesEnabled = true;
+            SavesEnabled = ServerConfiguration.GetOrUpdateSetting("autosave.enabled", true);
         }
 
         public static void ResetAutoSave(TimeSpan saveDelay, TimeSpan warningDelay)

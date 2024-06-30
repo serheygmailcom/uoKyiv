@@ -91,7 +91,7 @@ public partial class SnowStatueDeed : Item
             AddBackground(0, 0, 360, 225, 0xA28);
 
             AddPage(1);
-            AddLabel(45, 15, 0, Localization.GetText(1156487, from.Language)); // Select One:
+            AddHtmlLocalized(45, 15, 200, 20, 1156487); // Select One:
 
             AddItem(35, 75, 0x456E);
             AddButton(65, 50, 0x845, 0x846, 1);
@@ -106,7 +106,7 @@ public partial class SnowStatueDeed : Item
             AddButton(275, 50, 0x845, 0x846, 4);
         }
 
-        public override void OnResponse(NetState sender, RelayInfo info)
+        public override void OnResponse(NetState sender, in RelayInfo info)
         {
             if (_deed?.Deleted != false)
             {

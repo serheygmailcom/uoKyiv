@@ -290,8 +290,7 @@ public sealed partial class Map : IComparable<Map>, ISpanFormattable, ISpanParsa
             return;
         }
 
-        var p = new Point3D(x, y, 0);
-        foreach (var item in map.GetItemsInRange(p, 0))
+        foreach (var item in map.GetItemsAt(x, y))
         {
             if (item is not BaseMulti && item.ItemID <= TileData.MaxItemValue)
             {
@@ -568,12 +567,12 @@ public sealed partial class Map : IComparable<Map>, ISpanFormattable, ISpanParsa
         }
     }
 
-    public void OnEnter(Mobile m)
+    internal void OnEnter(Mobile m)
     {
         OnEnter(m.Location, m);
     }
 
-    public void OnEnter(Point3D p, Mobile m)
+    internal void OnEnter(Point3D p, Mobile m)
     {
         if (this != Internal)
         {
@@ -581,14 +580,14 @@ public sealed partial class Map : IComparable<Map>, ISpanFormattable, ISpanParsa
         }
     }
 
-    public void OnEnter(Item item)
+    internal void OnEnter(Item item)
     {
         OnEnter(item.Location, item);
     }
 
-    public void OnEnter(Point3D p, Item item)
+    internal void OnEnter(Point3D p, Item item)
     {
-        if (this == Internal)
+        if (this == Internal || item.Parent != null)
         {
             return;
         }
@@ -606,12 +605,12 @@ public sealed partial class Map : IComparable<Map>, ISpanFormattable, ISpanParsa
         }
     }
 
-    public void OnLeave(Mobile m)
+    internal void OnLeave(Mobile m)
     {
         OnLeave(m.Location, m);
     }
 
-    public void OnLeave(Point3D p, Mobile m)
+    internal void OnLeave(Point3D p, Mobile m)
     {
         if (this != Internal)
         {
@@ -619,14 +618,14 @@ public sealed partial class Map : IComparable<Map>, ISpanFormattable, ISpanParsa
         }
     }
 
-    public void OnLeave(Item item)
+    internal void OnLeave(Item item)
     {
         OnLeave(item.Location, item);
     }
 
-    public void OnLeave(Point3D p, Item item)
+    internal void OnLeave(Point3D p, Item item)
     {
-        if (this == Internal)
+        if (this == Internal || item.Parent != null)
         {
             return;
         }
@@ -1450,6 +1449,11 @@ public sealed partial class Map : IComparable<Map>, ISpanFormattable, ISpanParsa
 
         public void OnEnter(Region region, Rectangle3D rect)
         {
+            if (_regions?.Contains(region) == true)
+            {
+                return;
+            }
+
             Utility.Add(ref _regions, region);
 
             _regions.Sort();

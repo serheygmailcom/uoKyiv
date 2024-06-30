@@ -123,10 +123,8 @@ public abstract partial class BaseDoor : Item, ILockable, ITelekinesisable
         Use(from);
     }
 
-    public static void Initialize()
+    public static void Configure()
     {
-        EventSink.OpenDoorMacroUsed += EventSink_OpenDoorMacroUsed;
-
         CommandSystem.Register("Link", AccessLevel.GameMaster, Link_OnCommand);
         CommandSystem.Register("ChainLink", AccessLevel.GameMaster, ChainLink_OnCommand);
     }
@@ -225,7 +223,7 @@ public abstract partial class BaseDoor : Item, ILockable, ITelekinesisable
         }
     }
 
-    private static void EventSink_OpenDoorMacroUsed(Mobile m)
+    public static void OpenDoorMacroUsed(Mobile m)
     {
         if (m.Map == null || !m.CheckAlive())
         {

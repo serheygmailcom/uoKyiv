@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using Server.Mobiles;
-using Server.Utilities;
 
 namespace Server.Regions;
 
@@ -49,7 +48,7 @@ public class GuardedRegion : BaseRegion
 
     public virtual bool IsDisabled() => GuardsDisabled;
 
-    public static void Initialize()
+    public static void Configure()
     {
         CommandSystem.Register("CheckGuarded", AccessLevel.GameMaster, CheckGuarded_OnCommand);
         CommandSystem.Register("SetGuarded", AccessLevel.Administrator, SetGuarded_OnCommand);

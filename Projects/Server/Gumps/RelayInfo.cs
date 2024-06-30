@@ -1,56 +1,55 @@
+/*************************************************************************
+ * ModernUO                                                              *
+ * Copyright 2019-2024 - ModernUO Development Team                       *
+ * Email: hi@modernuo.com                                                *
+ * File: RelayInfo.cs                                                    *
+ *                                                                       *
+ * This program is free software: you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation, either version 3 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
+ *************************************************************************/
+
+using Server.Text;
+using System;
+
 namespace Server.Gumps;
 
-public class TextRelay
+public readonly ref struct RelayInfo
 {
-    public TextRelay(int entryID, string text)
+    private readonly ReadOnlySpan<byte> _textBlock;
+    private readonly ReadOnlySpan<ushort> _textIds;
+    private readonly ReadOnlySpan<Range> _textRanges;
+
+    public RelayInfo(
+        int buttonId,
+        ReadOnlySpan<int> switches,
+        ReadOnlySpan<ushort> textIds,
+        ReadOnlySpan<Range> textRanges,
+        ReadOnlySpan<byte> textBlock
+    )
     {
-        EntryID = entryID;
-        Text = text;
-    }
-
-    public int EntryID { get; }
-
-    public string Text { get; }
-}
-
-public class RelayInfo
-{
-    public RelayInfo(int buttonID, int[] switches, TextRelay[] textEntries)
-    {
-        ButtonID = buttonID;
+        ButtonID = buttonId;
         Switches = switches;
-        TextEntries = textEntries;
+        _textIds = textIds;
+        _textRanges = textRanges;
+        _textBlock = textBlock;
     }
 
     public int ButtonID { get; }
 
-    public int[] Switches { get; }
+    public ReadOnlySpan<int> Switches { get; }
 
-    public TextRelay[] TextEntries { get; }
+    public bool IsSwitched(int switchId) => Switches.Contains(switchId);
 
-    public bool IsSwitched(int switchID)
+    public string GetTextEntry(int entryId)
     {
-        for (var i = 0; i < Switches.Length; ++i)
-        {
-            if (Switches[i] == switchID)
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public TextRelay GetTextEntry(int entryID)
-    {
-        for (var i = 0; i < TextEntries.Length; ++i)
-        {
-            if (TextEntries[i].EntryID == entryID)
-            {
-                return TextEntries[i];
-            }
-        }
-
-        return null;
+        int index = _textIds.IndexOf((ushort)entryId);
+        return index == -1
+            ? default
+            : TextEncoding.GetString(_textBlock[_textRanges[index]], TextEncoding.Unicode, true);
     }
 }

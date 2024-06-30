@@ -22,7 +22,7 @@ public abstract class AdvancedSearchWarningGump : Gump
             10,
             width - 20,
             20,
-            $"<BASEFONT COLOR=#{headerColor:X6}>{header}</BASEFONT>"
+            header.Color(headerColor)
         );
 
         AddImageTiled(10, 40, width - 20, height - 80, 2624);
@@ -35,9 +35,8 @@ public abstract class AdvancedSearchWarningGump : Gump
                 40,
                 width - 20,
                 height - 80,
-                $"<BASEFONT COLOR=#{contentColor:X6}>{content}</BASEFONT>",
-                false,
-                true
+                content.Color(contentColor),
+                scrollbar: true
             );
         }
 
@@ -51,7 +50,7 @@ public abstract class AdvancedSearchWarningGump : Gump
         AddHtmlLocalized(40 + (width - 20) / 2, height - 30, 170, 20, 1011012, 32767); // CANCEL
     }
 
-    public override void OnResponse(NetState sender, RelayInfo info) => OnClickResponse(sender, info.ButtonID == 1);
+    public override void OnResponse(NetState sender, in RelayInfo info) => OnClickResponse(sender, info.ButtonID == 1);
 
     protected abstract void OnClickResponse(NetState sender, bool okay);
 }

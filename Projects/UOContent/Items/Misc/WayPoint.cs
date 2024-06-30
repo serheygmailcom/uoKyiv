@@ -26,11 +26,13 @@ public partial class WayPoint : Item
 
     public override string DefaultName => "AI Way Point";
 
-    public static void Initialize()
+    public static void Configure()
     {
         CommandSystem.Register("WayPointSeq", AccessLevel.GameMaster, WayPointSeq_OnCommand);
     }
 
+    [Usage("WayPointSeq")]
+    [Description("Creates a sequence of way points.")]
     public static void WayPointSeq_OnCommand(CommandEventArgs arg)
     {
         arg.Mobile.SendMessage("Target the position of the first way point.");

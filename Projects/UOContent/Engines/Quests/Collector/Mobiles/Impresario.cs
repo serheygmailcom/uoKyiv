@@ -35,17 +35,8 @@ public partial class Impresario : BaseQuester
         Utility.AssignRandomFacialHair(this);
     }
 
-    public override bool CanTalkTo(PlayerMobile to)
-    {
-        QuestSystem qs = to.Quest as CollectorQuest;
-
-        if (qs == null)
-        {
-            return false;
-        }
-
-        return qs.IsObjectiveInProgress(typeof(FindSheetMusicObjective));
-    }
+    public override bool CanTalkTo(PlayerMobile to) =>
+        to.Quest is CollectorQuest qs && qs.IsObjectiveInProgress(typeof(FindSheetMusicObjective));
 
     public override void OnTalk(PlayerMobile player, bool contextMenu)
     {
@@ -117,36 +108,40 @@ public class SheetMusicOfferGump : BaseQuestGump
         AddButton(340, 390, 0xF7, 0xF8, 1);
     }
 
-    public override void OnResponse(NetState sender, RelayInfo info)
+    public override void OnResponse(NetState sender, in RelayInfo info)
     {
-        if (info.ButtonID == 1 && info.IsSwitched(1))
+        if (info.ButtonID != 1 || !info.IsSwitched(1))
         {
-            if (sender.Mobile is PlayerMobile player)
-            {
-                var qs = player.Quest;
+            return;
+        }
 
-                if (qs is not CollectorQuest)
-                {
-                    return;
-                }
+        if (sender.Mobile is not PlayerMobile player)
+        {
+            return;
+        }
 
-                var obj = qs.FindObjective<FindSheetMusicObjective>();
+        var qs = player.Quest;
 
-                if (obj?.Completed != false)
-                {
-                    return;
-                }
+        if (qs is not CollectorQuest)
+        {
+            return;
+        }
 
-                if (player.Backpack?.ConsumeTotal(typeof(Gold), 10) == true || Banker.Withdraw(player, 10))
-                {
-                    obj.Complete();
-                }
-                else
-                {
-                    // You don't have enough gold to buy the sheet music.
-                    player.SendLocalizedMessage(1055108);
-                }
-            }
+        var obj = qs.FindObjective<FindSheetMusicObjective>();
+
+        if (obj?.Completed != false)
+        {
+            return;
+        }
+
+        if (player.Backpack?.ConsumeTotal(typeof(Gold), 10) == true || Banker.Withdraw(player, 10))
+        {
+            obj.Complete();
+        }
+        else
+        {
+            // You don't have enough gold to buy the sheet music.
+            player.SendLocalizedMessage(1055108);
         }
     }
 }

@@ -65,11 +65,11 @@ namespace Server.Engines.MLQuests.Objectives
 
         public override void WriteToGump(Gump g, ref int y)
         {
-            g.AddHtmlLocalized(98, y, 312, 16, 1072206, 0x15F90); // Escort to
+            g.AddHtmlLocalized(98, y, 312, 16, 1072206, 0x5F90); // Escort to
 
             if (Destination.Name.Number > 0)
             {
-                g.AddHtmlLocalized(173, y, 312, 20, Destination.Name.Number, 0xFFFFFF);
+                g.AddHtmlLocalized(173, y, 312, 20, Destination.Name.Number, 0x7FFF);
             }
             else if (Destination.Name.String != null)
             {
@@ -186,35 +186,29 @@ namespace Server.Engines.MLQuests.Objectives
             quester.ControlSlots = 0;
             quester.SetControlMaster(pm);
 
-            quester.ActiveSpeed = 0.1;
-            quester.PassiveSpeed = 0.2;
-
             quester.ControlOrder = OrderType.Follow;
             quester.ControlTarget = pm;
 
             quester.CantWalk = false;
-            quester.CurrentSpeed = 0.1;
+
+            quester.SetSpeed(0.1, 0.2, false);
         }
 
         public static void EndFollow(BaseCreature quester)
         {
-            quester.ActiveSpeed = 0.2;
-            quester.PassiveSpeed = 1.0;
-
             quester.ControlOrder = OrderType.None;
             quester.ControlTarget = null;
 
-            quester.CurrentSpeed = 1.0;
-
             quester.SetControlMaster(null);
+
+            quester.SetSpeed(0.1, 0.2);
 
             (quester as BaseEscortable)?.BeginDelete();
         }
 
         public override void OnQuestAccepted()
         {
-            var instance = Instance;
-            var pm = instance.Player;
+            var pm = Instance.Player;
 
             pm.LastEscortTime = Core.Now;
 

@@ -7,10 +7,12 @@ namespace Server.Items;
 [SerializationGenerator(0, false)]
 public abstract partial class SpecialScroll : Item
 {
+    [InvalidateProperties]
     [SerializableField(0)]
     [SerializedCommandProperty(AccessLevel.GameMaster)]
     private SkillName _skill;
 
+    [InvalidateProperties]
     [SerializableField(1)]
     [SerializedCommandProperty(AccessLevel.GameMaster)]
     private double _value;
@@ -28,9 +30,9 @@ public abstract partial class SpecialScroll : Item
     public virtual int Title => 0;
     public abstract string DefaultTitle { get; }
 
-    public virtual string GetNameLocalized() => $"#{AosSkillBonuses.GetLabel(Skill)}";
+    public virtual int SkillLabel => AosSkillBonuses.GetLabel(Skill);
 
-    public virtual string GetName()
+    public virtual string GetSkillName()
     {
         var index = (int)Skill;
         var table = SkillInfo.Table;
@@ -93,28 +95,32 @@ public abstract partial class SpecialScroll : Item
 
             AddHtmlLocalized(40, 48, 387, 100, _scroll.Message, true, true);
 
-            AddHtmlLocalized(125, 148, 200, 20, 1049478, 0xFFFFFF); // Do you wish to use this scroll?
+            AddHtmlLocalized(125, 148, 200, 20, 1049478, 0x7FFF); // Do you wish to use this scroll?
 
             AddButton(100, 172, 4005, 4007, 1);
-            AddHtmlLocalized(135, 172, 120, 20, 1046362, 0xFFFFFF); // Yes
+            AddHtmlLocalized(135, 172, 120, 20, 1046362, 0x7FFF); // Yes
 
             AddButton(275, 172, 4005, 4007, 0);
-            AddHtmlLocalized(310, 172, 120, 20, 1046363, 0xFFFFFF); // No
+            AddHtmlLocalized(310, 172, 120, 20, 1046363, 0x7FFF); // No
 
             if (_scroll.Title != 0)
             {
-                AddHtmlLocalized(40, 20, 260, 20, _scroll.Title, 0xFFFFFF);
+                AddHtmlLocalized(40, 20, 260, 20, _scroll.Title, 0x7FFF);
             }
             else
             {
                 AddHtml(40, 20, 260, 20, _scroll.DefaultTitle);
             }
 
-            var skillLabel = _scroll is StatCapScroll ? 1038019 : AosSkillBonuses.GetLabel(_scroll.Skill);
-            AddHtmlLocalized(310, 20, 120, 20, skillLabel, 0xFFFFFF); // Power
+            var skillLabel = _scroll.SkillLabel;
+
+            if (skillLabel > 0)
+            {
+                AddHtmlLocalized(310, 20, 120, 20, skillLabel, 0x7FFF);
+            }
         }
 
-        public override void OnResponse(NetState state, RelayInfo info)
+        public override void OnResponse(NetState state, in RelayInfo info)
         {
             if (info.ButtonID == 1)
             {

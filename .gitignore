@@ -1,6 +1,8 @@
 # Distribution Files
 /Distribution/ModernUO
 /Distribution/ModernUO.*
+/Distribution/Server
+/Distribution/Server.*
 /Distribution/Assemblies
 /Distribution/bsdtar
 /Distribution/Configuration/antimacro.json
@@ -19,9 +21,11 @@
 /Distribution/*.dylib
 /Distribution/*.so
 /Distribution/*.dll
+/Distribution/*.exe
 /Distribution/runtimes
 /Distribution/nohup.out
 /Distribution/ref
+/Distribution/web
 
 /Projects/*/obj
 /Projects/*/bin

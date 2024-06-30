@@ -115,6 +115,7 @@ public abstract partial class BaseWeapon : Item, IWeapon, IFactionItem, ICraftab
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool ShouldSerializeIdentified() => _identified;
 
+    [SerializedIgnoreDupe]
     [SerializableField(24, setter: "private")]
     [SerializedCommandProperty(AccessLevel.GameMaster, canModify: true)]
     private AosAttributes _attributes;
@@ -126,6 +127,7 @@ public abstract partial class BaseWeapon : Item, IWeapon, IFactionItem, ICraftab
     [SerializableFieldDefault(24)]
     private AosAttributes AttributesDefaultValue() => new(this);
 
+    [SerializedIgnoreDupe]
     [SerializableField(25, setter: "private")]
     [SerializedCommandProperty(AccessLevel.GameMaster, canModify: true)]
     private AosWeaponAttributes _weaponAttributes;
@@ -145,6 +147,7 @@ public abstract partial class BaseWeapon : Item, IWeapon, IFactionItem, ICraftab
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool ShouldSerializePlayerConstructed() => _playerConstructed;
 
+    [SerializedIgnoreDupe]
     [SerializableField(27, setter: "private")]
     [SerializedCommandProperty(AccessLevel.GameMaster, canModify: true)]
     private AosSkillBonuses _skillBonuses;
@@ -165,6 +168,7 @@ public abstract partial class BaseWeapon : Item, IWeapon, IFactionItem, ICraftab
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool ShouldSerializeSlayer2() => _slayer2 != SlayerName.None;
 
+    [SerializedIgnoreDupe]
     [SerializableField(29, setter: "private")]
     [SerializedCommandProperty(AccessLevel.GameMaster, canModify: true)]
     private AosElementAttributes _aosElementDamages;
@@ -361,6 +365,9 @@ public abstract partial class BaseWeapon : Item, IWeapon, IFactionItem, ICraftab
 
     [SerializableFieldSaveFlag(3)]
     private bool ShouldSerializeQuality() => _quality != WeaponQuality.Regular;
+
+    [SerializableFieldDefault(3)]
+    private WeaponQuality QualityDefaultValue() => WeaponQuality.Regular;
 
     [SerializableProperty(4)]
     [CommandProperty(AccessLevel.GameMaster)]
@@ -888,6 +895,8 @@ public abstract partial class BaseWeapon : Item, IWeapon, IFactionItem, ICraftab
 
             if (attacker is BaseCreature bc)
             {
+                // Only change direction if they are not a player.
+                attacker.Direction = attacker.GetDirectionTo(defender);
                 var ab = bc.GetWeaponAbility();
 
                 if (ab != null)
@@ -927,6 +936,12 @@ public abstract partial class BaseWeapon : Item, IWeapon, IFactionItem, ICraftab
         weap.AosElementDamages = new AosElementAttributes(newItem, AosElementDamages);
         weap.SkillBonuses = new AosSkillBonuses(newItem, SkillBonuses);
         weap.WeaponAttributes = new AosWeaponAttributes(newItem, WeaponAttributes);
+
+        // Set hue again because of resource
+        weap.Hue = Hue;
+        // Set HP/Max again because of durability
+        weap.HitPoints = HitPoints;
+        weap.MaxHitPoints = MaxHitPoints;
     }
 
     public int GetDurabilityBonus()

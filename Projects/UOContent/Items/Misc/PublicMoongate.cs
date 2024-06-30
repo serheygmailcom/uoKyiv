@@ -95,9 +95,9 @@ public partial class PublicMoongate : Item
         return true;
     }
 
-    public static void Initialize()
+    public static void Configure()
     {
-        CommandSystem.Register("MoonGen", AccessLevel.Administrator, MoonGen_OnCommand);
+        CommandSystem.Register("MoonGen", AccessLevel.Developer, MoonGen_OnCommand);
     }
 
     [Usage("MoonGen"), Description("Generates public moongates. Removes all old moongates.")]
@@ -432,7 +432,7 @@ public class MoongateGump : Gump
         }
     }
 
-    public override void OnResponse(NetState state, RelayInfo info)
+    public override void OnResponse(NetState state, in RelayInfo info)
     {
         if (info.ButtonID == 0) // Cancel
         {

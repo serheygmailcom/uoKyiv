@@ -1,5 +1,23 @@
+/*************************************************************************
+ * ModernUO                                                              *
+ * Copyright 2019-2024 - ModernUO Development Team                       *
+ * Email: hi@modernuo.com                                                *
+ * File: Commands.cs                                                     *
+ *                                                                       *
+ * This program is free software: you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation, either version 3 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
+ *************************************************************************/
+
 using System;
 using System.Collections.Generic;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using Server.Logging;
 
 namespace Server;
 
@@ -91,7 +109,7 @@ public class CommandEntry : IComparable<CommandEntry>
     }
 }
 
-public record CommandInfo(AccessLevel AccessLevel, string Name, string[] Aliases, string Usage, string Description);
+public record CommandInfo(AccessLevel AccessLevel, string Name, string[] Aliases, string Usage, string[] Modifiers, string Description);
 
 public class CommandInfoSorter : IComparer<CommandInfo>
 {
@@ -110,6 +128,8 @@ public class CommandInfoSorter : IComparer<CommandInfo>
 
 public static class CommandSystem
 {
+    private static readonly ILogger logger = LogFactory.GetLogger(typeof(CommandSystem));
+
     public static string Prefix { get; set; } = "[";
 
     public static Dictionary<string, CommandEntry> Entries { get; } = new(StringComparer.OrdinalIgnoreCase);
@@ -179,7 +199,38 @@ public static class CommandSystem
 
     public static void Register(string command, AccessLevel access, CommandEventHandler handler)
     {
-        Entries[command] = new CommandEntry(command, handler, access);
+        DoRegister(command, access, handler);
+
+        var mi = handler.Method;
+        var aliasesAttr = mi.GetCustomAttribute(typeof(AliasesAttribute), false) as AliasesAttribute;
+        var aliases = aliasesAttr?.Aliases;
+
+        if (aliases == null)
+        {
+            return;
+        }
+
+        foreach (var alias in aliases)
+        {
+            DoRegister(alias, access, handler);
+        }
+    }
+
+    private static void DoRegister(string command, AccessLevel accessLevel, CommandEventHandler handler)
+    {
+        ref var commandEntry = ref CollectionsMarshal.GetValueRefOrAddDefault(Entries, command, out var exists);
+        if (exists)
+        {
+            if (commandEntry.AccessLevel == accessLevel && commandEntry.Handler == handler)
+            {
+                return;
+            }
+
+            logger.Warning("Command {Command} already registered to {Handler}.", command, commandEntry.Handler.Method.Name);
+            return;
+        }
+
+        commandEntry = new CommandEntry(command, handler, accessLevel);
     }
 
     public static bool Handle(Mobile from, string text, MessageType type = MessageType.Regular)

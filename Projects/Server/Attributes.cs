@@ -21,19 +21,13 @@ using ModernUO.Serialization;
 namespace Server;
 
 [AttributeUsage(AttributeTargets.Property)]
-public class HueAttribute : Attribute
-{
-}
+public class HueAttribute : Attribute;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
-public class PropertyObjectAttribute : Attribute
-{
-}
+public class PropertyObjectAttribute : Attribute;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
-public class NoSortAttribute : Attribute
-{
-}
+public class NoSortAttribute : Attribute;
 
 [AttributeUsage(AttributeTargets.Method)]
 public class CallPriorityAttribute : Attribute
@@ -78,7 +72,7 @@ public class CallPriorityComparer : IComparer<MethodInfo>
         return 0;
     }
 
-    private int GetPriority(MethodInfo mi)
+    private static int GetPriority(MethodInfo mi)
     {
         var objs = mi.GetCustomAttributes(typeof(CallPriorityAttribute), true);
 
@@ -87,12 +81,7 @@ public class CallPriorityComparer : IComparer<MethodInfo>
             return 50;
         }
 
-        if (objs[0] is not CallPriorityAttribute attr)
-        {
-            return 50;
-        }
-
-        return attr.Priority;
+        return (objs[0] as CallPriorityAttribute)?.Priority ?? 50;
     }
 }
 
@@ -123,6 +112,30 @@ public class ConstructibleAttribute : Attribute
     public ConstructibleAttribute(AccessLevel accessLevel) => AccessLevel = accessLevel;
 
     public AccessLevel AccessLevel { get; set; }
+}
+
+[AttributeUsage(AttributeTargets.Method)]
+public class UsageAttribute : Attribute
+{
+    public UsageAttribute(string usage) => Usage = usage;
+
+    public string Usage { get; }
+}
+
+[AttributeUsage(AttributeTargets.Method)]
+public class DescriptionAttribute : Attribute
+{
+    public DescriptionAttribute(string description) => Description = description;
+
+    public string Description { get; }
+}
+
+[AttributeUsage(AttributeTargets.Method)]
+public class AliasesAttribute : Attribute
+{
+    public AliasesAttribute(params string[] aliases) => Aliases = aliases;
+
+    public string[] Aliases { get; }
 }
 
 [AttributeUsage(AttributeTargets.Property)]
@@ -174,3 +187,9 @@ public class SerializedCommandPropertyAttribute : SerializedPropertyAttrAttribut
     public bool ReadOnly { get; }
     public bool CanModify { get; }
 }
+
+[AttributeUsage(AttributeTargets.Property)]
+public class IgnoreDupeAttribute : Attribute;
+
+[AttributeUsage(AttributeTargets.Field)]
+public class SerializedIgnoreDupeAttribute : SerializedPropertyAttrAttribute<IgnoreDupeAttribute>;

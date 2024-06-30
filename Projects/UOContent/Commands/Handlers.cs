@@ -18,53 +18,29 @@ namespace Server.Commands
 {
     public static class CommandHandlers
     {
-        public static void Initialize()
+        public static void Configure()
         {
             CommandSystem.Prefix = ServerConfiguration.GetOrUpdateSetting("commandsystem.prefix", "[");
 
             Register("Go", AccessLevel.Counselor, Go_OnCommand);
-
             Register("DropHolding", AccessLevel.Counselor, DropHolding_OnCommand);
-
             Register("GetFollowers", AccessLevel.GameMaster, GetFollowers_OnCommand);
-
-            Register("ClearFacet", AccessLevel.Administrator, ClearFacet_OnCommand);
-
             Register("Where", AccessLevel.Counselor, Where_OnCommand);
-
             Register("AutoPageNotify", AccessLevel.Counselor, APN_OnCommand);
-            Register("APN", AccessLevel.Counselor, APN_OnCommand);
-
             Register("Animate", AccessLevel.GameMaster, Animate_OnCommand);
-
             Register("Cast", AccessLevel.Counselor, Cast_OnCommand);
-
             Register("Stuck", AccessLevel.Counselor, Stuck_OnCommand);
-
             Register("Help", AccessLevel.Player, Help_OnCommand);
-
             Register("Move", AccessLevel.GameMaster, Move_OnCommand);
             Register("Client", AccessLevel.Counselor, Client_OnCommand);
-
             Register("SMsg", AccessLevel.Counselor, StaffMessage_OnCommand);
-            Register("SM", AccessLevel.Counselor, StaffMessage_OnCommand);
-            Register("S", AccessLevel.Counselor, StaffMessage_OnCommand);
-
             Register("BCast", AccessLevel.GameMaster, BroadcastMessage_OnCommand);
-            Register("BC", AccessLevel.GameMaster, BroadcastMessage_OnCommand);
-            Register("B", AccessLevel.GameMaster, BroadcastMessage_OnCommand);
-
             Register("Bank", AccessLevel.GameMaster, Bank_OnCommand);
-
             Register("Echo", AccessLevel.Counselor, Echo_OnCommand);
-
             Register("Sound", AccessLevel.GameMaster, Sound_OnCommand);
-
             Register("ViewEquip", AccessLevel.GameMaster, ViewEquip_OnCommand);
-
             Register("Light", AccessLevel.Counselor, Light_OnCommand);
             Register("Stats", AccessLevel.Counselor, Stats_OnCommand);
-
             Register("SpeedBoost", AccessLevel.Counselor, SpeedBoost_OnCommand);
         }
 
@@ -183,93 +159,6 @@ namespace Server.Commands
             {
                 from.BeginTarget(-1, false, TargetFlags.None, DropHolding_OnTarget);
                 from.SendMessage("That is not a player. Try again.");
-            }
-        }
-
-        public static void DeleteList_Callback(Mobile from, bool okay, List<IEntity> list)
-        {
-            if (okay)
-            {
-                CommandLogging.WriteLine(
-                    from,
-                    $"{from.AccessLevel} {CommandLogging.Format(from)} deleting {list.Count} object{(list.Count == 1 ? "" : "s")}"
-                );
-
-                NetState.FlushAll();
-
-                for (var i = 0; i < list.Count; ++i)
-                {
-                    list[i].Delete();
-                }
-
-                if (list.Count == 1)
-                {
-                    from.SendMessage($"You have deleted {list.Count} object.");
-                }
-                else
-                {
-                    from.SendMessage($"You have deleted {list.Count} objects.");
-                }
-            }
-            else
-            {
-                from.SendMessage("You have chosen not to delete those objects.");
-            }
-        }
-
-        [Usage("ClearFacet"),
-         Description("Deletes all items and mobiles in your facet. Players and their inventory will not be deleted.")]
-        public static void ClearFacet_OnCommand(CommandEventArgs e)
-        {
-            var from = e.Mobile;
-            var map = from.Map;
-
-            if (map == null || map == Map.Internal)
-            {
-                from.SendMessage("You may not run that command here.");
-                return;
-            }
-
-            var list = new List<IEntity>();
-
-            foreach (var item in World.Items.Values)
-            {
-                if (item.Map == map && item.Parent == null)
-                {
-                    list.Add(item);
-                }
-            }
-
-            foreach (var m in World.Mobiles.Values)
-            {
-                if (m.Map == map && !m.Player)
-                {
-                    list.Add(m);
-                }
-            }
-
-            if (list.Count > 0)
-            {
-                CommandLogging.WriteLine(
-                    from,
-                    $"{from.AccessLevel} {CommandLogging.Format(from)} starting facet clear of {map} ({list.Count} object{(list.Count == 1 ? "" : "s")})"
-                );
-
-                from.SendGump(
-                    new WarningGump(
-                        1060635,
-                        30720,
-                        $"You are about to delete {list.Count} object{(list.Count == 1 ? "" : "s")} from this facet.  Do you really wish to continue?",
-                        0xFFC000,
-                        360,
-                        260,
-                        okay => DeleteList_Callback(from, okay, list)
-                    )
-                );
-            }
-            else
-            {
-                from.SendMessage("There were no objects found to delete.");
             }
         }
 
@@ -736,14 +625,16 @@ namespace Server.Commands
             }
         }
 
-        [Usage("SMsg <text>"), Aliases("S", "SM")]
+        [Usage("SMsg <text>")]
+        [Aliases("S", "SM")]
         [Description("Broadcasts a message to all online staff.")]
         public static void StaffMessage_OnCommand(CommandEventArgs e)
         {
             BroadcastMessage(AccessLevel.Counselor, e.Mobile.SpeechHue, $"[{e.Mobile.Name}] {e.ArgString}");
         }
 
-        [Usage("BCast <text>"), Aliases("B", "BC")]
+        [Usage("BCast <text>")]
+        [Aliases("B", "BC")]
         [Description("Broadcasts a message to everyone online.")]
         public static void BroadcastMessage_OnCommand(CommandEventArgs e)
         {
@@ -753,7 +644,7 @@ namespace Server.Commands
 
         public static void BroadcastMessage(AccessLevel ac, int hue, string message)
         {
-            foreach (var state in TcpServer.Instances)
+            foreach (var state in NetState.Instances)
             {
                 var m = state.Mobile;
 
@@ -764,7 +655,8 @@ namespace Server.Commands
             }
         }
 
-        [Usage("AutoPageNotify"), Aliases("APN")]
+        [Usage("AutoPageNotify")]
+        [Aliases("APN")]
         [Description("Toggles your auto-page-notify status.")]
         public static void APN_OnCommand(CommandEventArgs e)
         {
@@ -782,8 +674,8 @@ namespace Server.Commands
             }
         }
 
-        [Usage("Animate <action> <frameCount> <repeatCount> <forward> <repeat> <delay>"),
-         Description("Makes your character do a specified animation.")]
+        [Usage("Animate <action> <frameCount> <repeatCount> <forward> <repeat> <delay>")]
+        [Description("Makes your character do a specified animation.")]
         public static void Animate_OnCommand(CommandEventArgs e)
         {
             if (e.Length == 6)
@@ -849,7 +741,7 @@ namespace Server.Commands
         [Description("View some stats about the server.")]
         public static void Stats_OnCommand(CommandEventArgs e)
         {
-            e.Mobile.SendMessage($"Open Connections: {TcpServer.Instances.Count}");
+            e.Mobile.SendMessage($"Open Connections: {NetState.Instances.Count}");
             e.Mobile.SendMessage($"Mobiles: {World.Mobiles.Count}");
             e.Mobile.SendMessage($"Items: {World.Items.Count}");
         }

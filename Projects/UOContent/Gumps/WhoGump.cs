@@ -41,14 +41,14 @@ namespace Server.Gumps
             Initialize(page);
         }
 
-        public static void Initialize()
+        public static void Configure()
         {
-            CommandSystem.Register("Who", AccessLevel.Counselor, WhoList_OnCommand);
             CommandSystem.Register("WhoList", AccessLevel.Counselor, WhoList_OnCommand);
         }
 
-        [Usage("WhoList [filter]"), Aliases("Who"),
-         Description("Lists all connected clients. Optionally filters results by name.")]
+        [Usage("WhoList [filter]")]
+        [Aliases("Who")]
+        [Description("Lists all connected clients. Optionally filters results by name.")]
         private static void WhoList_OnCommand(CommandEventArgs e)
         {
             e.Mobile.SendGump(new WhoGump(e.Mobile, e.ArgString));
@@ -60,7 +60,7 @@ namespace Server.Gumps
 
             var list = new List<Mobile>();
 
-            foreach (var ns in TcpServer.Instances)
+            foreach (var ns in NetState.Instances)
             {
                 var m = ns.Mobile;
 
@@ -210,7 +210,7 @@ namespace Server.Gumps
             }
         }
 
-        public override void OnResponse(NetState state, RelayInfo info)
+        public override void OnResponse(NetState state, in RelayInfo info)
         {
             var from = state.Mobile;
 

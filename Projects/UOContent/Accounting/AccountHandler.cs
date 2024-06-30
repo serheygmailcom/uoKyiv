@@ -1,12 +1,20 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Net;
 using Server.Accounting;
+using Server.Engines.CannedEvil;
 using Server.Engines.Help;
+using Server.Engines.PlayerMurderSystem;
+using Server.Engines.Virtues;
 using Server.Logging;
 using Server.Network;
 using Server.Regions;
+using Server.Spells.Fifth;
+using Server.Spells.First;
+using Server.Spells.Mysticism;
+using Server.Spells.Necromancy;
+using Server.Spells.Ninjitsu;
+using Server.Spells.Second;
 
 namespace Server.Misc;
 
@@ -56,18 +64,17 @@ public static class AccountHandler
             "accountHandler.enablePlayerPasswordCommand",
             false
         );
-    }
-
-    public static void Initialize()
-    {
-        EventSink.DeleteRequest += EventSink_DeleteRequest;
-        EventSink.AccountLogin += EventSink_AccountLogin;
-        EventSink.GameLogin += EventSink_GameLogin;
 
         if (PasswordCommandEnabled)
         {
             CommandSystem.Register("Password", AccessLevel.Player, Password_OnCommand);
         }
+    }
+
+    public static void Initialize()
+    {
+        EventSink.AccountLogin += EventSink_AccountLogin;
+        EventSink.GameLogin += EventSink_GameLogin;
     }
 
     [Usage("Password <newPassword> <repeatPassword>")]
@@ -136,7 +143,7 @@ public static class AccountHandler
         {
             var ipAddress = ns.Address;
 
-            if (Utility.IPMatchClassC(accessList[0], ipAddress))
+            if (accessList[0].MatchClassC(ipAddress))
             {
                 acct.SetPassword(pass);
                 from.SendMessage("The password to your account has changed.");
@@ -183,7 +190,7 @@ public static class AccountHandler
         }
     }
 
-    private static void EventSink_DeleteRequest(NetState state, int index)
+    public static void DeleteRequest(NetState state, int index)
     {
         if (state.Account is not Account acct)
         {
@@ -229,7 +236,20 @@ public static class AccountHandler
 
                 m.Delete();
 
-                EventSink.InvokePlayerDeleted(m);
+                StaminaSystem.OnPlayerDeleted(m);
+                JusticeVirtue.OnPlayerDeleted(m);
+                PlayerMurderSystem.OnPlayerDeleted(m);
+                ChampionTitleSystem.OnPlayerDeleted(m);
+
+                // Spells
+                MagicReflectSpell.EndReflect(m);
+                ReactiveArmorSpell.EndArmor(m);
+                ProtectionSpell.EndProtection(m);
+                StoneFormSpell.RemoveEffects(m);
+                AnimateDeadSpell.RemoveEffects(m);
+                SummonFamiliarSpell.RemoveEffects(m);
+                AnimalForm.RemoveLastAnimalForm(m);
+
                 state.SendCharacterListUpdate(acct);
                 return;
             }
@@ -302,19 +322,6 @@ public static class AccountHandler
 
     public static void EventSink_AccountLogin(AccountLoginEventArgs e)
     {
-        if (!IPLimiter.SocketBlock && !IPLimiter.Verify(e.State.Address))
-        {
-            e.Accepted = false;
-            e.RejectReason = ALRReason.InUse;
-
-            logger.Information("Login: {NetState}: Past IP limit threshold", e.State);
-
-            using var op = new StreamWriter("ipLimits.log", true);
-            op.WriteLine($"{e.State}\tPast IP limit threshold\t{Core.Now}");
-
-            return;
-        }
-
         var un = e.Username;
         var pw = e.Password;
 
@@ -323,7 +330,7 @@ public static class AccountHandler
         if (Accounts.GetAccount(un) is not Account acct)
         {
             // To prevent someone from making an account of just '' or a bunch of meaningless spaces
-            if (AutoAccountCreation && un.Trim().Length > 0)
+            if (AutoAccountCreation && !string.IsNullOrWhiteSpace(un))
             {
                 e.State.Account = acct = CreateAccount(e.State, un, pw);
                 e.Accepted = acct?.CheckAccess(e.State) ?? false;
@@ -362,27 +369,10 @@ public static class AccountHandler
 
             acct.LogAccess(e.State);
         }
-
-        if (!e.Accepted)
-        {
-            AccountAttackLimiter.RegisterInvalidAccess(e.State);
-        }
     }
 
     public static void EventSink_GameLogin(GameLoginEventArgs e)
     {
-        if (!IPLimiter.SocketBlock && !IPLimiter.Verify(e.State.Address))
-        {
-            e.Accepted = false;
-
-            logger.Warning("Login: {NetState} Past IP limit threshold", e.State);
-
-            using var op = new StreamWriter("ipLimits.log", true);
-            op.WriteLine($"{e.State}\tPast IP limit threshold\t{Core.Now}");
-
-            return;
-        }
-
         var un = e.Username;
         var pw = e.Password;
 
@@ -412,12 +402,7 @@ public static class AccountHandler
             logger.Information("Login: {NetState} Account '{Username}' at character list", e.State, un);
             e.State.Account = acct;
             e.Accepted = true;
-            e.CityInfo = CharacterCreation.GetStartingCities(acct.Young);
-        }
-
-        if (!e.Accepted)
-        {
-            AccountAttackLimiter.RegisterInvalidAccess(e.State);
+            e.CityInfo = CharacterCreation.GetStartingCities();
         }
     }
 

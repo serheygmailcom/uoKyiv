@@ -80,7 +80,7 @@ public class GlobalTownCrierEntryList : ITownCrierEntryList
         }
     }
 
-    public static void Initialize()
+    public static void Configure()
     {
         CommandSystem.Register("TownCriers", AccessLevel.GameMaster, TownCriers_OnCommand);
     }
@@ -268,7 +268,7 @@ public class TownCrierGump : Gump
         }
     }
 
-    public override void OnResponse(NetState sender, RelayInfo info)
+    public override void OnResponse(NetState sender, in RelayInfo info)
     {
         if (info.ButtonID == 1)
         {

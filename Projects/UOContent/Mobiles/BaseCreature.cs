@@ -67,11 +67,13 @@ namespace Server.Mobiles
     {
         None = 0x0000,
         Meat = 0x0001,
-        FruitsAndVegies = 0x0002,
+        FruitsAndVeggies = 0x0002,
         GrainsAndHay = 0x0004,
         Fish = 0x0008,
         Eggs = 0x0010,
-        Gold = 0x0020
+        Gold = 0x0020,
+        Leather = 0x0040,
+        Metal = 0x0080
     }
 
     [Flags]
@@ -173,6 +175,8 @@ namespace Server.Mobiles
         }
 
         public const int MaxLoyalty = 100;
+        public const int LoyaltyIncreasePerFood = 10;
+        public const int MaxLoyaltyIncrease = MaxLoyalty / LoyaltyIncreasePerFood;
 
         public const int MaxOwners = 5;
 
@@ -203,22 +207,22 @@ namespace Server.Mobiles
         private static readonly bool EnableRummaging = true;
         public static readonly TimeSpan ShoutDelay = TimeSpan.FromMinutes(1);
 
-        private static readonly Type[] m_Eggs =
+        private static readonly Type[] _eggs =
         {
             typeof(FriedEggs), typeof(Eggs)
         };
 
-        private static readonly Type[] m_Fish =
+        private static readonly Type[] _fish =
         {
             typeof(FishSteak), typeof(RawFishSteak)
         };
 
-        private static readonly Type[] m_GrainsAndHay =
+        private static readonly Type[] _grainsAndHay =
         {
             typeof(BreadLoaf), typeof(FrenchBread), typeof(SheafOfHay)
         };
 
-        private static readonly Type[] m_Meat =
+        private static readonly Type[] _meat =
         {
             /* Cooked */
             typeof(Bacon), typeof(CookedBird), typeof(Sausage),
@@ -234,7 +238,7 @@ namespace Server.Mobiles
             typeof(Torso), typeof(RightArm), typeof(RightLeg)
         };
 
-        private static readonly Type[] m_FruitsAndVegies =
+        private static readonly Type[] _fruitsAndVeggies =
         {
             typeof(HoneydewMelon), typeof(YellowGourd), typeof(GreenGourd),
             typeof(Banana), typeof(Bananas), typeof(Lemon), typeof(Lime),
@@ -244,10 +248,29 @@ namespace Server.Mobiles
             typeof(Onion), typeof(Lettuce), typeof(Pumpkin)
         };
 
-        private static readonly Type[] m_Gold =
+        private static readonly Type[] _gold =
         {
             // white wyrms eat gold..
             typeof(Gold)
+        };
+
+        private static readonly Type[] _metal =
+        {
+            // Materials
+            typeof(BaseIngot), typeof(BaseOre),
+
+            // Containers
+            typeof(MetalChest), typeof(MetalGoldenChest), typeof(MetalBox),
+
+            // Crafting
+            typeof(Gears), typeof(Saw), typeof(Axle), typeof(AxleGears),
+            typeof(ClockParts), typeof(Hinge), typeof(Springs), typeof(Spyglass),
+            typeof(Fork), typeof(ForkLeft), typeof(ForkRight), typeof(Spoon),
+            typeof(SpoonLeft), typeof(SpoonRight), typeof(Knife), typeof(KnifeLeft),
+            typeof(KnifeRight), typeof(DrawKnife), typeof(Hammer), typeof(Froe), typeof(Inshave),
+            typeof(Nails), typeof(RunicDovetailSaw), typeof(RunicHammer), typeof(Skillet),
+            typeof(SledgeHammer), typeof(Tongs), typeof(TinkerTools), typeof(SmithHammer),
+            typeof(AncientSmithyHammer), typeof(Scorp)
         };
 
         private bool _summoned;
@@ -261,7 +284,14 @@ namespace Server.Mobiles
 
         private AIType m_CurrentAI; // The current AI
 
-        private double m_CurrentSpeed; // The current speed, lets say it could be changed by something;
+        private double _activeSpeed;
+        private double _passiveSpeed;
+        private double _currentSpeed;
+
+        // Herding - Overrides the AI to force the mob to move to a specific location
+        // Thinking: 0.3s, Movement: 0.6s.
+        private IPoint2D _targetLocation;
+
         private int m_DamageMax = -1;
 
         private int m_DamageMin = -1;
@@ -456,7 +486,7 @@ namespace Server.Mobiles
             }
         }
 
-        public virtual bool HasManaOveride => false;
+        public virtual bool HasManaOverride => false;
 
         public virtual FoodType FavoriteFood => FoodType.Meat;
         public virtual PackInstinct PackInstinct => PackInstinct.None;
@@ -540,9 +570,6 @@ namespace Server.Mobiles
 
         [CommandProperty(AccessLevel.GameMaster)]
         public WayPoint CurrentWayPoint { get; set; }
-
-        [CommandProperty(AccessLevel.GameMaster)]
-        public IPoint2D TargetLocation { get; set; }
 
         public virtual Mobile ConstantFocus => null;
 
@@ -660,31 +687,59 @@ namespace Server.Mobiles
         public int RangeHome { get; set; } = 10;
 
         [CommandProperty(AccessLevel.GameMaster)]
-        public double ActiveSpeed { get; set; }
+        public virtual double ActiveSpeed
+        {
+            get => _activeSpeed;
+            set
+            {
+                if (Math.Abs(_activeSpeed - value) > .0001)
+                {
+                    _activeSpeed = value;
+                }
+            }
+        }
 
         [CommandProperty(AccessLevel.GameMaster)]
-        public double PassiveSpeed { get; set; }
+        public virtual double PassiveSpeed
+        {
+            get => _passiveSpeed;
+            set
+            {
+                _passiveSpeed = value;
+                if (Math.Abs(_passiveSpeed - value) > .0001)
+                {
+                    _passiveSpeed = value;
+                }
+            }
+        }
 
         [CommandProperty(AccessLevel.GameMaster)]
-        public double SpeedMod { get; set; }
+        public IPoint2D TargetLocation
+        {
+            get => _targetLocation;
+            set
+            {
+                _targetLocation = value;
+                AIObject?.OnCurrentSpeedChanged();
+            }
+        }
 
         [CommandProperty(AccessLevel.GameMaster)]
         public double CurrentSpeed
         {
-            get => TargetLocation != null ? 0.3 : SpeedMod <= 0 ? m_CurrentSpeed : SpeedMod;
+            get => _targetLocation != null ? 0.3 : _currentSpeed;
             set
             {
-                if (m_CurrentSpeed != value)
+                if (Math.Abs(_currentSpeed - value) > 0.0001)
                 {
-                    m_CurrentSpeed = value;
-
-                    if (SpeedMod <= 0)
-                    {
-                        AIObject?.OnCurrentSpeedChanged();
-                    }
+                    _currentSpeed = value;
+                    AIObject?.OnCurrentSpeedChanged();
                 }
             }
         }
+
+        [CommandProperty(AccessLevel.GameMaster)]
+        public double MoveSpeedMod { get; set; }
 
         [CommandProperty(AccessLevel.GameMaster)]
         public Point3D Home
@@ -1795,9 +1850,9 @@ namespace Server.Mobiles
 
             writer.Write(m_Team);
 
-            writer.Write(ActiveSpeed);
-            writer.Write(PassiveSpeed);
-            writer.Write(m_CurrentSpeed);
+            writer.Write(_activeSpeed);
+            writer.Write(_passiveSpeed);
+            writer.Write(_currentSpeed);
 
             writer.Write(m_Home.X);
             writer.Write(m_Home.Y);
@@ -1921,9 +1976,9 @@ namespace Server.Mobiles
 
             m_Team = reader.ReadInt();
 
-            ActiveSpeed = reader.ReadDouble();
-            PassiveSpeed = reader.ReadDouble();
-            m_CurrentSpeed = reader.ReadDouble();
+            _activeSpeed = reader.ReadDouble();
+            _passiveSpeed = reader.ReadDouble();
+            _currentSpeed = reader.ReadDouble();
 
             if (RangePerception == OldRangePerception)
             {
@@ -2340,13 +2395,17 @@ namespace Server.Mobiles
                 AnimateDeadSpell.Unregister(m_SummonMaster, this);
             }
 
+            if (Summoned && SummonMaster != null)
+            {
+                SummonFamiliarSpell.Unregister(SummonMaster, this);
+            }
+
             if (MLQuestSystem.Enabled)
             {
                 MLQuestSystem.HandleDeletion(this);
             }
 
             UnsummonTimer.StopTimer(this);
-
             StaminaSystem.RemoveEntry(this as IHasSteps);
 
             base.OnAfterDelete();
@@ -3527,7 +3586,6 @@ namespace Server.Mobiles
 
             creature.RangeHome = 10;
             creature.Summoned = true;
-
             creature.SummonMaster = caster;
 
             var pack = creature.Backpack;
@@ -4121,118 +4179,181 @@ namespace Server.Mobiles
         }
 
         public virtual bool CheckFoodPreference(Item f) =>
-            CheckFoodPreference(f, FoodType.Eggs, m_Eggs) ||
-            CheckFoodPreference(f, FoodType.Fish, m_Fish) ||
-            CheckFoodPreference(f, FoodType.GrainsAndHay, m_GrainsAndHay) ||
-            CheckFoodPreference(f, FoodType.Meat, m_Meat) ||
-            CheckFoodPreference(f, FoodType.FruitsAndVegies, m_FruitsAndVegies) ||
-            CheckFoodPreference(f, FoodType.Gold, m_Gold);
+            CheckFoodPreference(f, FoodType.Eggs) ||
+            CheckFoodPreference(f, FoodType.Fish) ||
+            CheckFoodPreference(f, FoodType.GrainsAndHay) ||
+            CheckFoodPreference(f, FoodType.Meat) ||
+            CheckFoodPreference(f, FoodType.FruitsAndVeggies) ||
+            CheckFoodPreference(f, FoodType.Gold) ||
+            CheckFoodPreference(f, FoodType.Metal) ||
+            CheckFoodPreference(f, FoodType.Leather);
 
-        public virtual bool CheckFoodPreference(Item fed, FoodType type, Type[] types)
+        private bool CheckFoodPreference(Item fed, FoodType type)
         {
             if ((FavoriteFood & type) == 0)
             {
                 return false;
             }
 
-            var fedType = fed.GetType();
-            var contains = false;
-
-            for (var i = 0; !contains && i < types.Length; ++i)
+            // Goat special case
+            if (type == FoodType.Leather)
             {
-                contains = fedType == types[i];
+                if (fed is BaseLeather or Bag or Pouch or Server.Items.Backpack or StrongBackpack)
+                {
+                    return true;
+                }
+
+                if (fed is BaseArmor armor)
+                {
+                    return armor.MaterialType
+                        is ArmorMaterialType.Leather
+                        or ArmorMaterialType.Studded
+                        or ArmorMaterialType.Spined
+                        or ArmorMaterialType.Horned
+                        or ArmorMaterialType.Barbed;
+                }
+
+                CraftResource craftResource;
+                if (fed is BaseWeapon weapon)
+                {
+                    craftResource = weapon.Resource;
+                }
+                else if (fed is BaseClothing clothing)
+                {
+                    craftResource = clothing.Resource;
+                }
+                else
+                {
+                    return false;
+                }
+
+                return CraftResources.GetType(craftResource) == CraftResourceType.Leather;
             }
 
-            return contains;
+            if (type == FoodType.Metal)
+            {
+                if (fed is BaseArmor armor)
+                {
+                    return armor.MaterialType
+                        is ArmorMaterialType.Ringmail
+                        or ArmorMaterialType.Chainmail
+                        or ArmorMaterialType.Plate;
+                }
+
+                CraftResource craftResource;
+                if (fed is BaseWeapon weapon)
+                {
+                    craftResource = weapon.Resource;
+                }
+                else if (fed is BaseClothing clothing)
+                {
+                    craftResource = clothing.Resource;
+                }
+                else
+                {
+                    return fed.GetType().InTypeList(_metal);
+                }
+
+                return CraftResources.GetType(craftResource) == CraftResourceType.Metal;
+            }
+
+            var types = type switch
+            {
+                FoodType.Eggs             => _eggs,
+                FoodType.Fish             => _fish,
+                FoodType.GrainsAndHay     => _grainsAndHay,
+                FoodType.Meat             => _meat,
+                FoodType.FruitsAndVeggies => _fruitsAndVeggies,
+                FoodType.Gold             => _gold,
+            };
+
+            return fed.GetType().InTypeList(types);
         }
 
         public virtual bool CheckFeed(Mobile from, Item dropped)
         {
-            if (!IsDeadPet && Controlled && (ControlMaster == from || IsPetFriend(from)))
+            if (IsDeadPet || !Controlled || ControlMaster != from && !IsPetFriend(from))
             {
-                if (CheckFoodPreference(dropped))
+                return false;
+            }
+
+            if (!CheckFoodPreference(dropped))
+            {
+                PrivateOverheadMessage(MessageType.Regular, 0x3B2, 1043257, from.NetState); // The animal shies away.
+                return false;
+            }
+
+            var amount = dropped.Amount;
+
+            if (amount > 0)
+            {
+                int stamGain = dropped switch
                 {
-                    var amount = dropped.Amount;
+                    Gold => amount - 50,
+                    _    => amount * 15 - 50
+                };
 
-                    if (amount > 0)
+                if (stamGain > 0)
+                {
+                    Stam += stamGain;
+
+                    // 61 food = 3,840 steps
+                    StaminaSystem.RegenSteps(this as IHasSteps, stamGain * 4);
+                }
+
+                if (Core.SE)
+                {
+                    m_Loyalty = MaxLoyalty;
+                }
+                else if (m_Loyalty < MaxLoyalty)
+                {
+                    // 50% chance to increase 10 loyalty per food
+                    m_Loyalty = Math.Min(MaxLoyalty, Utility.CoinFlips(amount, MaxLoyaltyIncrease) * 10);
+                }
+
+                // looks like in OSI pets say they are happier even if they are at maximum loyalty
+                SayTo(from, 502060); // Your pet looks happier.
+
+                if (Body.IsAnimal)
+                {
+                    Animate(3, 5, 1, true, false, 0);
+                }
+                else if (Body.IsMonster)
+                {
+                    Animate(17, 5, 1, true, false, 0);
+                }
+
+                if (IsBondable && !IsBonded)
+                {
+                    var master = m_ControlMaster;
+
+                    if (master != null && master == from) // So friends can't start the bonding process
                     {
-                        int stamGain = dropped switch
+                        if (MinTameSkill <= 29.1 || master.Skills.AnimalTaming.Base >= MinTameSkill ||
+                            OverrideBondingReqs() ||
+                            Core.ML && master.Skills.AnimalTaming.Value >= MinTameSkill)
                         {
-                            Gold => amount - 50,
-                            _    => amount * 15 - 50
-                        };
-
-                        if (stamGain > 0)
-                        {
-                            Stam += stamGain;
-                            // 64 food = 3,640 steps
-                            StaminaSystem.RegenSteps(this as IHasSteps, stamGain * 4);
-                        }
-
-                        if (Core.SE)
-                        {
-                            if (m_Loyalty < MaxLoyalty)
+                            if (BondingBegin == DateTime.MinValue)
                             {
-                                m_Loyalty = MaxLoyalty;
+                                BondingBegin = Core.Now;
+                            }
+                            else if (BondingBegin + BondingDelay <= Core.Now)
+                            {
+                                IsBonded = true;
+                                BondingBegin = DateTime.MinValue;
+                                from.SendLocalizedMessage(1049666); // Your pet has bonded with you!
                             }
                         }
-                        else
+                        else if (Core.ML)
                         {
-                            for (var i = 0; i < amount; ++i)
-                            {
-                                if (m_Loyalty < MaxLoyalty && Utility.RandomBool())
-                                {
-                                    m_Loyalty += 10;
-                                }
-                            }
+                            // Your pet cannot form a bond with you until your animal taming ability has risen.
+                            from.SendLocalizedMessage(1075268);
                         }
-
-                        /* if (happier )*/
-                        // looks like in OSI pets say they are happier even if they are at maximum loyalty
-                        SayTo(from, 502060); // Your pet looks happier.
-
-                        if (Body.IsAnimal)
-                        {
-                            Animate(3, 5, 1, true, false, 0);
-                        }
-                        else if (Body.IsMonster)
-                        {
-                            Animate(17, 5, 1, true, false, 0);
-                        }
-
-                        if (IsBondable && !IsBonded)
-                        {
-                            var master = m_ControlMaster;
-
-                            if (master != null && master == from) // So friends can't start the bonding process
-                            {
-                                if (MinTameSkill <= 29.1 || master.Skills.AnimalTaming.Base >= MinTameSkill ||
-                                    OverrideBondingReqs() ||
-                                    Core.ML && master.Skills.AnimalTaming.Value >= MinTameSkill)
-                                {
-                                    if (BondingBegin == DateTime.MinValue)
-                                    {
-                                        BondingBegin = Core.Now;
-                                    }
-                                    else if (BondingBegin + BondingDelay <= Core.Now)
-                                    {
-                                        IsBonded = true;
-                                        BondingBegin = DateTime.MinValue;
-                                        from.SendLocalizedMessage(1049666); // Your pet has bonded with you!
-                                    }
-                                }
-                                else if (Core.ML)
-                                {
-                                    // Your pet cannot form a bond with you until your animal taming ability has risen.
-                                    from.SendLocalizedMessage(1075268);
-                                }
-                            }
-                        }
-
-                        dropped.Delete();
-                        return true;
                     }
                 }
+
+                dropped.Delete();
+                return true;
             }
 
             return false;
@@ -4478,12 +4599,18 @@ namespace Server.Mobiles
             return false;
         }
 
-        public void SetSpeed(double active, double passive)
+        public void SetSpeed(double active, double passive, bool isPassive = true)
         {
             ActiveSpeed = active;
             PassiveSpeed = passive;
-            CurrentSpeed = PassiveSpeed;
+            CurrentSpeed = isPassive ? PassiveSpeed : ActiveSpeed;
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void SetCurrentSpeedToActive() => CurrentSpeed = ActiveSpeed;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void SetCurrentSpeedToPassive() => CurrentSpeed = PassiveSpeed;
 
         public void SetDamage(int val)
         {

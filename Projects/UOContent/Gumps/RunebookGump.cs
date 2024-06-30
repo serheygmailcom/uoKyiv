@@ -1,3 +1,4 @@
+using System;
 using Server.Items;
 using Server.Multis;
 using Server.Network;
@@ -228,7 +229,7 @@ namespace Server.Gumps
 
         public static bool HasSpell(Mobile from, int spellID) => Spellbook.Find(from, spellID)?.HasSpell(spellID) == true;
 
-        public override void OnResponse(NetState state, RelayInfo info)
+        public override void OnResponse(NetState state, in RelayInfo info)
         {
             var from = state.Mobile;
 
@@ -480,7 +481,7 @@ namespace Server.Gumps
 
                 if (m_Book.CheckAccess(from))
                 {
-                    m_Book.Description = Utility.FixHtml(text.Trim());
+                    m_Book.Description = text.AsSpan().Trim().FixHtml();
 
                     from.CloseGump<RunebookGump>();
                     from.SendGump(new RunebookGump(from, m_Book));

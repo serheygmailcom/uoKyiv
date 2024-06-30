@@ -51,8 +51,6 @@ namespace Server.Misc
 
         public static void Initialize()
         {
-            EventSink.ClientVersionReceived += EventSink_ClientVersionReceived;
-
             if (MinRequired == null && MaxRequired == null)
             {
                 MinRequired = UOClient.ServerClientVersion;
@@ -117,7 +115,7 @@ namespace Server.Misc
             return builder.ToString();
         }
 
-        private static void EventSink_ClientVersionReceived(NetState state, ClientVersion version)
+        public static void ClientVersionReceived(NetState state, ClientVersion version)
         {
             var sb = ValueStringBuilder.Create();
 
@@ -220,7 +218,7 @@ namespace Server.Misc
             }
         }
 
-        private static void KickMessage(Mobile from, bool okay)
+        private static void KickMessage(Mobile from)
         {
             from.SendMessage("You will be reminded of this again.");
 
@@ -238,23 +236,7 @@ namespace Server.Misc
         {
             if (m.NetState != null)
             {
-                Gump g = new WarningGump(
-                    1060637,
-                    30720,
-                    $"Your client is invalid.<br>This server recommends that your client version is {GetVersionExpression()}.<br> <br>You are currently using version {m.NetState.Version}.",
-                    0xFFC000,
-                    480,
-                    360,
-                    okay => KickMessage(m, okay),
-                    false
-                )
-                {
-                    Draggable = false,
-                    Closable = false,
-                    Resizable = false,
-                };
-
-                m.SendGump(g);
+                m.SendGump(new AnnoyGump(m.NetState.Version, () => KickMessage(m)));
             }
         }
 
@@ -265,6 +247,26 @@ namespace Server.Misc
             Annoy,
             LenientKick,
             Kick
+        }
+
+        private class AnnoyGump : StaticNoticeGump<AnnoyGump>
+        {
+            public override int Width => 480;
+            public override int Height => 360;
+
+            public override string Content { get; }
+
+            public AnnoyGump(ClientVersion version, Action callback) : base(callback) =>
+                Content = $"Your client is invalid.<br>This server recommends that your client version is {GetVersionExpression()}.<br><br>You are currently using version {version}.";
+
+            protected override void BuildLayout(ref StaticGumpBuilder builder)
+            {
+                builder.SetNoDispose();
+                builder.SetNoResize();
+                builder.SetNoMove();
+
+                base.BuildLayout(ref builder);
+            }
         }
     }
 }

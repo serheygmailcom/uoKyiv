@@ -4,8 +4,6 @@ using System.Linq;
 using System.Reflection;
 using Server.Commands.Generic;
 using Server.Network;
-using CPA = Server.CommandPropertyAttribute;
-
 using static Server.Types;
 using static Server.Attributes;
 using static Server.Gumps.PropsConfig;
@@ -170,7 +168,7 @@ namespace Server.Gumps
                     y,
                     emptyWidth,
                     EntryHeight,
-                    $"<BASEFONT COLOR=#FAFAFA><CENTER>{m_Type.Name}</CENTER></BASEFONT>"
+                    m_Type.Name.Center(0xFAFAFA)
                 );
             }
 
@@ -237,7 +235,7 @@ namespace Server.Gumps
             }
         }
 
-        public override void OnResponse(NetState state, RelayInfo info)
+        public override void OnResponse(NetState state, in RelayInfo info)
         {
             var from = state.Mobile;
 

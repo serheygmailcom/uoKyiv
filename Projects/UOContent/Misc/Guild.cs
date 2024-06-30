@@ -386,7 +386,7 @@ namespace Server.Guilds
             ) =>
                 new AllianceRosterGump(pm, g, m_Alliance, comparer, ascending, filter, startNumber);
 
-            public override void OnResponse(NetState sender, RelayInfo info)
+            public override void OnResponse(NetState sender, in RelayInfo info)
             {
                 if (info.ButtonID != 8) // So that they can't get to the AdvancedSearch button
                 {
@@ -772,8 +772,6 @@ namespace Server.Guilds
 
         public static void Configure()
         {
-            EventSink.GuildGumpRequest += EventSink_GuildGumpRequest;
-
             CommandSystem.Register("GuildProps", AccessLevel.Counselor, GuildProps_OnCommand);
         }
 
@@ -915,7 +913,7 @@ namespace Server.Guilds
             }
         }
 
-        public static void EventSink_GuildGumpRequest(Mobile m)
+        public static void GuildGumpRequest(Mobile m)
         {
             if (!NewGuildSystem || m is not PlayerMobile pm)
             {

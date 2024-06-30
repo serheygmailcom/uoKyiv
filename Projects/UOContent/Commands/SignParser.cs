@@ -9,9 +9,9 @@ namespace Server.Commands
 {
     public static class SignParser
     {
-        public static void Initialize()
+        public static void Configure()
         {
-            CommandSystem.Register("SignGen", AccessLevel.Administrator, SignGen_OnCommand);
+            CommandSystem.Register("SignGen", AccessLevel.Developer, SignGen_OnCommand);
         }
 
         [Usage("SignGen")]
@@ -91,7 +91,7 @@ namespace Server.Commands
         public static void Add_Static(int itemID, Point3D location, Map map, string name)
         {
             using var queue = PooledRefQueue<Item>.Create();
-            foreach (var item in map.GetItemsInRange(location, 0))
+            foreach (var item in map.GetItemsAt(location))
             {
                 if (item is Sign && item.Z == location.Z && item.ItemID == itemID)
                 {

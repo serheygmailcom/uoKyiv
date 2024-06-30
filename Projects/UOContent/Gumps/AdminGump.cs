@@ -36,7 +36,6 @@ namespace Server.Gumps
         AccountDetails_Characters,
         AccountDetails_Access,
         AccountDetails_Access_ClientIPs,
-        AccountDetails_Access_Restrictions,
         AccountDetails_Comments,
         AccountDetails_Tags,
         AccountDetails_ChangePassword,
@@ -132,7 +131,6 @@ namespace Server.Gumps
                 AdminGumpPage.AccountDetails_Characters,
                 AdminGumpPage.AccountDetails_Access,
                 AdminGumpPage.AccountDetails_Access_ClientIPs,
-                AdminGumpPage.AccountDetails_Access_Restrictions,
                 AdminGumpPage.AccountDetails_Comments,
                 AdminGumpPage.AccountDetails_Tags,
                 AdminGumpPage.AccountDetails_ChangeAccess,
@@ -142,7 +140,7 @@ namespace Server.Gumps
 
             if (notice != null)
             {
-                AddHtml(12, 392, 396, 36, Color(notice, LabelColor32));
+                AddHtml(12, 392, 396, 36, notice.Color(LabelColor32));
             }
 
             switch (pageType)
@@ -171,10 +169,10 @@ namespace Server.Gumps
                         AddLabel(150, 150, LabelHue, banned.ToString());
 
                         AddLabel(20, 170, LabelHue, "Firewalled:");
-                        AddLabel(150, 170, LabelHue, Firewall.Set.Count.ToString());
+                        AddLabel(150, 170, LabelHue, AdminFirewall.Set.Count.ToString());
 
                         AddLabel(20, 190, LabelHue, "Clients:");
-                        AddLabel(150, 190, LabelHue, TcpServer.Instances.Count.ToString());
+                        AddLabel(150, 190, LabelHue, NetState.Instances.Count.ToString());
 
                         AddLabel(20, 210, LabelHue, "Mobiles:");
                         AddLabel(150, 210, LabelHue, World.Mobiles.Count.ToString());
@@ -259,22 +257,34 @@ namespace Server.Gumps
                     }
                 case AdminGumpPage.Administer_WorldBuilding:
                     {
-                        AddHtml(10, 125, 400, 20, Color(Center("Generating"), LabelColor32));
+                        AddHtml(10, 125, 400, 20, "Generating".Center(LabelColor32));
 
                         AddButtonLabeled(20, 175, GetButtonID(3, 101), "Teleporters");
                         AddButtonLabeled(220, 175, GetButtonID(3, 102), "Moongates");
 
-                        AddButtonLabeled(20, 200, GetButtonID(3, 103), "Generate Spawns");
-                        AddButtonLabeled(220, 200, GetButtonID(3, 106), "Decoration");
+                        AddButtonLabeled(20, 200, GetButtonID(3, 103), "Spawners");
+                        AddButtonLabeled(220, 200, GetButtonID(3, 106), "Decorations");
 
                         AddButtonLabeled(20, 225, GetButtonID(3, 104), "Doors");
                         AddButtonLabeled(220, 225, GetButtonID(3, 105), "Signs");
+
+                        AddButtonLabeled(20, 250, GetButtonID(3, 107), "Champions");
+                        AddButtonLabeled(220, 250, GetButtonID(3, 108), "Magincia (AOS+)");
+
+                        AddButtonLabeled(20, 275, GetButtonID(3, 109), "Stealable Artifacts");
+                        AddButtonLabeled(220, 275, GetButtonID(3, 110), "SH Teleporters");
+
+                        AddButtonLabeled(20, 300, GetButtonID(3, 111), "Secret Locations");
+                        AddButtonLabeled(220, 300, GetButtonID(3, 112), "Doom");
+
+                        AddButtonLabeled(20, 325, GetButtonID(3, 113), "Khaldun Puzzles");
+                        AddButtonLabeled(220, 325, GetButtonID(3, 114), "Do everything");
 
                         goto case AdminGumpPage.Administer;
                     }
                 case AdminGumpPage.Administer_Server:
                     {
-                        AddHtml(10, 125, 400, 20, Color(Center("Server"), LabelColor32));
+                        AddHtml(10, 125, 400, 20, "Server".Center(LabelColor32));
 
                         AddButtonLabeled(20, 150, GetButtonID(3, 200), "Save");
 
@@ -291,7 +301,7 @@ namespace Server.Gumps
                           AddLabel( 20, 215, LabelHue, "Shutdown/Restart not available." );
                         }*/
 
-                        AddHtml(10, 295, 400, 20, Color(Center("Broadcast"), LabelColor32));
+                        AddHtml(10, 295, 400, 20, "Broadcast".Center(LabelColor32));
 
                         AddTextField(20, 320, 380, 20, 0);
                         AddButtonLabeled(20, 350, GetButtonID(3, 210), "To Everyone");
@@ -301,15 +311,14 @@ namespace Server.Gumps
                     }
                 case AdminGumpPage.Administer_Access_Lockdown:
                     {
-                        AddHtml(10, 125, 400, 20, Color(Center("Server Lockdown"), LabelColor32));
+                        AddHtml(10, 125, 400, 20, "Server Lockdown".Center(LabelColor32));
 
                         AddHtml(
                             20,
                             150,
                             380,
                             80,
-                            Color(
-                                "When enabled, only clients with an access level equal to or greater than the specified lockdown level may access the server. After setting a lockdown level, use the <em>Purge Invalid Clients</em> button to disconnect those clients without access.",
+                            "When enabled, only clients with an access level equal to or greater than the specified lockdown level may access the server. After setting a lockdown level, use the <em>Purge Invalid Clients</em> button to disconnect those clients without access.".Color(
                                 LabelColor32
                             )
                         );
@@ -347,9 +356,9 @@ namespace Server.Gumps
                     }
                 case AdminGumpPage.Administer_Access:
                     {
-                        AddHtml(10, 125, 400, 20, Color(Center("Access"), LabelColor32));
+                        AddHtml(10, 125, 400, 20, "Access".Center(LabelColor32));
 
-                        AddHtml(10, 155, 400, 20, Color(Center("Connectivity"), LabelColor32));
+                        AddHtml(10, 155, 400, 20, "Connectivity".Center(LabelColor32));
 
                         AddButtonLabeled(20, 180, GetButtonID(3, 300), "Kick");
                         AddButtonLabeled(220, 180, GetButtonID(3, 301), "Ban");
@@ -357,7 +366,7 @@ namespace Server.Gumps
                         AddButtonLabeled(20, 210, GetButtonID(3, 302), "Firewall");
                         AddButtonLabeled(220, 210, GetButtonID(3, 303), "Lockdown");
 
-                        AddHtml(10, 245, 400, 20, Color(Center("Staff"), LabelColor32));
+                        AddHtml(10, 245, 400, 20, "Staff".Center(LabelColor32));
 
                         AddButtonLabeled(20, 270, GetButtonID(3, 310), "Make Player");
                         AddButtonLabeled(20, 290, GetButtonID(3, 311), "Make Counselor");
@@ -383,7 +392,7 @@ namespace Server.Gumps
                     }
                 case AdminGumpPage.Administer_Commands:
                     {
-                        AddHtml(10, 125, 400, 20, Color(Center("Commands"), LabelColor32));
+                        AddHtml(10, 125, 400, 20, "Commands".Center(LabelColor32));
 
                         AddButtonLabeled(20, 150, GetButtonID(3, 400), "Add");
                         AddButtonLabeled(220, 150, GetButtonID(3, 401), "Remove");
@@ -399,9 +408,6 @@ namespace Server.Gumps
 
                         AddButtonLabeled(20, 250, GetButtonID(3, 408), "Squelch");
                         AddButtonLabeled(220, 250, GetButtonID(3, 409), "Unsquelch");
-
-                        AddButtonLabeled(20, 270, GetButtonID(3, 410), "Freeze");
-                        AddButtonLabeled(220, 270, GetButtonID(3, 411), "Unfreeze");
 
                         AddButtonLabeled(20, 290, GetButtonID(3, 412), "Hide");
                         AddButtonLabeled(220, 290, GetButtonID(3, 413), "Unhide");
@@ -437,7 +443,7 @@ namespace Server.Gumps
                     {
                         if (m_List == null)
                         {
-                            var states = TcpServer.Instances.ToList();
+                            var states = NetState.Instances.ToList();
                             states.Sort(NetStateComparer.Instance);
 
                             m_List = states.ToList<object>();
@@ -524,7 +530,7 @@ namespace Server.Gumps
 
                         AddClientHeader();
 
-                        AddHtml(10, 125, 400, 20, Color(Center("Information"), LabelColor32));
+                        AddHtml(10, 125, 400, 20, "Information".Center(LabelColor32));
 
                         var y = 146;
 
@@ -794,8 +800,7 @@ namespace Server.Gumps
                             GetButtonID(5, 13),
                             "Access",
                             AdminGumpPage.AccountDetails_Access,
-                            AdminGumpPage.AccountDetails_Access_ClientIPs,
-                            AdminGumpPage.AccountDetails_Access_Restrictions
+                            AdminGumpPage.AccountDetails_Access_ClientIPs
                         );
                         AddPageButton(190, 70, GetButtonID(5, 2), "Comments", AdminGumpPage.AccountDetails_Comments);
                         AddPageButton(190, 90, GetButtonID(5, 3), "Tags", AdminGumpPage.AccountDetails_Tags);
@@ -808,7 +813,7 @@ namespace Server.Gumps
                             break;
                         }
 
-                        AddHtml(10, 125, 400, 20, Color(Center("Change Password"), LabelColor32));
+                        AddHtml(10, 125, 400, 20, "Change Password".Center(LabelColor32));
 
                         AddLabel(20, 150, LabelHue, "Username:");
                         AddLabel(200, 150, LabelHue, a.Username);
@@ -830,7 +835,7 @@ namespace Server.Gumps
                             break;
                         }
 
-                        AddHtml(10, 125, 400, 20, Color(Center("Change Access Level"), LabelColor32));
+                        AddHtml(10, 125, 400, 20, "Change Access Level".Center(LabelColor32));
 
                         AddLabel(20, 150, LabelHue, "Username:");
                         AddLabel(200, 150, LabelHue, a.Username);
@@ -877,7 +882,7 @@ namespace Server.Gumps
                             }
                         }
 
-                        AddHtml(10, 125, 400, 20, Color(Center("Information"), LabelColor32));
+                        AddHtml(10, 125, 400, 20, "Information".Center(LabelColor32));
 
                         AddLabel(20, 150, LabelHue, "Username:");
                         AddLabel(200, 150, LabelHue, a.Username);
@@ -952,7 +957,7 @@ namespace Server.Gumps
                             break;
                         }
 
-                        AddHtml(10, 125, 400, 20, Color(Center("Access"), LabelColor32));
+                        AddHtml(10, 125, 400, 20, "Access".Center(LabelColor32));
 
                         AddPageButton(
                             20,
@@ -960,13 +965,6 @@ namespace Server.Gumps
                             GetButtonID(5, 14),
                             "View client addresses",
                             AdminGumpPage.AccountDetails_Access_ClientIPs
-                        );
-                        AddPageButton(
-                            20,
-                            170,
-                            GetButtonID(5, 15),
-                            "Manage restrictions",
-                            AdminGumpPage.AccountDetails_Access_Restrictions
                         );
 
                         goto case AdminGumpPage.AccountDetails;
@@ -980,7 +978,7 @@ namespace Server.Gumps
 
                         m_List ??= a.LoginIPs.ToList<object>();
 
-                        AddHtml(10, 195, 400, 20, Color(Center("Client Addresses"), LabelColor32));
+                        AddHtml(10, 195, 400, 20, "Client Addresses".Center(LabelColor32));
 
                         AddButtonLabeled(227, 225, GetButtonID(5, 16), "View all shared accounts");
                         AddButtonLabeled(227, 245, GetButtonID(5, 17), "Ban all shared accounts");
@@ -992,13 +990,13 @@ namespace Server.Gumps
                             315,
                             180,
                             80,
-                            Color("List of IP addresses which have accessed this account.", LabelColor32)
+                            "List of IP addresses which have accessed this account.".Color(LabelColor32)
                         );
 
                         AddImageTiled(15, 219, 206, 156, 0xBBC);
                         AddBlackAlpha(16, 220, 204, 154);
 
-                        AddHtml(18, 221, 114, 20, Color("IP Address", LabelColor32));
+                        AddHtml(18, 221, 114, 20, "IP Address".Color(LabelColor32));
 
                         if (listPage > 0)
                         {
@@ -1020,77 +1018,15 @@ namespace Server.Gumps
 
                         if (m_List.Count == 0)
                         {
-                            AddHtml(18, 243, 200, 60, Color("This account has not yet been accessed.", LabelColor32));
+                            AddHtml(18, 243, 200, 60, "This account has not yet been accessed.".Color(LabelColor32));
                         }
 
                         for (int i = 0, index = listPage * 6; i < 6 && index >= 0 && index < m_List.Count; ++i, ++index)
                         {
-                            AddHtml(18, 243 + i * 22, 114, 20, Color(m_List[index].ToString(), LabelColor32));
+                            AddHtml(18, 243 + i * 22, 114, 20, m_List[index].ToString().Color(LabelColor32));
                             AddButton(130, 242 + i * 22, 0xFA2, 0xFA4, GetButtonID(8, index));
                             AddButton(160, 242 + i * 22, 0xFA8, 0xFAA, GetButtonID(9, index));
                             AddButton(190, 242 + i * 22, 0xFB1, 0xFB3, GetButtonID(10, index));
-                        }
-
-                        goto case AdminGumpPage.AccountDetails_Access;
-                    }
-                case AdminGumpPage.AccountDetails_Access_Restrictions:
-                    {
-                        if (state is not Account a)
-                        {
-                            break;
-                        }
-
-                        m_List ??= a.IpRestrictions.ToList<object>();
-
-                        AddHtml(10, 195, 400, 20, Color(Center("Address Restrictions"), LabelColor32));
-
-                        AddTextField(227, 225, 120, 20, 0);
-
-                        AddButtonLabeled(352, 225, GetButtonID(5, 19), "Add");
-
-                        AddHtml(
-                            225,
-                            255,
-                            180,
-                            120,
-                            Color(
-                                "Any clients connecting from an address not in this list will be rejected. Or, if the list is empty, any client may connect.",
-                                LabelColor32
-                            )
-                        );
-
-                        AddImageTiled(15, 219, 206, 156, 0xBBC);
-                        AddBlackAlpha(16, 220, 204, 154);
-
-                        AddHtml(18, 221, 114, 20, Color("IP Address", LabelColor32));
-
-                        if (listPage > 0)
-                        {
-                            AddButton(184, 223, 0x15E3, 0x15E7, GetButtonID(1, 0));
-                        }
-                        else
-                        {
-                            AddImage(184, 223, 0x25EA);
-                        }
-
-                        if ((listPage + 1) * 6 < m_List.Count)
-                        {
-                            AddButton(201, 223, 0x15E1, 0x15E5, GetButtonID(1, 1));
-                        }
-                        else
-                        {
-                            AddImage(201, 223, 0x25E6);
-                        }
-
-                        if (m_List.Count == 0)
-                        {
-                            AddHtml(18, 243, 200, 60, Color("There are no addresses in this list.", LabelColor32));
-                        }
-
-                        for (int i = 0, index = listPage * 6; i < 6 && index >= 0 && index < m_List.Count; ++i, ++index)
-                        {
-                            AddHtml(18, 243 + i * 22, 114, 20, Color((string)m_List[index], LabelColor32));
-                            AddButton(190, 242 + i * 22, 0xFB1, 0xFB3, GetButtonID(8, index));
                         }
 
                         goto case AdminGumpPage.AccountDetails_Access;
@@ -1102,7 +1038,7 @@ namespace Server.Gumps
                             break;
                         }
 
-                        AddHtml(10, 125, 400, 20, Color(Center("Characters"), LabelColor32));
+                        AddHtml(10, 125, 400, 20, "Characters".Center(LabelColor32));
 
                         AddLabelCropped(12, 150, 120, 20, LabelHue, "Name");
                         AddLabelCropped(132, 150, 120, 20, LabelHue, "Access Level");
@@ -1152,7 +1088,7 @@ namespace Server.Gumps
                             break;
                         }
 
-                        AddHtml(10, 125, 400, 20, Color(Center("Comments"), LabelColor32));
+                        AddHtml(10, 125, 400, 20, "Comments".Center(LabelColor32));
 
                         AddButtonLabeled(20, 150, GetButtonID(5, 4), "Add Comment");
 
@@ -1191,7 +1127,7 @@ namespace Server.Gumps
                             break;
                         }
 
-                        AddHtml(10, 125, 400, 20, Color(Center("Tags"), LabelColor32));
+                        AddHtml(10, 125, 400, 20, "Tags".Center(LabelColor32));
 
                         AddButtonLabeled(20, 150, GetButtonID(5, 5), "Add Tag");
 
@@ -1225,7 +1161,7 @@ namespace Server.Gumps
                     {
                         AddFirewallHeader();
 
-                        m_List ??= Firewall.Set.ToList<object>();
+                        m_List ??= AdminFirewall.Set.ToList<object>();
 
                         AddLabelCropped(12, 120, 358, 20, LabelHue, "IP Address");
 
@@ -1275,16 +1211,16 @@ namespace Server.Gumps
                     {
                         AddFirewallHeader();
 
-                        if (state is not Firewall.IFirewallEntry firewallEntry)
+                        if (state is not IFirewallEntry firewallEntry)
                         {
                             break;
                         }
 
-                        AddHtml(10, 125, 400, 20, Color(Center(firewallEntry.ToString()), LabelColor32));
+                        AddHtml(10, 125, 400, 20, firewallEntry.ToString().Center(LabelColor32));
 
                         AddButtonLabeled(20, 150, GetButtonID(6, 3), "Remove");
 
-                        AddHtml(10, 175, 400, 20, Color(Center("Potentially Affected Accounts"), LabelColor32));
+                        AddHtml(10, 175, 400, 20, "Potentially Affected Accounts".Center(LabelColor32));
 
                         if (m_List == null)
                         {
@@ -1386,18 +1322,14 @@ namespace Server.Gumps
         public void AddSelectedButton(int x, int y, int buttonID, string text, bool isSelection)
         {
             AddButton(x, y - 1, isSelection ? 4006 : 4005, 4007, buttonID);
-            AddHtml(x + 35, y, 200, 20, Color(text, isSelection ? SelectedColor32 : LabelColor32));
+            AddHtml(x + 35, y, 200, 20, text.Color(isSelection ? SelectedColor32 : LabelColor32));
         }
 
         public void AddButtonLabeled(int x, int y, int buttonID, string text)
         {
             AddButton(x, y - 1, 4005, 4007, buttonID);
-            AddHtml(x + 35, y, 240, 20, Color(text, LabelColor32));
+            AddHtml(x + 35, y, 240, 20, text.Color(LabelColor32));
         }
-
-        public string Center(string text) => $"<CENTER>{text}</CENTER>";
-
-        public string Color(string text, int color) => $"<BASEFONT COLOR=#{color:X6}>{text}</BASEFONT>";
 
         public void AddBlackAlpha(int x, int y, int width, int height)
         {
@@ -1421,7 +1353,7 @@ namespace Server.Gumps
             };
         }
 
-        public static void Initialize()
+        public static void Configure()
         {
             CommandSystem.Register("Admin", AccessLevel.Administrator, Admin_OnCommand);
         }
@@ -1759,13 +1691,8 @@ namespace Server.Gumps
                 }
 
                 from.SendGump(
-                    new NoticeGump(
-                        1060637,
-                        30720,
+                    new AdminNoticeGump(
                         $"You have {(ban ? "banned" : "deleted")} the account{(rads.Count == 1 ? "" : "s")}.",
-                        0xFFC000,
-                        420,
-                        280,
                         () => ResendGump_Callback(from, list, rads, ban ? page : 0)
                     )
                 );
@@ -1778,13 +1705,8 @@ namespace Server.Gumps
             else
             {
                 from.SendGump(
-                    new NoticeGump(
-                        1060637,
-                        30720,
+                    new AdminNoticeGump(
                         $"You have chosen not to {(ban ? "ban" : "delete")} the account{(rads.Count == 1 ? "" : "s")}.",
-                        0xFFC000,
-                        420,
-                        280,
                         () => ResendGump_Callback(from, list, rads, page)
                     )
                 );
@@ -1804,7 +1726,7 @@ namespace Server.Gumps
             {
                 for (var i = 0; i < a.LoginIPs.Length; ++i)
                 {
-                    Firewall.Add(a.LoginIPs[i]);
+                    AdminFirewall.Add(a.LoginIPs[i]);
                 }
 
                 notice = "All addresses in the list have been firewalled.";
@@ -1828,7 +1750,7 @@ namespace Server.Gumps
 
             if (okay)
             {
-                Firewall.Add(toFirewall);
+                AdminFirewall.Add(toFirewall);
 
                 notice = $"{toFirewall} : Added to firewall.";
             }
@@ -1902,7 +1824,7 @@ namespace Server.Gumps
             from.SendGump(new AdminGump(from, AdminGumpPage.AccountDetails_Access_ClientIPs, 0, null, notice, a));
         }
 
-        public override void OnResponse(NetState sender, RelayInfo info)
+        public override void OnResponse(NetState sender, in RelayInfo info)
         {
             var val = info.ButtonID - 1;
 
@@ -2090,39 +2012,7 @@ namespace Server.Gumps
                                 }
                             case 103:
                                 {
-                                    var folder = Core.SA ? "post-uoml" : "uoml";
-
-                                    var availableMaps = ExpansionInfo.CoreExpansion.MapSelectionFlags;
-                                    if (Core.SA && availableMaps.Includes(MapSelectionFlags.TerMur))
-                                    {
-                                        InvokeCommand($"GenerateSpawners Data/Spawns/post-uoml/termur/*.json");
-                                    }
-
-                                    if (availableMaps.Includes(MapSelectionFlags.Malas))
-                                    {
-                                        InvokeCommand($"GenerateSpawners Data/Spawns/{folder}/malas/*.json");
-                                    }
-
-                                    if (availableMaps.Includes(MapSelectionFlags.Tokuno))
-                                    {
-                                        InvokeCommand($"GenerateSpawners Data/Spawns/{folder}/tokuno/*.json");
-                                    }
-
-                                    if (availableMaps.Includes(MapSelectionFlags.Ilshenar))
-                                    {
-                                        InvokeCommand($"GenerateSpawners Data/Spawns/{folder}/ilshenar/*.json");
-                                    }
-
-                                    if (availableMaps.Includes(MapSelectionFlags.Trammel))
-                                    {
-                                        InvokeCommand($"GenerateSpawners Data/Spawns/{folder}/trammel/*.json");
-                                    }
-
-                                    if (availableMaps.Includes(MapSelectionFlags.Felucca))
-                                    {
-                                        InvokeCommand($"GenerateSpawners Data/Spawns/{folder}/felucca/*.json");
-                                    }
-
+                                    GenerateSpawners();
                                     notice = "Spawners have been generated.";
                                     break;
                                 }
@@ -2135,20 +2025,96 @@ namespace Server.Gumps
                             case 106:
                                 {
                                     InvokeCommand("Decorate");
-                                    notice = "Decoration has been generated.";
+                                    notice = "Decorations have been generated.";
+                                    break;
+                                }
+                            case 107:
+                                {
+                                    InvokeCommand("GenChamps");
+                                    notice = "Champions have been generated.";
+                                    break;
+                                }
+                            case 108:
+                                {
+                                    InvokeCommand("DecorateMag");
+                                    notice = "Magincia Ruins decorations have been generated.";
+                                    break;
+                                }
+                            case 109:
+                                {
+                                    InvokeCommand("GenStealArties");
+                                    notice = "Stealable Artifacts have been generated.";
+                                    break;
+                                }
+                            case 110:
+                                {
+                                    InvokeCommand("SHTelGen");
+                                    notice = "Solen Hive teleporters have been generated.";
+                                    break;
+                                }
+                            case 111:
+                                {
+                                    InvokeCommand("SecretLocGen");
+                                    notice = "Secret Locations have been generated.";
+                                    break;
+                                }
+                            case 112:
+                                {
+                                    InvokeCommand("GenLeverPuzzle");
+                                    InvokeCommand("GenGauntlet");
+                                    notice = "Doom  has been generated.";
+                                    break;
+                                }
+                            case 113:
+                                {
+                                    InvokeCommand("GenKhaldun");
+                                    notice = "Khaldun puzzles have been generated.";
                                     break;
                                 }
 
-                            case 110:
+                            case 114:
                                 {
-                                    InvokeCommand("Freeze");
-                                    notice = "Target bounding points.";
-                                    break;
-                                }
-                            case 120:
-                                {
-                                    InvokeCommand("Unfreeze");
-                                    notice = "Target bounding points.";
+                                    // 101
+                                    InvokeCommand("TelGen");
+
+                                    // 102
+                                    InvokeCommand("MoonGen");
+
+                                    // 103
+                                    InvokeCommand("DoorGen");
+
+                                    // 104
+                                    GenerateSpawners();
+
+                                    // 105
+                                    InvokeCommand("SignGen");
+
+                                    // 106
+                                    InvokeCommand("Decorate");
+
+                                    // 107
+                                    InvokeCommand("GenChamps");
+
+                                    // 108
+                                    InvokeCommand("DecorateMag");
+
+                                    // 109
+                                    InvokeCommand("GenStealArties");
+
+                                    // 110
+                                    InvokeCommand("SHTelGen");
+
+                                    // 111
+                                    InvokeCommand("SecretLocGen");
+
+                                    // 112
+                                    InvokeCommand("GenLeverPuzzle");
+                                    InvokeCommand("GenGauntlet");
+
+                                    // 113
+                                    InvokeCommand("GenKhaldun");
+
+                                    notice = "All the above options have been generated at once.";
                                     break;
                                 }
 
@@ -2181,7 +2147,7 @@ namespace Server.Gumps
                             case 210:
                             case 211:
                                 {
-                                    var text = info.GetTextEntry(0)?.Text.Trim();
+                                    var text = info.GetTextEntry(0)?.Trim();
 
                                     if (string.IsNullOrEmpty(text))
                                     {
@@ -2427,7 +2393,7 @@ namespace Server.Gumps
                                     {
                                         var count = 0;
 
-                                        foreach (var ns in TcpServer.Instances)
+                                        foreach (var ns in NetState.Instances)
                                         {
                                             var a = ns.Account;
 
@@ -2489,26 +2455,6 @@ namespace Server.Gumps
                                     InvokeCommand("Add");
                                     break;
                                 }
-                            case 111:
-                                {
-                                    InvokeCommand("FreezeWorld");
-                                    break;
-                                }
-                            case 112:
-                                {
-                                    InvokeCommand("FreezeMap");
-                                    break;
-                                }
-                            case 121:
-                                {
-                                    InvokeCommand("UnfreezeWorld");
-                                    break;
-                                }
-                            case 122:
-                                {
-                                    InvokeCommand("UnfreezeMap");
-                                    break;
-                                }
                         }
 
                         break;
@@ -2524,7 +2470,7 @@ namespace Server.Gumps
 
                                     var results = new List<NetState>();
 
-                                    var match = info.GetTextEntry(0)?.Text.Trim().ToLower();
+                                    var match = info.GetTextEntry(0)?.Trim().ToLower();
                                     string notice = null;
 
                                     if (string.IsNullOrEmpty(match))
@@ -2533,7 +2479,7 @@ namespace Server.Gumps
                                     }
                                     else
                                     {
-                                        foreach (var ns in TcpServer.Instances)
+                                        foreach (var ns in NetState.Instances)
                                         {
                                             bool isMatch;
 
@@ -2731,20 +2677,6 @@ namespace Server.Gumps
                                     );
                                     break;
                                 }
-                            case 15:
-                                {
-                                    from.SendGump(
-                                        new AdminGump(
-                                            from,
-                                            AdminGumpPage.AccountDetails_Access_Restrictions,
-                                            0,
-                                            null,
-                                            null,
-                                            m_State
-                                        )
-                                    );
-                                    break;
-                                }
                             case 4:
                                 {
                                     from.Prompt = new AddCommentPrompt(m_State as Account);
@@ -2759,8 +2691,8 @@ namespace Server.Gumps
                                 }
                             case 6:
                                 {
-                                    var un = info.GetTextEntry(0)?.Text.Trim();
-                                    var pw = info.GetTextEntry(1)?.Text.Trim();
+                                    var un = info.GetTextEntry(0)?.Trim();
+                                    var pw = info.GetTextEntry(1)?.Trim();
 
                                     Account dispAccount = null;
                                     string notice;
@@ -2808,8 +2740,7 @@ namespace Server.Gumps
                                 {
                                     List<IAccount> results;
 
-                                    var matchEntry = info.GetTextEntry(0);
-                                    var match = matchEntry?.Text.Trim().ToLower();
+                                    var match = info.GetTextEntry(0)?.Trim().ToLower();
 
                                     if (string.IsNullOrEmpty(match))
                                     {
@@ -2926,11 +2857,8 @@ namespace Server.Gumps
                                         break;
                                     }
 
-                                    var passwordEntry = info.GetTextEntry(0);
-                                    var confirmEntry = info.GetTextEntry(1);
-
-                                    var password = passwordEntry?.Text.Trim();
-                                    var confirm = confirmEntry?.Text.Trim();
+                                    var password = info.GetTextEntry(0)?.Trim();
+                                    var confirm = info.GetTextEntry(1)?.Trim();
 
                                     string notice;
                                     var page = AdminGumpPage.AccountDetails_ChangePassword;
@@ -3035,10 +2963,7 @@ namespace Server.Gumps
 
                                         from.SendGump(
                                             new WarningGump(
-                                                1060635,
-                                                30720,
                                                 sb.ToString(),
-                                                0xFFC000,
                                                 420,
                                                 400,
                                                 okay => BanShared_Callback(from, okay, a)
@@ -3085,10 +3010,7 @@ namespace Server.Gumps
                                     {
                                         from.SendGump(
                                             new WarningGump(
-                                                1060635,
-                                                30720,
                                                 $"You are about to firewall {a.LoginIPs.Length} address{(a.LoginIPs.Length != 1 ? "s" : "")}. Do you wish to continue?",
-                                                0xFFC000,
                                                 420,
                                                 400,
                                                 okay => FirewallShared_Callback(from, okay, a)
@@ -3108,66 +3030,6 @@ namespace Server.Gumps
                                             )
                                         );
                                     }
-
-                                    break;
-                                }
-                            case 19: // add
-                                {
-                                    if (m_State is not Account a)
-                                    {
-                                        break;
-                                    }
-
-                                    var entry = info.GetTextEntry(0);
-                                    var ip = entry?.Text.Trim();
-
-                                    string notice;
-
-                                    if (string.IsNullOrEmpty(ip))
-                                    {
-                                        notice = "You must enter an address to add.";
-                                    }
-                                    else
-                                    {
-                                        var list = a.IpRestrictions;
-
-                                        var contains = false;
-                                        for (var i = 0; !contains && i < list.Length; ++i)
-                                        {
-                                            contains = list[i] == ip;
-                                        }
-
-                                        if (contains)
-                                        {
-                                            notice = "That address is already contained in the list.";
-                                        }
-                                        else
-                                        {
-                                            var newList = new string[list.Length + 1];
-
-                                            for (var i = 0; i < list.Length; ++i)
-                                            {
-                                                newList[i] = list[i];
-                                            }
-
-                                            newList[list.Length] = ip;
-
-                                            a.IpRestrictions = newList;
-
-                                            notice = $"{ip} : Added to restriction list.";
-                                        }
-                                    }
-
-                                    from.SendGump(
-                                        new AdminGump(
-                                            from,
-                                            AdminGumpPage.AccountDetails_Access_Restrictions,
-                                            0,
-                                            null,
-                                            notice,
-                                            m_State
-                                        )
-                                    );
 
                                     break;
                                 }
@@ -3224,10 +3086,7 @@ namespace Server.Gumps
 
                                     from.SendGump(
                                         new WarningGump(
-                                            1060635,
-                                            30720,
                                             $"<center>Account of {a.Username}</center><br>You are about to <em><basefont color=red>permanently delete</basefont></em> the account. Likewise, all characters on the account will be deleted, including equipped, inventory, and banked items. Any houses tied to the account will be demolished.<br><br>Do you wish to continue?",
-                                            0xFFC000,
                                             420,
                                             280,
                                             okay => AccountDelete_Callback(from, okay, a)
@@ -3253,10 +3112,7 @@ namespace Server.Gumps
                                     {
                                         from.SendGump(
                                             new WarningGump(
-                                                1060635,
-                                                30720,
                                                 $"You are about to ban {rads.Count} marked account{(rads.Count == 1 ? "" : "s")}. Be cautioned, the only way to reverse this is by hand--manually unbanning each account.<br><br>Do you wish to continue?",
-                                                0xFFC000,
                                                 420,
                                                 280,
                                                 okay => Marked_Callback(from, okay, true, list, rads, m_ListPage)
@@ -3266,13 +3122,8 @@ namespace Server.Gumps
                                     else
                                     {
                                         from.SendGump(
-                                            new NoticeGump(
-                                                1060637,
-                                                30720,
+                                            new AdminNoticeGump(
                                                 "You have not yet marked any accounts. Place a check mark next to the accounts you wish to ban and then try again.",
-                                                0xFFC000,
-                                                420,
-                                                280,
                                                 () => ResendGump_Callback(from, list, rads, m_ListPage)
                                             )
                                         );
@@ -3293,14 +3144,7 @@ namespace Server.Gumps
                                     {
                                         from.SendGump(
                                             new WarningGump(
-                                                1060635,
-                                                30720,
-                                                string.Format(
-                                                    "You are about to <em><basefont color=red>permanently delete</basefont></em> {0} marked account{1}. Likewise, all characters on the account{1} will be deleted, including equipped, inventory, and banked items. Any houses tied to the account{1} will be demolished.<br><br>Do you wish to continue?",
-                                                    rads.Count,
-                                                    rads.Count == 1 ? "" : "s"
-                                                ),
-                                                0xFFC000,
+                                                $"You are about to <em><basefont color=red>permanently delete</basefont></em> {rads.Count} marked account{(rads.Count == 1 ? "" : "s")}. Likewise, all characters on the account{(rads.Count == 1 ? "" : "s")} will be deleted, including equipped, inventory, and banked items. Any houses tied to the account{(rads.Count == 1 ? "" : "s")} will be demolished.<br><br>Do you wish to continue?",
                                                 420,
                                                 280,
                                                 okay => Marked_Callback(from, okay, false, list, rads, m_ListPage)
@@ -3310,13 +3154,8 @@ namespace Server.Gumps
                                     else
                                     {
                                         from.SendGump(
-                                            new NoticeGump(
-                                                1060637,
-                                                30720,
+                                            new AdminNoticeGump(
                                                 "You have not yet marked any accounts. Place a check mark next to the accounts you wish to ban and then try again.",
-                                                0xFFC000,
-                                                420,
-                                                280,
                                                 () => ResendGump_Callback(from, list, rads, m_ListPage)
                                             )
                                         );
@@ -3541,10 +3380,7 @@ namespace Server.Gumps
                                     {
                                         from.SendGump(
                                             new WarningGump(
-                                                1060635,
-                                                30720,
                                                 $"You are about to clear the address list for account {a} containing {ips.Length} {(ips.Length == 1 ? "entry" : "entries")}. Do you wish to continue?",
-                                                0xFFC000,
                                                 420,
                                                 280,
                                                 okay => RemoveLoginIPs_Callback(from, okay, a)
@@ -3614,8 +3450,7 @@ namespace Server.Gumps
                         {
                             case 0:
                                 {
-                                    var matchEntry = info.GetTextEntry(0);
-                                    var match = matchEntry?.Text.Trim();
+                                    var match = info.GetTextEntry(0)?.Trim();
 
                                     string notice = null;
                                     var results = new List<object>();
@@ -3626,7 +3461,7 @@ namespace Server.Gumps
                                     }
                                     else
                                     {
-                                        foreach (var check in Firewall.Set)
+                                        foreach (var check in AdminFirewall.Set)
                                         {
                                             var checkStr = check.ToString();
 
@@ -3681,8 +3516,7 @@ namespace Server.Gumps
                                 }
                             case 1:
                                 {
-                                    var relay = info.GetTextEntry(0);
-                                    var text = relay?.Text.Trim();
+                                    var text = info.GetTextEntry(0)?.Trim();
 
                                     if (string.IsNullOrEmpty(text))
                                     {
@@ -3692,42 +3526,47 @@ namespace Server.Gumps
                                                 m_PageType,
                                                 m_ListPage,
                                                 m_List,
-                                                "You must enter an address or pattern to add.",
-                                                m_State
-                                            )
-                                        );
-                                    }
-                                    else if (!Utility.IsValidIP(text))
-                                    {
-                                        from.SendGump(
-                                            new AdminGump(
-                                                from,
-                                                m_PageType,
-                                                m_ListPage,
-                                                m_List,
-                                                "That is not a valid address or pattern.",
+                                                "You must enter an address or CIDR to add.",
                                                 m_State
                                             )
                                         );
                                     }
                                     else
                                     {
-                                        object toAdd = Firewall.ToFirewallEntry(text);
+                                        IFirewallEntry firewallEntry;
+                                        try
+                                        {
+                                            firewallEntry = AdminFirewall.ToFirewallEntry(text);
+                                        }
+                                        catch
+                                        {
+                                            from.SendGump(
+                                                new AdminGump(
+                                                    from,
+                                                    m_PageType,
+                                                    m_ListPage,
+                                                    m_List,
+                                                    "That is not a valid address or CIDR.",
+                                                    m_State
+                                                )
+                                            );
+                                            break;
+                                        }
 
                                         CommandLogging.WriteLine(
                                             from,
-                                            $"{from.AccessLevel} {CommandLogging.Format(from)} firewalling {toAdd}"
+                                            $"{from.AccessLevel} {CommandLogging.Format(from)} firewalling {firewallEntry}"
                                         );
 
-                                        Firewall.Add(toAdd);
+                                        AdminFirewall.Add(firewallEntry);
                                         from.SendGump(
                                             new AdminGump(
                                                 from,
                                                 AdminGumpPage.FirewallInfo,
                                                 0,
                                                 null,
-                                                $"{toAdd} : Added to firewall.",
-                                                toAdd
+                                                $"{firewallEntry} : Added to firewall.",
+                                                firewallEntry
                                             )
                                         );
                                     }
@@ -3751,14 +3590,14 @@ namespace Server.Gumps
                                 }
                             case 3:
                                 {
-                                    if (m_State is Firewall.IFirewallEntry)
+                                    if (m_State is IFirewallEntry)
                                     {
                                         CommandLogging.WriteLine(
                                             from,
                                             $"{from.AccessLevel} {CommandLogging.Format(from)} removing {m_State} from firewall list"
                                         );
 
-                                        Firewall.Remove(m_State);
+                                        AdminFirewall.Remove(m_State);
                                         from.SendGump(
                                             new AdminGump(
                                                 from,
@@ -3982,30 +3821,10 @@ namespace Server.Gumps
                             {
                                 from.SendGump(
                                     new WarningGump(
-                                        1060635,
-                                        30720,
                                         $"You are about to firewall {m_List[index]}. All connection attempts from a matching IP will be refused. Are you sure?",
-                                        0xFFC000,
                                         420,
                                         280,
                                         okay => Firewall_Callback(from, okay, a, m_List[index])
-                                    )
-                                );
-                            }
-                            else if (m_PageType == AdminGumpPage.AccountDetails_Access_Restrictions)
-                            {
-                                var list = a.IpRestrictions.ToList();
-                                list.Remove(m_List[index] as string);
-                                a.IpRestrictions = list.ToArray();
-
-                                from.SendGump(
-                                    new AdminGump(
-                                        from,
-                                        AdminGumpPage.AccountDetails_Access_Restrictions,
-                                        0,
-                                        null,
-                                        $"{m_List[index]} : Removed from list.",
-                                        a
                                     )
                                 );
                             }
@@ -4084,10 +3903,7 @@ namespace Server.Gumps
 
                                 from.SendGump(
                                     new WarningGump(
-                                        1060635,
-                                        30720,
                                         $"You are about to remove address {ip} from account {a}. Do you wish to continue?",
-                                        0xFFC000,
                                         420,
                                         280,
                                         okay => RemoveLoginIP_Callback(from, okay, a, ip)
@@ -4098,6 +3914,42 @@ namespace Server.Gumps
 
                         break;
                     }
+            }
+        }
+
+        private void GenerateSpawners()
+        {
+            var folder = Core.SA ? "post-uoml" : "uoml";
+
+            var availableMaps = ExpansionInfo.CoreExpansion.MapSelectionFlags;
+            if (Core.SA && availableMaps.Includes(MapSelectionFlags.TerMur))
+            {
+                InvokeCommand("GenerateSpawners Data/Spawns/post-uoml/termur/*.json");
+            }
+
+            if (availableMaps.Includes(MapSelectionFlags.Malas))
+            {
+                InvokeCommand($"GenerateSpawners Data/Spawns/{folder}/malas/*.json");
+            }
+
+            if (availableMaps.Includes(MapSelectionFlags.Tokuno))
+            {
+                InvokeCommand($"GenerateSpawners Data/Spawns/{folder}/tokuno/*.json");
+            }
+
+            if (availableMaps.Includes(MapSelectionFlags.Ilshenar))
+            {
+                InvokeCommand($"GenerateSpawners Data/Spawns/{folder}/ilshenar/*.json");
+            }
+
+            if (availableMaps.Includes(MapSelectionFlags.Trammel))
+            {
+                InvokeCommand($"GenerateSpawners Data/Spawns/{folder}/trammel/*.json");
+            }
+
+            if (availableMaps.Includes(MapSelectionFlags.Felucca))
+            {
+                InvokeCommand($"GenerateSpawners Data/Spawns/{folder}/felucca/*.json");
             }
         }
 
@@ -4378,6 +4230,16 @@ namespace Server.Gumps
 
                 return aLevel < bLevel ? 1 : x.Username.InsensitiveCompare(y.Username);
             }
+        }
+
+        private class AdminNoticeGump : StaticNoticeGump<AdminNoticeGump>
+        {
+            public override int Width => 420;
+            public override int Height => 280;
+
+            public override string Content { get; }
+
+            public AdminNoticeGump(string content, Action callback) : base(callback) => Content = content;
         }
     }
 }

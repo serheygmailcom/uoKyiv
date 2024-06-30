@@ -141,7 +141,7 @@ namespace Server.Items
                 AddButton(335, 285, 247, 248, 1);
             }
 
-            public override void OnResponse(NetState sender, RelayInfo info)
+            public override void OnResponse(NetState sender, in RelayInfo info)
             {
                 var from = sender.Mobile;
 
@@ -175,19 +175,14 @@ namespace Server.Items
                     m_Bear.EditLimit = Core.Now + TimeSpan.FromMinutes(10);
                 }
 
-                m_Bear.Line1 = Utility.FixHtml(line1);
-                m_Bear.Line2 = Utility.FixHtml(line2);
-                m_Bear.Line3 = Utility.FixHtml(line3);
+                m_Bear.Line1 = line1.FixHtml();
+                m_Bear.Line2 = line2.FixHtml();
+                m_Bear.Line3 = line3.FixHtml();
 
                 from.SendMessage("You add the personalized greeting to your St. Valentine Bear.");
             }
 
-            private static string GetLine(RelayInfo info, int idx)
-            {
-                var tr = info.GetTextEntry(idx);
-
-                return tr?.Text;
-            }
+            private static string GetLine(RelayInfo info, int idx) => info.GetTextEntry(idx);
         }
     }
 

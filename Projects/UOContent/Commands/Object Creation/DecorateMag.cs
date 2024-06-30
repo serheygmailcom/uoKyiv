@@ -8,7 +8,6 @@ using Server.Engines.Quests.Necro;
 using Server.Engines.Spawners;
 using Server.Items;
 using Server.Network;
-using Server.Utilities;
 using MemoryExtensions = System.MemoryExtensions;
 
 namespace Server.Commands
@@ -18,13 +17,13 @@ namespace Server.Commands
         private static Mobile m_Mobile;
         private static int m_Count;
 
-        public static void Initialize()
+        public static void Configure()
         {
-            CommandSystem.Register("DecorateMag", AccessLevel.Administrator, DecorateMag_OnCommand);
+            CommandSystem.Register("DecorateMag", AccessLevel.Developer, DecorateMag_OnCommand);
         }
 
         [Usage("DecorateMag")]
-        [Description("Generates world decoration.")]
+        [Description("Generates world decoration for Magincia after it was ruined.")]
         private static void DecorateMag_OnCommand(CommandEventArgs e)
         {
             m_Mobile = e.Mobile;
@@ -1040,7 +1039,7 @@ namespace Server.Commands
             var res = false;
 
             using var queue = PooledRefQueue<Item>.Create();
-            foreach (var item in map.GetItemsInRange(new Point3D(x, y, z), 1))
+            foreach (var item in map.GetItemsAt(x, y))
             {
                 if (srcItem is BaseDoor)
                 {
@@ -1113,12 +1112,9 @@ namespace Server.Commands
                         }
                     }
                 }
-                else
+                else if (item.Z == z && item.ItemID == itemID)
                 {
-                    if (item.Z == z && item.ItemID == itemID)
-                    {
-                        return true;
-                    }
+                    return true;
                 }
             }
 

@@ -17,6 +17,7 @@ public partial class SoulStone : Item, ISecurable
     [SerializedCommandProperty(AccessLevel.GameMaster)]
     private string _lastUserName;
 
+    [SerializedIgnoreDupe]
     [SerializableField(1)]
     [SerializedCommandProperty(AccessLevel.GameMaster)]
     private SecureLevel _level;
@@ -315,7 +316,7 @@ public partial class SoulStone : Item, ISecurable
             }
         }
 
-        public override void OnResponse(NetState sender, RelayInfo info)
+        public override void OnResponse(NetState sender, in RelayInfo info)
         {
             if (info.ButtonID == 0 || !_stone.IsEmpty)
             {
@@ -406,7 +407,7 @@ public partial class SoulStone : Item, ISecurable
             AddHtmlLocalized(45, 412, 450, 20, 1060051, 0x7FFF); // CANCEL
         }
 
-        public override void OnResponse(NetState sender, RelayInfo info)
+        public override void OnResponse(NetState sender, in RelayInfo info)
         {
             if (info.ButtonID == 0 || !_stone.IsEmpty)
             {
@@ -552,7 +553,7 @@ public partial class SoulStone : Item, ISecurable
             AddHtmlLocalized(45, 412, 450, 20, 1060051, 0x7FFF); // CANCEL
         }
 
-        public override void OnResponse(NetState sender, RelayInfo info)
+        public override void OnResponse(NetState sender, in RelayInfo info)
         {
             if (info.ButtonID == 0 || _stone.IsEmpty)
             {
@@ -767,7 +768,7 @@ public partial class SoulStone : Item, ISecurable
             AddHtmlLocalized(45, 412, 450, 20, 1060051, 0x7FFF); // CANCEL
         }
 
-        public override void OnResponse(NetState sender, RelayInfo info)
+        public override void OnResponse(NetState sender, in RelayInfo info)
         {
             if (info.ButtonID == 0 || _stone.IsEmpty)
             {
@@ -813,7 +814,7 @@ public partial class SoulStone : Item, ISecurable
             AddHtmlLocalized(45, 412, 450, 20, 1060051, 0x7FFF); // CANCEL
         }
 
-        public override void OnResponse(NetState sender, RelayInfo info)
+        public override void OnResponse(NetState sender, in RelayInfo info)
         {
             if (info.ButtonID == 0)
             {

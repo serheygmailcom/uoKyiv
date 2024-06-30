@@ -82,10 +82,9 @@ public class JusticeVirtue
     public static void Initialize()
     {
         VirtueGump.Register(109, OnVirtueUsed);
-        EventSink.PlayerDeleted += OnPlayerDeleted;
     }
 
-    private static void OnPlayerDeleted(Mobile m)
+    public static void OnPlayerDeleted(Mobile m)
     {
         if (m is PlayerMobile pm)
         {
@@ -315,7 +314,7 @@ public class AcceptProtectorGump : Gump
         AddImageTiled(0, 0, 1, 217, 9155);
     }
 
-    public override void OnResponse(NetState sender, RelayInfo info)
+    public override void OnResponse(NetState sender, in RelayInfo info)
     {
         if (info.ButtonID == 2)
         {

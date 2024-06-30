@@ -46,7 +46,7 @@ namespace Server.Engines.Help
                 10,
                 280,
                 20,
-                $"<basefont color=#A0A0FF><center>SPEECH LOG - {playerName} (<i>{Utility.FixHtmlFormattable(playerAccount)}</i>)</center></basefont>"
+                $"SPEECH LOG - {playerName} (<i>{playerAccount.FixHtmlFormattable()}</i>)".Center(0xA0A0FF)
             );
 
             var lastPage = (log.Count - 1) / MaxEntriesPerPage;
@@ -79,12 +79,7 @@ namespace Server.Engines.Help
                         builder.Append("<br>");
                     }
 
-                    builder.AppendFormat(
-                        "<u>{0}</u> (<i>{1}</i>): {2}",
-                        name,
-                        Utility.FixHtml(account),
-                        Utility.FixHtml(speech)
-                    );
+                    builder.Append($"<u>{name}</u> (<i>{account.FixHtml()}</i>): {speech.FixHtml()}");
                 }
 
                 sLog = builder.ToString();
@@ -105,7 +100,7 @@ namespace Server.Engines.Help
             }
         }
 
-        public override void OnResponse(NetState sender, RelayInfo info)
+        public override void OnResponse(NetState sender, in RelayInfo info)
         {
             var from = sender.Mobile;
 

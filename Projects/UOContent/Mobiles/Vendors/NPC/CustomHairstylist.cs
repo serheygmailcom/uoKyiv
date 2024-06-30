@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using Server.Gumps;
 using Server.Items;
 using Server.Network;
-using Server.Utilities;
 
 namespace Server.Mobiles
 {
@@ -206,7 +205,7 @@ namespace Server.Mobiles
             }
         }
 
-        public override void OnResponse(NetState sender, RelayInfo info)
+        public override void OnResponse(NetState sender, in RelayInfo info)
         {
             var index = info.ButtonID - 1;
 
@@ -378,7 +377,7 @@ namespace Server.Mobiles
             }
         }
 
-        public override void OnResponse(NetState sender, RelayInfo info)
+        public override void OnResponse(NetState sender, in RelayInfo info)
         {
             if (info.ButtonID == 1)
             {
@@ -569,7 +568,7 @@ namespace Server.Mobiles
             }
         }
 
-        public override void OnResponse(NetState sender, RelayInfo info)
+        public override void OnResponse(NetState sender, in RelayInfo info)
         {
             if (m_FacialHair && (m_From.Female || m_From.Body.IsFemale))
             {

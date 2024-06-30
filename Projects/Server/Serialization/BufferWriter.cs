@@ -1,6 +1,6 @@
 /*************************************************************************
  * ModernUO                                                              *
- * Copyright 2019-2023 - ModernUO Development Team                       *
+ * Copyright 2019-2024 - ModernUO Development Team                       *
  * Email: hi@modernuo.com                                                *
  * File: BufferWriter.cs                                                 *
  *                                                                       *
@@ -19,6 +19,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using Server.Text;
 
@@ -26,9 +27,9 @@ namespace Server;
 
 public class BufferWriter : IGenericWriter
 {
-    private ConcurrentQueue<Type> _types;
-    private Encoding _encoding;
-    private bool _prefixStrings;
+    private readonly ConcurrentQueue<Type> _types;
+    private readonly Encoding _encoding;
+    private readonly bool _prefixStrings;
     private long _bytesWritten;
     private long _index;
 
@@ -121,7 +122,11 @@ public class BufferWriter : IGenericWriter
         }
     }
 
-    public void Write(ReadOnlySpan<byte> bytes)
+    public virtual void Write(byte[] bytes) => Write(bytes.AsSpan());
+
+    public virtual void Write(byte[] bytes, int offset, int count) => Write(bytes.AsSpan(offset, count));
+
+    public virtual void Write(ReadOnlySpan<byte> bytes)
     {
         var length = bytes.Length;
 
@@ -288,6 +293,15 @@ public class BufferWriter : IGenericWriter
             Write(AssemblyHandler.GetTypeHash(type));
             _types?.Enqueue(type);
         }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Write(decimal value)
+    {
+        Span<int> buffer = stackalloc int[sizeof(decimal) / 4];
+        decimal.GetBits(value, buffer);
+
+        Write(MemoryMarshal.Cast<int, byte>(buffer));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

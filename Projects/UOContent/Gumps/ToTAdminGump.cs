@@ -87,7 +87,7 @@ namespace Server.Gumps
             }
         }
 
-        public override void OnResponse(NetState sender, RelayInfo info)
+        public override void OnResponse(NetState sender, in RelayInfo info)
         {
             var button = info.ButtonID;
             var from = sender.Mobile;
@@ -115,7 +115,7 @@ namespace Server.Gumps
             }
         }
 
-        public static void Initialize()
+        public static void Configure()
         {
             CommandSystem.Register("ToTAdmin", AccessLevel.Administrator, ToTAdmin_OnCommand);
         }

@@ -1231,14 +1231,16 @@ namespace Server.Engines.ConPVP
             Timer.StartTimer(TimeSpan.FromSeconds(10.0), Unregister);
         }
 
-        public static void Initialize()
+        public static void Configure()
         {
             EventSink.Speech += EventSink_Speech;
-            EventSink.Login += EventSink_Login;
 
             CommandSystem.Register("vli", AccessLevel.GameMaster, vli_oc);
         }
 
+        [Usage("vli")]
+        [Aliases("ViewLadderInfo")]
+        [Description("View ladder information.")]
         private static void vli_oc(CommandEventArgs e)
         {
             e.Mobile.BeginTarget(-1, false, TargetFlags.None, vli_ot);
@@ -1285,7 +1287,7 @@ namespace Server.Engines.ConPVP
             return false;
         }
 
-        private static void EventSink_Login(Mobile m)
+        public static void OnLogin(Mobile m)
         {
             if (m is not PlayerMobile pm)
             {

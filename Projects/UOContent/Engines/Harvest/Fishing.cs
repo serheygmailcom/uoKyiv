@@ -1,5 +1,4 @@
 using System;
-using Server.Engines.Quests;
 using Server.Engines.Quests.Collector;
 using Server.Items;
 using Server.Mobiles;
@@ -136,7 +135,7 @@ namespace Server.Engines.Harvest
 
                 if (qs is CollectorQuest)
                 {
-                    QuestObjective obj = qs.FindObjective<FishPearlsObjective>();
+                    var obj = qs.FindObjective<FishPearlsObjective>();
 
                     if (obj?.Completed == false)
                     {

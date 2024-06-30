@@ -457,11 +457,11 @@ namespace Server.Mobiles
                     }
 
                     AddButton(15, 39 + i * 20, 10006, 10006, i + 1);
-                    AddHtml(32, 35 + i * 20, 275, 18, $"<BASEFONT COLOR=#C0C0EE>{pet.Name}</BASEFONT>");
+                    AddHtml(32, 35 + i * 20, 275, 18, pet.Name.Color(0xC0C0EE));
                 }
             }
 
-            public override void OnResponse(NetState sender, RelayInfo info)
+            public override void OnResponse(NetState sender, in RelayInfo info)
             {
                 var index = info.ButtonID - 1;
 

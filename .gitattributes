@@ -34,3 +34,11 @@ publish.cmd             text eol=lf
 
 # Collapse in Github
 **/Migrations/*.v*.json linguist-generated=true
+
+# Exclude specific files from merging
+Distribution/Data/regions.json merge=ours
+
+# Exclude a directory from merging
+# path/to/directory/* merge=ours
+
+

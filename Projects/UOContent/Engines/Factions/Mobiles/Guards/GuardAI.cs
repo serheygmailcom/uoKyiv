@@ -12,7 +12,6 @@ using Server.Spells.Seventh;
 using Server.Spells.Sixth;
 using Server.Spells.Third;
 using Server.Targeting;
-using Server.Utilities;
 
 namespace Server.Factions
 {
@@ -545,11 +544,7 @@ namespace Server.Factions
                         Action = ActionType.Combat;
                     }
 
-                    if (m_Mobile.CurrentSpeed != m_Mobile.ActiveSpeed)
-                    {
-                        m_Mobile.CurrentSpeed = m_Mobile.ActiveSpeed;
-                    }
-
+                    m_Mobile.SetCurrentSpeedToActive();
                     m_Guard.Warmode = true;
 
                     RunTo(toFollow);
@@ -561,11 +556,7 @@ namespace Server.Factions
                         Action = ActionType.Wander;
                     }
 
-                    if (m_Mobile.CurrentSpeed != m_Mobile.PassiveSpeed)
-                    {
-                        m_Mobile.CurrentSpeed = m_Mobile.PassiveSpeed;
-                    }
-
+                    m_Mobile.SetCurrentSpeedToPassive();
                     m_Guard.Warmode = false;
 
                     WalkRandomInHome(2, 2, 1);

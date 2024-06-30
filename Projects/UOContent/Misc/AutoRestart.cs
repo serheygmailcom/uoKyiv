@@ -54,13 +54,11 @@ namespace Server.Misc
         public static void Configure()
         {
             Enabled = ServerConfiguration.GetOrUpdateSetting("world.enableAutoRestart", false);
-        }
-
-        public static void Initialize()
-        {
             CommandSystem.Register("Restart", AccessLevel.Administrator, Restart_OnCommand);
         }
 
+        [Usage("Restart")]
+        [Description("Initiates a server restart. The world is not saved before the restart.")]
         public static void Restart_OnCommand(CommandEventArgs e)
         {
             if (Restarting)

@@ -35,7 +35,6 @@ using Server.Spells.Seventh;
 using Server.Spells.Sixth;
 using Server.Spells.Spellweaving;
 using Server.Targeting;
-using Server.Utilities;
 using BaseQuestGump = Server.Engines.MLQuests.Gumps.BaseQuestGump;
 using CalcMoves = Server.Movement.Movement;
 using QuestOfferGump = Server.Engines.MLQuests.Gumps.QuestOfferGump;
@@ -936,14 +935,9 @@ namespace Server.Mobiles
 
         public static void Initialize()
         {
-            EventSink.Login += OnLogin;
             EventSink.Logout += OnLogout;
             EventSink.Connected += EventSink_Connected;
             EventSink.Disconnected += EventSink_Disconnected;
-
-            EventSink.TargetedSkillUse += TargetedSkillUse;
-            EventSink.EquipMacro += EquipMacro;
-            EventSink.UnequipMacro += UnequipMacro;
 
             if (Core.SE)
             {
@@ -963,7 +957,7 @@ namespace Server.Mobiles
             }
         }
 
-        private static void TargetedSkillUse(Mobile from, IEntity target, int skillId)
+        public static void TargetedSkillUse(Mobile from, IEntity target, int skillId)
         {
             if (from == null || target == null)
             {
@@ -1061,11 +1055,20 @@ namespace Server.Mobiles
         {
             foreach (var m in World.Mobiles.Values)
             {
-                if (m is PlayerMobile pm &&
-                    ((!pm.Mounted || pm.Mount is EtherealMount) && pm.AllFollowers?.Count > pm.AutoStabled?.Count ||
-                     pm.Mounted && pm.AllFollowers?.Count > (pm.AutoStabled?.Count ?? 0) + 1))
+                if (m is not PlayerMobile pm || pm.AllFollowers == null || pm.AllFollowers.Count == 0)
                 {
-                    pm.AutoStablePets(); /* autostable checks summons, et al: no need here */
+                    continue;
+                }
+
+                var autoStabledCount = pm.AutoStabled?.Count ?? 0;
+                if (pm.Mounted && pm.Mount is not EtherealMount)
+                {
+                    autoStabledCount++;
+                }
+
+                if (pm.AllFollowers.Count > autoStabledCount)
+                {
+                    pm.AutoStablePets();
                 }
             }
         }
@@ -1213,7 +1216,7 @@ namespace Server.Mobiles
             }
         }
 
-        private static void OnLogin(Mobile from)
+        public static void OnLogin(PlayerMobile from)
         {
             if (AccountHandler.LockdownLevel > AccessLevel.Player)
             {
@@ -1246,15 +1249,22 @@ namespace Server.Mobiles
                     notice = "The server is currently under lockdown. You have sufficient access level to connect.";
                 }
 
-                from.SendGump(new NoticeGump(1060637, 30720, notice, 0xFFC000, 300, 140));
+                from.SendGump(new ServerLockdownNoticeGump(notice));
                 return;
             }
 
-            if (from is PlayerMobile mobile)
-            {
-                VirtueSystem.CheckAtrophies(mobile);
-                mobile.ClaimAutoStabledPets();
-            }
+            VirtueSystem.CheckAtrophies(from);
+            from.ClaimAutoStabledPets();
+            AnimalForm.GetContext(from)?.Timer.Start();
+        }
+
+        private class ServerLockdownNoticeGump : StaticNoticeGump<ServerLockdownNoticeGump>
+        {
+            public override int Width => 300;
+            public override int Height => 140;
+            public override string Content { get; }
+
+            public ServerLockdownNoticeGump(string content) => Content = content;
         }
 
         public void ValidateEquipment()
@@ -2549,6 +2559,7 @@ namespace Server.Mobiles
             PolymorphSpell.StopTimer(this);
             IncognitoSpell.StopTimer(this);
             DisguisePersistence.RemoveTimer(this);
+            AnimalForm.RemoveContext(this, true);
 
             EndAction<PolymorphSpell>();
             EndAction<IncognitoSpell>();
@@ -4480,13 +4491,32 @@ namespace Server.Mobiles
 
         public void ResetRecipes() => _acquiredRecipes = null;
 
+        public void SendAddBuffPacket(BuffInfo buffInfo)
+        {
+            if (buffInfo == null)
+            {
+                return;
+            }
+
+            NetState.SendAddBuffPacket(
+                Serial,
+                buffInfo.ID,
+                buffInfo.TitleCliloc,
+                buffInfo.SecondaryCliloc,
+                buffInfo.Args,
+                buffInfo.TimeStart == 0
+                    ? 0
+                    : Math.Max(buffInfo.TimeStart + (long)buffInfo.TimeLength.TotalMilliseconds - Core.TickCount, 0)
+            );
+        }
+
         public void ResendBuffs()
         {
             if (BuffInfo.Enabled && m_BuffTable != null && NetState?.BuffIcon == true)
             {
                 foreach (var info in m_BuffTable.Values)
                 {
-                    info.SendAddBuffPacket(NetState, Serial);
+                    SendAddBuffPacket(info);
                 }
             }
         }
@@ -4513,15 +4543,15 @@ namespace Server.Mobiles
                     Timer.DelayCall(TimeSpan.FromMilliseconds(msecs), (buffInfo, pm) =>
                     {
                         // They are still online, we still have the buff icon in the table, and it is the same buff icon
-                        if (pm.NetState != null && pm.m_BuffTable.TryGetValue(buffInfo.ID, out var checkBuff) && checkBuff == buffInfo)
+                        if (pm.NetState != null && pm.m_BuffTable?.GetValueOrDefault(buffInfo.ID) == buffInfo)
                         {
-                            buffInfo.SendAddBuffPacket(pm.NetState, pm.Serial);
+                            pm.SendAddBuffPacket(buffInfo);
                         }
                     }, b, this);
                 }
                 else
                 {
-                    b.SendAddBuffPacket(NetState, Serial);
+                    SendAddBuffPacket(b);
                 }
             }
         }
@@ -4545,7 +4575,7 @@ namespace Server.Mobiles
 
             if (NetState?.BuffIcon == true)
             {
-                BuffInfo.SendRemoveBuffPacket(NetState, Serial, b);
+                NetState.SendRemoveBuffPacket(Serial, b);
             }
 
             if (m_BuffTable.Count <= 0)
@@ -4639,7 +4669,7 @@ namespace Server.Mobiles
                 AddHtmlLocalized(148, 118, 450, 20, 1071022, 0x7FFF); // DISABLE IT!
             }
 
-            public override void OnResponse(NetState sender, RelayInfo info)
+            public override void OnResponse(NetState sender, in RelayInfo info)
             {
                 if (!m_Player.CheckAlive())
                 {
@@ -4790,7 +4820,7 @@ namespace Server.Mobiles
 
             public ItemInsuranceMenuGump NewInstance() => new(m_From, m_Items, m_Insure, m_Page);
 
-            public override void OnResponse(NetState sender, RelayInfo info)
+            public override void OnResponse(NetState sender, in RelayInfo info)
             {
                 if (info.ButtonID == 0 || !m_From.CheckAlive())
                 {
@@ -4886,7 +4916,7 @@ namespace Server.Mobiles
                 AddHtmlLocalized(148, 118, 450, 20, 1073996, 0x7FFF); // ACCEPT
             }
 
-            public override void OnResponse(NetState sender, RelayInfo info)
+            public override void OnResponse(NetState sender, in RelayInfo info)
             {
                 if (!m_From.CheckAlive())
                 {

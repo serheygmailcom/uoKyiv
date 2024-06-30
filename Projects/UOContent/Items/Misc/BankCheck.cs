@@ -1,7 +1,6 @@
 using System;
 using ModernUO.Serialization;
 using Server.Accounting;
-using Server.Engines.Quests;
 using Server.Engines.Quests.Haven;
 using Server.Engines.Quests.Necro;
 using Server.Mobiles;
@@ -183,7 +182,7 @@ public partial class BankCheck : Item
 
                 if (qs is DarkTidesQuest)
                 {
-                    QuestObjective obj = qs.FindObjective<CashBankCheckObjective>();
+                    var obj = qs.FindObjective<CashBankCheckObjective>();
 
                     if (obj?.Completed == false)
                     {
