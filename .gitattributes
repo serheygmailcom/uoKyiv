@@ -36,6 +36,7 @@ publish.cmd             text eol=lf
 **/Migrations/*.v*.json linguist-generated=true
 
 # Exclude specific files from merging
+.gitattributes merge=ours
 Distribution/Data/regions.json merge=ours
 Distribution/Data/teleporters.json merge=ours
 
