@@ -74,13 +74,13 @@ namespace Server.Gumps
         private readonly AdminGumpPage m_PageType;
         private readonly object m_State;
 
+        public override bool Singleton => true;
+
         public AdminGump(
             Mobile from, AdminGumpPage pageType, int listPage = 0, List<object> list = null, string notice = null,
             object state = null
         ) : base(50, 40)
         {
-            from.CloseGump<AdminGump>();
-
             m_From = from;
             m_PageType = pageType;
             m_ListPage = listPage;
@@ -169,7 +169,7 @@ namespace Server.Gumps
                         AddLabel(150, 150, LabelHue, banned.ToString());
 
                         AddLabel(20, 170, LabelHue, "Firewalled:");
-                        AddLabel(150, 170, LabelHue, AdminFirewall.Set.Count.ToString());
+                        AddLabel(150, 170, LabelHue, Firewall.FirewallSet.Count.ToString());
 
                         AddLabel(20, 190, LabelHue, "Clients:");
                         AddLabel(150, 190, LabelHue, NetState.Instances.Count.ToString());
@@ -1161,7 +1161,7 @@ namespace Server.Gumps
                     {
                         AddFirewallHeader();
 
-                        m_List ??= AdminFirewall.Set.ToList<object>();
+                        m_List ??= Firewall.FirewallSet.ToList<object>();
 
                         AddLabelCropped(12, 120, 358, 20, LabelHue, "IP Address");
 
@@ -1274,7 +1274,10 @@ namespace Server.Gumps
                              i < 9 && index >= 0 && index < m_List.Count;
                              ++i, ++index)
                         {
-                            var a = (Account)m_List[index];
+                            if (m_List[index] is not Account a)
+                            {
+                                continue;
+                            }
 
                             var offset = 200 + i * 20;
 
@@ -3461,7 +3464,7 @@ namespace Server.Gumps
                                     }
                                     else
                                     {
-                                        foreach (var check in AdminFirewall.Set)
+                                        foreach (var check in Firewall.FirewallSet)
                                         {
                                             var checkStr = check.ToString();
 
@@ -3965,7 +3968,14 @@ namespace Server.Gumps
                 InvokeCommand("Save");
             }
 
-            Core.Kill(restart);
+            // Kill the server on a different thread otherwise we will dead lock
+            ThreadPool.QueueUserWorkItem(
+                _ =>
+                {
+                    World.WaitForWriteCompletion();
+                    Core.Kill(restart);
+                }
+            );
         }
 
         private void InvokeCommand(string c)

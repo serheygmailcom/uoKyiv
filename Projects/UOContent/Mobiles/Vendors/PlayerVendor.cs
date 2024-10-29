@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using ModernUO.Serialization;
+using Server.Collections;
 using Server.ContextMenus;
 using Server.Engines.BulkOrders;
 using Server.Gumps;
@@ -667,19 +668,19 @@ public partial class PlayerVendor : Mobile
 
     public void SendOwnerGump(Mobile to)
     {
+        var gumps = to.GetGumps();
+
         if (BaseHouse.NewVendorSystem)
         {
-            to.CloseGump<NewPlayerVendorOwnerGump>();
-            to.CloseGump<NewPlayerVendorCustomizeGump>();
-
-            to.SendGump(new NewPlayerVendorOwnerGump(this));
+            gumps.Close<NewPlayerVendorCustomizeGump>();
+            gumps.Close<NewPlayerVendorOwnerGump>();
+            gumps.Send(new NewPlayerVendorOwnerGump(this));
         }
         else
         {
-            to.CloseGump<PlayerVendorOwnerGump>();
-            to.CloseGump<PlayerVendorCustomizeGump>();
-
-            to.SendGump(new PlayerVendorOwnerGump(this));
+            gumps.Close<PlayerVendorCustomizeGump>();
+            gumps.Close<PlayerVendorOwnerGump>();
+            gumps.Send(new PlayerVendorOwnerGump(this));
         }
     }
 
@@ -722,7 +723,6 @@ public partial class PlayerVendor : Mobile
         }
         else
         {
-            from.CloseGump<PlayerVendorBuyGump>();
             from.SendGump(new PlayerVendorBuyGump(vendor, vi));
         }
     }
@@ -869,14 +869,14 @@ public partial class PlayerVendor : Mobile
         Placeholder?.Delete();
     }
 
-    public override void GetContextMenuEntries(Mobile from, List<ContextMenuEntry> list)
+    public override void GetContextMenuEntries(Mobile from, ref PooledRefList<ContextMenuEntry> list)
     {
         if (from.Alive && Placeholder != null && IsOwner(from))
         {
-            list.Add(new ReturnVendorEntry(this));
+            list.Add(new ReturnVendorEntry());
         }
 
-        base.GetContextMenuEntries(from, list);
+        base.GetContextMenuEntries(from, ref list);
     }
 
     public override bool HandlesOnSpeech(Mobile from) => from.Alive && from.GetDistanceToSqrt(this) <= 3;
@@ -978,17 +978,15 @@ public partial class PlayerVendor : Mobile
 
     private class ReturnVendorEntry : ContextMenuEntry
     {
-        private readonly PlayerVendor m_Vendor;
-
-        public ReturnVendorEntry(PlayerVendor vendor) : base(6214) => m_Vendor = vendor;
-
-        public override void OnClick()
+        public ReturnVendorEntry() : base(6214)
         {
-            var from = Owner.From;
+        }
 
-            if (!m_Vendor.Deleted && m_Vendor.IsOwner(from) && from.CheckAlive())
+        public override void OnClick(Mobile from, IEntity target)
+        {
+            if (from.CheckAlive() && target is PlayerVendor { Deleted: false } vendor && vendor.IsOwner(from))
             {
-                m_Vendor.Return();
+                vendor.Return();
             }
         }
     }

@@ -1,5 +1,5 @@
-using System.Collections.Generic;
 using ModernUO.Serialization;
+using Server.Collections;
 using Server.ContextMenus;
 using Server.Gumps;
 using Server.Multis;
@@ -24,18 +24,17 @@ public partial class TapestryOfSosaria : Item, ISecurable
 
     public override int LabelNumber => 1062917; // The Tapestry of Sosaria
 
-    public override void GetContextMenuEntries(Mobile from, List<ContextMenuEntry> list)
+    public override void GetContextMenuEntries(Mobile from, ref PooledRefList<ContextMenuEntry> list)
     {
-        base.GetContextMenuEntries(from, list);
+        base.GetContextMenuEntries(from, ref list);
 
-        SetSecureLevelEntry.AddTo(from, this, list);
+        SetSecureLevelEntry.AddTo(from, this, ref list);
     }
 
     public override void OnDoubleClick(Mobile from)
     {
         if (from.InRange(GetWorldLocation(), 2))
         {
-            from.CloseGump<InternalGump>();
             from.SendGump(new InternalGump());
         }
         else
@@ -51,6 +50,8 @@ public partial class TapestryOfSosaria : Item, ISecurable
 
     private class InternalGump : Gump
     {
+        public override bool Singleton => true;
+
         public InternalGump() : base(50, 50)
         {
             AddImage(0, 0, 0x2C95);

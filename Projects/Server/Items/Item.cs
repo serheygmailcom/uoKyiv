@@ -802,6 +802,10 @@ public class Item : IHued, IComparable<Item>, ISpawnable, IObjectPropertyListEnt
     [CommandProperty(AccessLevel.Counselor)]
     public Serial Serial { get; }
 
+    public byte SerializedThread { get; set; }
+    public int SerializedPosition { get; set; }
+    public int SerializedLength { get; set; }
+
     public virtual void Serialize(IGenericWriter writer)
     {
         writer.Write(9); // version
@@ -2131,27 +2135,27 @@ public class Item : IHued, IComparable<Item>, ISpawnable, IObjectPropertyListEnt
 
     public virtual bool CanEquip(Mobile m) => m_Layer != Layer.Invalid && m.FindItemOnLayer(m_Layer) == null;
 
-    public virtual void GetChildContextMenuEntries(Mobile from, List<ContextMenuEntry> list, Item item)
+    public virtual void GetChildContextMenuEntries(Mobile from, ref PooledRefList<ContextMenuEntry> list, Item item)
     {
         if (m_Parent is Item parentItem)
         {
-            parentItem.GetChildContextMenuEntries(from, list, item);
+            parentItem.GetChildContextMenuEntries(from, ref list, item);
         }
         else if (m_Parent is Mobile parentMobile)
         {
-            parentMobile.GetChildContextMenuEntries(from, list, item);
+            parentMobile.GetChildContextMenuEntries(from, ref list, item);
         }
     }
 
-    public virtual void GetContextMenuEntries(Mobile from, List<ContextMenuEntry> list)
+    public virtual void GetContextMenuEntries(Mobile from, ref PooledRefList<ContextMenuEntry> list)
     {
         if (m_Parent is Item item)
         {
-            item.GetChildContextMenuEntries(from, list, this);
+            item.GetChildContextMenuEntries(from, ref list, this);
         }
         else if (m_Parent is Mobile mobile)
         {
-            mobile.GetChildContextMenuEntries(from, list, this);
+            mobile.GetChildContextMenuEntries(from, ref list, this);
         }
     }
 
@@ -3836,24 +3840,27 @@ public class Item : IHued, IComparable<Item>, ISpawnable, IObjectPropertyListEnt
         // return root == null ? m_Location : new Point3D( (IPoint3D) root );
     }
 
-    public Point3D GetSurfaceTop()
+    public IPoint3D GetSurfaceTop()
     {
         var root = RootParent;
 
-        if (root == null)
-        {
-            return new Point3D(
-                m_Location.m_X,
-                m_Location.m_Y,
-                m_Location.m_Z + (ItemData.Surface ? ItemData.CalcHeight : 0)
-            );
-        }
-
-        return root.Location;
+        return (root as Item)?.GetSurfaceTop() ?? (ItemData.Surface ? new Point3D(
+            m_Location.m_X,
+            m_Location.m_Y,
+            m_Location.m_Z + ItemData.CalcHeight
+        ) : this);
     }
 
-    public Point3D GetWorldTop() => RootParent?.Location ??
-                                    new Point3D(m_Location.m_X, m_Location.m_Y, m_Location.m_Z + ItemData.CalcHeight);
+    public Point3D GetWorldTop()
+    {
+        var root = RootParent;
+
+        return (root as Item)?.GetWorldTop() ?? new Point3D(
+            m_Location.m_X,
+            m_Location.m_Y,
+            m_Location.m_Z + ItemData.CalcHeight
+        );
+    }
 
     public void SendLocalizedMessageTo(Mobile to, int number, string args = "")
     {

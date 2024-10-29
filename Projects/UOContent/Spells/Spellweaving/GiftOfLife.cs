@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
+using ModernUO.CodeGeneratedEvents;
 using Server.Gumps;
 using Server.Mobiles;
 using Server.Targeting;
 
 namespace Server.Spells.Spellweaving
 {
-    public class GiftOfLifeSpell : ArcanistSpell, ISpellTargetingMobile
+    public class GiftOfLifeSpell : ArcanistSpell, ITargetingSpell<Mobile>
     {
         private static readonly SpellInfo _info = new(
             "Gift of Life",
@@ -70,17 +71,14 @@ namespace Server.Spells.Spellweaving
             }
         }
 
-        public static void Initialize()
-        {
-            EventSink.PlayerDeath += HandleDeath;
-        }
-
         public override void OnCast()
         {
-            Caster.Target = new SpellTargetMobile(this, TargetFlags.Beneficial, 10);
+            Caster.Target = new SpellTarget<Mobile>(this, TargetFlags.Beneficial);
         }
 
-        public static void HandleDeath(Mobile m)
+        [OnEvent(nameof(BaseCreature.CreatureDeathEvent))]
+        [OnEvent(nameof(PlayerMobile.PlayerDeathEvent))]
+        public static void OnDeathEvent(Mobile m)
         {
             if (_table.ContainsKey(m))
             {
@@ -103,7 +101,6 @@ namespace Server.Spells.Spellweaving
 
                 if (master?.NetState != null && Utility.InUpdateRange(pet.Location, master.Location))
                 {
-                    master.CloseGump<PetResurrectGump>();
                     master.SendGump(new PetResurrectGump(master, pet, hitsScalar));
                 }
                 else
@@ -116,7 +113,6 @@ namespace Server.Spells.Spellweaving
 
                         if (friend.NetState != null && Utility.InUpdateRange(pet.Location, friend.Location))
                         {
-                            friend.CloseGump<PetResurrectGump>();
                             friend.SendGump(new PetResurrectGump(friend, pet));
                             break;
                         }
@@ -125,22 +121,11 @@ namespace Server.Spells.Spellweaving
             }
             else
             {
-                m.CloseGump<ResurrectGump>();
                 m.SendGump(new ResurrectGump(m, hitsScalar));
             }
 
             // Per OSI, buff is removed when gump sent, irregardless of online status or acceptance
             timer.DoExpire();
-        }
-
-        public static void OnLogin(Mobile m)
-        {
-            if (m?.Alive != false || _table[m] == null)
-            {
-                return;
-            }
-
-            HandleDeath_OnCallback(m);
         }
 
         private class ExpireTimer : Timer

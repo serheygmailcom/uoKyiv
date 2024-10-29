@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ModernUO.CodeGeneratedEvents;
 using Server.Accounting;
 using Server.Collections;
 using Server.ContextMenus;
@@ -28,10 +29,12 @@ using Server.SkillHandlers;
 using Server.Spells;
 using Server.Spells.Bushido;
 using Server.Spells.Fifth;
+using Server.Spells.First;
 using Server.Spells.Fourth;
+using Server.Spells.Mysticism;
 using Server.Spells.Necromancy;
 using Server.Spells.Ninjitsu;
-using Server.Spells.Seventh;
+using Server.Spells.Second;
 using Server.Spells.Sixth;
 using Server.Spells.Spellweaving;
 using Server.Targeting;
@@ -94,7 +97,7 @@ namespace Server.Mobiles
         DismountRecovery = 1070859 // You cannot mount while recovering from a dismount special maneuver.
     }
 
-    public class PlayerMobile : Mobile, IHonorTarget, IHasSteps
+    public partial class PlayerMobile : Mobile, IHonorTarget, IHasSteps
     {
         private static bool m_NoRecursion;
 
@@ -897,17 +900,17 @@ namespace Server.Mobiles
                                 {
                                     Direction.North => itemIDs[0],
                                     Direction.South => itemIDs[0],
-                                    Direction.East  => itemIDs[1],
-                                    Direction.West  => itemIDs[1],
-                                    _               => item.ItemID
+                                    Direction.East => itemIDs[1],
+                                    Direction.West => itemIDs[1],
+                                    _ => item.ItemID
                                 },
                                 4 => dir switch
                                 {
                                     Direction.South => itemIDs[0],
-                                    Direction.East  => itemIDs[1],
+                                    Direction.East => itemIDs[1],
                                     Direction.North => itemIDs[2],
-                                    Direction.West  => itemIDs[3],
-                                    _               => item.ItemID
+                                    Direction.West => itemIDs[3],
+                                    _ => item.ItemID
                                 },
                                 _ => item.ItemID
                             };
@@ -978,7 +981,7 @@ namespace Server.Mobiles
             }
 
             if (skillId == 35)
-                // AnimalTaming.DeferredTarget = true;
+            // AnimalTaming.DeferredTarget = true;
             {
                 AnimalTaming.DisableMessage = false;
             }
@@ -1086,7 +1089,7 @@ namespace Server.Mobiles
                 }
                 else if (AnimalForm.UnderTransformation(this))
                 {
-                    AnimalForm.RemoveContext(this, true);
+                    AnimalForm.RemoveContext(this);
                 }
             }
 
@@ -1214,6 +1217,11 @@ namespace Server.Mobiles
                     SpecialMove.ClearCurrentMove(this);
                 }
             }
+
+            if (!Meditating)
+            {
+                BuffInfo.RemoveBuff(this, BuffIcon.ActiveMeditation);
+            }
         }
 
         public static void OnLogin(PlayerMobile from)
@@ -1319,32 +1327,13 @@ namespace Server.Mobiles
                     }
 
                     var item = items[i];
+                    var itemEthic = Ethic.Find(item);
 
-                    if ((item.SavedFlags & 0x100) != 0)
+                    if (itemEthic != null && itemEthic != ethic)
                     {
-                        if (item.Hue != Ethic.Hero.Definition.PrimaryHue)
-                        {
-                            item.SavedFlags &= ~0x100;
-                        }
-                        else if (ethic != Ethic.Hero)
-                        {
-                            from.AddToBackpack(item);
-                            moved = true;
-                            continue;
-                        }
-                    }
-                    else if ((item.SavedFlags & 0x200) != 0)
-                    {
-                        if (item.Hue != Ethic.Evil.Definition.PrimaryHue)
-                        {
-                            item.SavedFlags &= ~0x200;
-                        }
-                        else if (ethic != Ethic.Evil)
-                        {
-                            from.AddToBackpack(item);
-                            moved = true;
-                            continue;
-                        }
+                        from.AddToBackpack(item);
+                        moved = true;
+                        continue;
                     }
 
                     if (item is BaseWeapon weapon)
@@ -1715,21 +1704,18 @@ namespace Server.Mobiles
 
         public override bool Move(Direction d)
         {
-            var ns = NetState;
-
-            if (ns != null)
+            if (NetState != null)
             {
-                if (HasGump<ResurrectGump>())
+                var gumps = NetState.GetGumps();
+
+                if (Alive)
                 {
-                    if (Alive)
-                    {
-                        CloseGump<ResurrectGump>();
-                    }
-                    else
-                    {
-                        SendLocalizedMessage(500111); // You are frozen and cannot move.
-                        return false;
-                    }
+                    gumps.Close<ResurrectGump>();
+                }
+                else if (gumps.Has<ResurrectGump>())
+                {
+                    SendLocalizedMessage(500111); // You are frozen and cannot move.
+                    return false;
                 }
             }
 
@@ -1758,8 +1744,9 @@ namespace Server.Mobiles
 
             newZ = foundation.Z + HouseFoundation.GetLevelZ(context.Level, context.Foundation);
 
-            int newX = X, newY = Y;
-            Movement.Movement.Offset(d, ref newX, ref newY);
+            var newX = X;
+            var newY = Y;
+            CalcMoves.Offset(d, ref newX, ref newY);
 
             var startX = foundation.X + foundation.Components.Min.X + 1;
             var startY = foundation.Y + foundation.Components.Min.Y + 1;
@@ -1846,13 +1833,18 @@ namespace Server.Mobiles
             }
         }
 
-        public override void GetContextMenuEntries(Mobile from, List<ContextMenuEntry> list)
+        public override void GetContextMenuEntries(Mobile from, ref PooledRefList<ContextMenuEntry> list)
         {
-            base.GetContextMenuEntries(from, list);
+            base.GetContextMenuEntries(from, ref list);
 
             if (from == this)
             {
-                Quest?.GetContextMenuEntries(list);
+                if (Alive && Backpack != null && CanSee(Backpack))
+                {
+                    list.Add(new OpenBackpackEntry());
+                }
+
+                Quest?.GetContextMenuEntries(ref list);
 
                 if (Alive)
                 {
@@ -1936,17 +1928,17 @@ namespace Server.Mobiles
 
                     if (theirParty == null && ourParty == null)
                     {
-                        list.Add(new AddToPartyEntry(from, this));
+                        list.Add(new AddToPartyEntry());
                     }
                     else if (theirParty != null && theirParty.Leader == from)
                     {
                         if (ourParty == null)
                         {
-                            list.Add(new AddToPartyEntry(from, this));
+                            list.Add(new AddToPartyEntry());
                         }
                         else if (ourParty == theirParty)
                         {
-                            list.Add(new RemoveFromPartyEntry(from, this));
+                            list.Add(new RemoveFromPartyEntry());
                         }
                     }
                 }
@@ -1956,7 +1948,7 @@ namespace Server.Mobiles
                 if (curhouse != null && Alive && Core.Expansion >= Expansion.AOS && curhouse.IsAosRules &&
                     curhouse.IsFriend(from))
                 {
-                    list.Add(new EjectPlayerEntry(from, this));
+                    list.Add(new EjectPlayerEntry());
                 }
             }
         }
@@ -1984,10 +1976,9 @@ namespace Server.Mobiles
         {
             var house = BaseHouse.FindHouseAt(this);
 
-            if (CheckAlive() && house?.IsOwner(this) == true && house.InternalizedVendors.Count > 0)
+            if (CheckAlive() && house?.IsOwner(this) == true && house.InternalizedVendors.Count > 0 && NetState is NetState { } ns)
             {
-                CloseGump<ReclaimVendorGump>();
-                SendGump(new ReclaimVendorGump(house));
+                ns.SendGump(new ReclaimVendorGump(house));
             }
         }
 
@@ -2539,6 +2530,9 @@ namespace Server.Mobiles
             return res;
         }
 
+        [GeneratedEvent(nameof(PlayerDeathEvent))]
+        public static partial void PlayerDeathEvent(PlayerMobile m);
+
         public override void OnDeath(Container c)
         {
             if (m_NonAutoreinsuredItems > 0)
@@ -2553,26 +2547,13 @@ namespace Server.Mobiles
             HueMod = -1;
             NameMod = null;
             SavagePaintExpiration = TimeSpan.Zero;
-
             SetHairMods(-1, -1);
-
-            PolymorphSpell.StopTimer(this);
-            IncognitoSpell.StopTimer(this);
-            DisguisePersistence.RemoveTimer(this);
-            AnimalForm.RemoveContext(this, true);
-
-            EndAction<PolymorphSpell>();
-            EndAction<IncognitoSpell>();
-
-            MeerMage.StopEffect(this, false);
 
             if (Flying)
             {
                 Flying = false;
                 BuffInfo.RemoveBuff(this, BuffIcon.Fly);
             }
-
-            StolenItem.ReturnOnDeath(this, c);
 
             if (PermaFlags.Count > 0)
             {
@@ -2659,10 +2640,6 @@ namespace Server.Mobiles
 
             Guilds.Guild.HandleDeath(this, killer);
 
-            MLQuestSystem.HandleDeath(this);
-
-            DuelContext?.OnDeath(this, c);
-
             if (m_BuffTable != null)
             {
                 using var queue = PooledRefQueue<BuffInfo>.Create();
@@ -2680,6 +2657,8 @@ namespace Server.Mobiles
                     RemoveBuff(queue.Dequeue());
                 }
             }
+
+            PlayerDeathEvent(this);
         }
 
         public override bool MutateSpeech(List<Mobile> hears, ref string text, ref object context)
@@ -3164,7 +3143,7 @@ namespace Server.Mobiles
                     }
             }
 
-            if (!CharacterCreation.VerifyProfession(Profession))
+            if (!ProfessionInfo.VerifyProfession(Profession))
             {
                 Profession = 0;
             }
@@ -3376,14 +3355,25 @@ namespace Server.Mobiles
             base.OnAfterDelete();
 
             var faction = Faction.Find(this);
-
             faction?.RemoveMember(this);
 
             MLQuestSystem.HandleDeletion(this);
-
             BaseHouse.HandleDeletion(this);
-
             DisguisePersistence.RemoveTimer(this);
+
+            StaminaSystem.OnPlayerDeleted(this);
+            JusticeVirtue.OnPlayerDeleted(this);
+            PlayerMurderSystem.OnPlayerDeleted(this);
+            ChampionTitleSystem.OnPlayerDeleted(this);
+
+            // Spells
+            MagicReflectSpell.EndReflect(this);
+            ReactiveArmorSpell.EndArmor(this);
+            ProtectionSpell.EndProtection(this);
+            StoneFormSpell.RemoveEffects(this);
+            AnimateDeadSpell.RemoveEffects(this);
+            SummonFamiliarSpell.RemoveEffects(this);
+            AnimalForm.RemoveLastAnimalForm(this);
         }
 
         public override void GetProperties(IPropertyList list)
@@ -3735,8 +3725,8 @@ namespace Server.Mobiles
                     var name = ammo.Name ?? ammo switch
                     {
                         Arrow _ => $"arrow{(ammo.Amount != 1 ? "s" : "")}",
-                        Bolt _  => $"bolt{(ammo.Amount != 1 ? "s" : "")}",
-                        _       => $"#{ammo.LabelNumber}"
+                        Bolt _ => $"bolt{(ammo.Amount != 1 ? "s" : "")}",
+                        _ => $"#{ammo.LabelNumber}"
                     };
 
                     PlaceInBackpack(ammo);
@@ -3899,11 +3889,11 @@ namespace Server.Mobiles
                 return;
             }
 
-            if (Core.SE)
+            if (Core.SE && NetState is { } ns)
             {
-                if (!HasGump<CancelRenewInventoryInsuranceGump>())
+                if (!ns.HasGump<CancelRenewInventoryInsuranceGump>())
                 {
-                    SendGump(new CancelRenewInventoryInsuranceGump(this, null));
+                    ns.SendGump(new CancelRenewInventoryInsuranceGump(this, null));
                 }
             }
             else
@@ -3949,15 +3939,18 @@ namespace Server.Mobiles
 
             // TODO: Investigate item sorting
 
-            CloseGump<ItemInsuranceMenuGump>();
+            if (NetState is { } ns)
+            {
+                ns.CloseGump<ItemInsuranceMenuGump>();
 
-            if (queue.Count == 0)
-            {
-                SendLocalizedMessage(1114915, "", 0x35); // None of your current items meet the requirements for insurance.
-            }
-            else
-            {
-                SendGump(new ItemInsuranceMenuGump(this, queue.ToArray()));
+                if (queue.Count == 0)
+                {
+                    SendLocalizedMessage(1114915, "", 0x35); // None of your current items meet the requirements for insurance.
+                }
+                else
+                {
+                    ns.SendGump(new ItemInsuranceMenuGump(this, queue.ToArray()));
+                }
             }
         }
 
@@ -3976,12 +3969,14 @@ namespace Server.Mobiles
 
         private void ToggleQuestItemTarget()
         {
-            BaseQuestGump.CloseOtherGumps(this);
-            CloseGump<QuestLogDetailedGump>();
-            CloseGump<QuestLogGump>();
-            CloseGump<QuestOfferGump>();
-            // CloseGump( typeof( UnknownGump802 ) );
-            // CloseGump( typeof( UnknownGump804 ) );
+            if (NetState != null)
+            {
+                BaseQuestGump.CloseOtherGumps(this);
+                var gumps = this.GetGumps();
+                gumps.Close<QuestLogDetailedGump>();
+                gumps.Close<QuestLogGump>();
+                gumps.Close<QuestOfferGump>();
+            }
 
             BeginTarget(-1, false, TargetFlags.None, ToggleQuestItem_Callback);
             SendLocalizedMessage(1072352); // Target the item you wish to toggle Quest Item status on <ESC> to cancel
@@ -4431,7 +4426,10 @@ namespace Server.Mobiles
 
         private void SendYoungDeathNotice()
         {
-            SendGump(new YoungDeathNotice());
+            if (NetState is { } ns)
+            {
+                ns.SendGump(new YoungDeathNoticeGump());
+            }
         }
 
         public override void OnSpeech(SpeechEventArgs e)
@@ -4629,7 +4627,7 @@ namespace Server.Mobiles
             public CallbackEntry(int number, int range, ContextCallback callback) : base(number, range) =>
                 m_Callback = callback;
 
-            public override void OnClick()
+            public override void OnClick(Mobile from, IEntity target)
             {
                 m_Callback?.Invoke();
             }

@@ -4,9 +4,11 @@ using System.Runtime.CompilerServices;
 using ModernUO.Serialization;
 using Server.Collections;
 using Server.Engines.Spawners;
+using Server.Gumps;
 using Server.Items;
 using Server.Multis.Boats;
 using Server.Network;
+using CalcMoves = Server.Movement.Movement;
 
 namespace Server.Multis
 {
@@ -282,8 +284,9 @@ namespace Server.Multis
                 SPlank.SetFacing(_facing);
             }
 
-            int xOffset = 0, yOffset = 0;
-            Movement.Movement.Offset(_facing, ref xOffset, ref yOffset);
+            var xOffset = 0;
+            var yOffset = 0;
+            CalcMoves.Offset(_facing, ref xOffset, ref yOffset);
 
             if (TillerMan != null)
             {
@@ -705,7 +708,7 @@ namespace Server.Multis
             }
             else if (result == DryDockResult.Valid)
             {
-                from.SendGump(new ConfirmDryDockGump(from, this));
+                from.SendGump(new ConfirmDryDockGump(this));
             }
         }
 
@@ -1722,7 +1725,8 @@ namespace Server.Multis
                 return false;
             }
 
-            int rx = 0, ry = 0;
+            var rx = 0;
+            var ry = 0;
             var d = (Direction)(((int)_facing + (int)dir) & 0x7);
             Movement.Movement.Offset(d, ref rx, ref ry);
 
@@ -2083,11 +2087,13 @@ namespace Server.Multis
             PPlank?.SetFacing(facing);
             SPlank?.SetFacing(facing);
 
-            int xOffset = 0, yOffset = 0;
-            Movement.Movement.Offset(facing, ref xOffset, ref yOffset);
+            var xOffset = 0;
+            var yOffset = 0;
+            CalcMoves.Offset(facing, ref xOffset, ref yOffset);
 
             var count = ((_facing - old) & 0x7) / 2;
 
+            using var queue = PooledRefQueue<IEntity>.Create();
             foreach (var e in GetMovingEntities())
             {
                 if (e == this)
@@ -2095,15 +2101,18 @@ namespace Server.Multis
                     continue;
                 }
 
-                if (e is Item item)
-                {
-                    item.Location = Rotate(item.Location, count);
-                }
-                else if (e is Mobile m)
+                if (e is Mobile m)
                 {
                     m.Direction = (m.Direction - old + facing) & Direction.Mask;
-                    m.Location = Rotate(m.Location, count);
                 }
+
+                queue.Enqueue(e);
+            }
+
+            while (queue.Count > 0)
+            {
+                var e = queue.Dequeue();
+                e.Location = Rotate(e.Location, count);
             }
 
             if (TillerMan != null)
@@ -2154,6 +2163,15 @@ namespace Server.Multis
         {
             EventSink.WorldLoad += UpdateAllComponents;
             EventSink.WorldSave += UpdateAllComponents;
+
+            // Fix tiler/hold/plank locations
+            foreach (var item in World.Items.Values)
+            {
+                if (item is BaseBoat boat)
+                {
+                    boat.UpdateComponents();
+                }
+            }
         }
 
         private class TurnTimer : Timer

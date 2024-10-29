@@ -17,7 +17,7 @@ using Server.Text;
 
 namespace Server;
 
-public static class Utility
+public static partial class Utility
 {
     private static Dictionary<IPAddress, IPAddress> _ipAddressTable;
 
@@ -237,6 +237,8 @@ public static class Utility
     {
         var chars = STArrayPool<char>.Shared.Rent(str.Length);
         var span = chars.AsSpan(0, str.Length);
+        str.CopyTo(span);
+
         var formattable = new PooledArraySpanFormattable(chars, str.Length);
 
         if (!str.IsNullOrWhiteSpace())
@@ -419,7 +421,7 @@ public static class Utility
     // This requires copying the List, which is an O(n) operation.
     public static List<R> ToList<T, R>(this PooledRefList<T> poolList) where T : R
     {
-        var size = poolList._size;
+        var size = poolList.Count;
         var items = poolList._items;
 
         var list = new List<R>(size);
@@ -428,7 +430,7 @@ public static class Utility
             return list;
         }
 
-        for (var i = 0; i < items.Length; i++)
+        for (var i = 0; i < size; i++)
         {
             list.Add(items[i]);
         }
@@ -746,6 +748,12 @@ public static class Utility
     public static T RandomList<T>(params T[] list) => list.RandomElement();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static T RandomElement<T>(this ReadOnlySpan<T> list) => list.Length == 0 ? default : list[Random(list.Length)];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static T RandomElement<T>(this T[] list) => list.RandomElement(default);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T RandomElement<T>(this IList<T> list) => list.RandomElement(default);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -857,6 +865,10 @@ public static class Utility
         list.RemoveAt(index);
         return value;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static T RandomElement<T>(this T[] list, T valueIfZero) =>
+        list.Length == 0 ? valueIfZero : list[Random(list.Length)];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T RandomElement<T>(this IList<T> list, T valueIfZero) =>
@@ -1447,5 +1459,13 @@ public static class Utility
         var b = (c32 & 0xFF) >> 3;
 
         return (r << 10) | (g << 5) | b;
+    }
+
+    public static void AddOrUpdate<TKey, TValue>(this ConditionalWeakTable<TKey, TValue> table, TKey key, TValue value)
+        where TKey : class
+        where TValue : class
+    {
+        table.Remove(key);
+        table.Add(key, value);
     }
 }

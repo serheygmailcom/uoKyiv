@@ -1,6 +1,6 @@
 /*************************************************************************
  * ModernUO                                                              *
- * Copyright 2019-2023 - ModernUO Development Team                       *
+ * Copyright 2019-2024 - ModernUO Development Team                       *
  * Email: hi@modernuo.com                                                *
  * File: IncomingExtendedCommandPackets.cs                               *
  *                                                                       *
@@ -15,13 +15,13 @@
 
 using System.Buffers;
 using System.Runtime.CompilerServices;
-using Server.ContextMenus;
+using ModernUO.CodeGeneratedEvents;
 using Server.Items;
 using Server.Mobiles;
 
 namespace Server.Network;
 
-public static class IncomingExtendedCommandPackets
+public static partial class IncomingExtendedCommandPackets
 {
     private static readonly PacketHandler[] _extendedHandlers = new PacketHandler[0x100];
 
@@ -51,8 +51,6 @@ public static class IncomingExtendedCommandPackets
         RegisterExtended(0x0E, true, &Animate);
         RegisterExtended(0x0F, false, &Empty); // What's this?
         RegisterExtended(0x10, true, &QueryProperties);
-        RegisterExtended(0x13, true, &ContextMenuRequest);
-        RegisterExtended(0x15, true, &ContextMenuResponse);
         RegisterExtended(0x1A, true, &StatLockChange);
         RegisterExtended(0x1C, true, &CastSpell);
         RegisterExtended(0x24, false, &UnhandledBF);
@@ -386,102 +384,6 @@ public static class IncomingExtendedCommandPackets
         }
     }
 
-    public static void ContextMenuResponse(NetState state, SpanReader reader)
-    {
-        var from = state.Mobile;
-
-        if (from == null)
-        {
-            return;
-        }
-
-        var menu = from.ContextMenu;
-
-        from.ContextMenu = null;
-
-        if (menu != null && from == menu.From)
-        {
-            var entity = World.FindEntity((Serial)reader.ReadUInt32());
-
-            if (entity != null && entity == menu.Target && from.CanSee(entity))
-            {
-                Point3D p;
-
-                if (entity is Mobile)
-                {
-                    p = entity.Location;
-                }
-                else if (entity is Item item)
-                {
-                    p = item.GetWorldLocation();
-                }
-                else
-                {
-                    return;
-                }
-
-                int index = reader.ReadUInt16();
-
-                if (index < menu.Entries.Length)
-                {
-                    var e = menu.Entries[index];
-
-                    var range = e.Range;
-
-                    if (range == -1)
-                    {
-                        range = 18;
-                    }
-
-                    if (e.Enabled && from.InRange(p, range))
-                    {
-                        e.OnClick();
-                    }
-                }
-            }
-        }
-    }
-
-    public static void ContextMenuRequest(NetState state, SpanReader reader)
-    {
-        var from = state.Mobile;
-        var target = World.FindEntity((Serial)reader.ReadUInt32());
-
-        if (from == null || target == null || from.Map != target.Map || !from.CanSee(target))
-        {
-            return;
-        }
-
-        var item = target as Item;
-
-        var checkLocation = item?.GetWorldLocation() ?? target.Location;
-        if (!(Utility.InUpdateRange(from.Location, checkLocation) && from.CheckContextMenuDisplay(target)))
-        {
-            return;
-        }
-
-        var c = new ContextMenu(from, target);
-
-        if (c.Entries.Length <= 0)
-        {
-            return;
-        }
-
-        if (item?.RootParent is Mobile mobile && mobile != from && mobile.AccessLevel >= from.AccessLevel)
-        {
-            for (var i = 0; i < c.Entries.Length; ++i)
-            {
-                var entry = c.Entries[i];
-                if (!entry.NonLocalUse)
-                {
-                    entry.Enabled = false;
-                }
-            }
-        }
-
-        from.ContextMenu = c;
-    }
-
     public static void BandageTarget(NetState state, SpanReader reader)
     {
         var from = state.Mobile;
@@ -531,13 +433,16 @@ public static class IncomingExtendedCommandPackets
         PlayerMobile.TargetedSkillUse(state.Mobile, World.FindEntity((Serial)reader.ReadUInt32()), skillId);
     }
 
+    [GeneratedEvent("TargetByResourceMacro")]
+    public static partial void InvokeTargetByResourceMacro(Mobile m, Item item, short resourceType);
+
     public static void TargetByResourceMacro(NetState state, SpanReader reader)
     {
         var serial = (Serial)reader.ReadUInt32();
 
         if (serial.IsItem)
         {
-            EventSink.InvokeTargetByResourceMacro(state.Mobile, World.FindItem(serial), reader.ReadInt16());
+            InvokeTargetByResourceMacro(state.Mobile, World.FindItem(serial), reader.ReadInt16());
         }
     }
 }

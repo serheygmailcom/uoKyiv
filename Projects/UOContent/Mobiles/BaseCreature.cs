@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using ModernUO.CodeGeneratedEvents;
 using Server.Collections;
 using Server.ContextMenus;
 using Server.Engines.ConPVP;
@@ -155,7 +156,7 @@ namespace Server.Mobiles
         }
     }
 
-    public abstract class BaseCreature : Mobile, IHonorTarget, IQuestGiver
+    public abstract partial class BaseCreature : Mobile, IHonorTarget, IQuestGiver
     {
         public enum Allegiance
         {
@@ -181,7 +182,6 @@ namespace Server.Mobiles
         public const int MaxOwners = 5;
 
         public const int DefaultRangePerception = 16;
-        public const int OldRangePerception = 10;
 
         private const double ChanceToRummage = 0.5; // 50%
 
@@ -350,15 +350,10 @@ namespace Server.Mobiles
         public BaseCreature(
             AIType ai,
             FightMode mode = FightMode.Closest,
-            int iRangePerception = 10,
+            int iRangePerception = DefaultRangePerception,
             int iRangeFight = 1
         )
         {
-            if (iRangePerception == OldRangePerception)
-            {
-                iRangePerception = DefaultRangePerception;
-            }
-
             m_Loyalty = MaxLoyalty; // Wonderfully Happy
 
             m_CurrentAI = ai;
@@ -1980,11 +1975,6 @@ namespace Server.Mobiles
             _passiveSpeed = reader.ReadDouble();
             _currentSpeed = reader.ReadDouble();
 
-            if (RangePerception == OldRangePerception)
-            {
-                RangePerception = DefaultRangePerception;
-            }
-
             m_Home.X = reader.ReadInt();
             m_Home.Y = reader.ReadInt();
             m_Home.Z = reader.ReadInt();
@@ -2546,25 +2536,25 @@ namespace Server.Mobiles
             return base.OnMoveOver(m);
         }
 
-        public virtual void AddCustomContextEntries(Mobile from, List<ContextMenuEntry> list)
+        public virtual void AddCustomContextEntries(Mobile from, ref PooledRefList<ContextMenuEntry> list)
         {
         }
 
-        public override void GetContextMenuEntries(Mobile from, List<ContextMenuEntry> list)
+        public override void GetContextMenuEntries(Mobile from, ref PooledRefList<ContextMenuEntry> list)
         {
-            base.GetContextMenuEntries(from, list);
+            base.GetContextMenuEntries(from, ref list);
 
             if (Commandable)
             {
-                AIObject?.GetContextMenuEntries(from, list);
+                AIObject?.GetContextMenuEntries(from, ref list);
             }
 
             if (m_bTamable && !m_Controlled && from.Alive)
             {
-                list.Add(new TameEntry(from, this));
+                list.Add(new TameEntry(from.Female ? AllowFemaleTamer : AllowMaleTamer));
             }
 
-            AddCustomContextEntries(from, list);
+            AddCustomContextEntries(from, ref list);
 
             if (CanTeach && from.Alive)
             {
@@ -2585,7 +2575,7 @@ namespace Server.Mobiles
                             toTeach = 420;
                         }
 
-                        list.Add(new TeachEntry((SkillName)i, this, from, toTeach > theirSkill.BaseFixedPoint));
+                        list.Add(new TeachEntry((SkillName)i, toTeach > theirSkill.BaseFixedPoint));
                     }
                 }
             }
@@ -3259,10 +3249,11 @@ namespace Server.Mobiles
             }
         }
 
+        [GeneratedEvent(nameof(CreatureDeathEvent))]
+        public static partial void CreatureDeathEvent(Mobile m);
+
         public override void OnDeath(Container c)
         {
-            MeerMage.StopEffect(this, false);
-
             if (IsBonded)
             {
                 Effects.PlaySound(this, GetDeathSound());
@@ -3323,7 +3314,7 @@ namespace Server.Mobiles
                     OwnerAbandonTime = DateTime.MinValue;
                 }
 
-                GiftOfLifeSpell.HandleDeath(this);
+                CreatureDeathEvent(this);
 
                 CheckStatTimers();
                 return;
@@ -3446,6 +3437,8 @@ namespace Server.Mobiles
             {
                 c.Delete();
             }
+
+            CreatureDeathEvent(this);
         }
 
         public override void OnDelete()
@@ -5505,32 +5498,25 @@ namespace Server.Mobiles
 
         private class TameEntry : ContextMenuEntry
         {
-            private readonly BaseCreature m_Mobile;
+            public TameEntry(bool enabled) : base(6130, 6) => Enabled = enabled;
 
-            public TameEntry(Mobile from, BaseCreature creature) : base(6130, 6)
+            public override void OnClick(Mobile from, IEntity target)
             {
-                m_Mobile = creature;
-
-                Enabled = Enabled && (from.Female ? creature.AllowFemaleTamer : creature.AllowMaleTamer);
-            }
-
-            public override void OnClick()
-            {
-                if (!Owner.From.CheckAlive())
+                if (!from.CheckAlive() || target is not BaseCreature bc)
                 {
                     return;
                 }
 
-                Owner.From.TargetLocked = true;
+                from.TargetLocked = true;
                 AnimalTaming.DisableMessage = true;
 
-                if (Owner.From.UseSkill(SkillName.AnimalTaming))
+                if (from.UseSkill(SkillName.AnimalTaming))
                 {
-                    Owner.From.Target.Invoke(Owner.From, m_Mobile);
+                    from.Target.Invoke(from, bc);
                 }
 
                 AnimalTaming.DisableMessage = false;
-                Owner.From.TargetLocked = false;
+                from.TargetLocked = false;
             }
         }
 

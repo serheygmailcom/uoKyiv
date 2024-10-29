@@ -17,9 +17,9 @@ namespace Server.Multis
 {
     public abstract class BaseHouse : BaseMulti
     {
-        public const int MaxCoOwners = 15;
+        public static bool DecayEnabled { get; set; }
 
-        public const bool DecayEnabled = true;
+        public const int MaxCoOwners = 15;
 
         public const int MaximumBarkeepCount = 2;
 
@@ -1265,6 +1265,7 @@ namespace Server.Multis
 
         public static void Configure()
         {
+            DecayEnabled = ServerConfiguration.GetOrUpdateSetting("houseDecay.enable", true);
             LockedDownFlag = 1;
             SecureFlag = 2;
         }
@@ -2247,8 +2248,7 @@ namespace Server.Multis
                 }
                 else
                 {
-                    to.CloseGump<HouseTransferGump>();
-                    to.SendGump(new HouseTransferGump(from, to, this));
+                    to.SendGump(new AcceptHouseTransferGump(from, this));
                 }
             }
         }
@@ -2271,23 +2271,22 @@ namespace Server.Multis
             }
         }
 
-        private void ConfirmTransfer_Callback(Mobile to, bool ok, Mobile from)
+        private void ConfirmTransfer_Callback(Mobile transferee, bool ok, Mobile transferor)
         {
-            if (!ok || Deleted || !from.CheckAlive() || !IsOwner(from))
+            if (!ok || Deleted || !transferor.CheckAlive() || !IsOwner(transferor))
             {
                 return;
             }
 
-            if (CheckTransferPosition(from, to))
+            if (CheckTransferPosition(transferor, transferee))
             {
-                to.CloseGump<HouseTransferGump>();
-                to.SendGump(new HouseTransferGump(from, to, this));
+                transferee.SendGump(new AcceptHouseTransferGump(transferor, this));
             }
         }
 
-        public void EndConfirmTransfer(Mobile from, Mobile to)
+        public void EndConfirmTransfer(Mobile transferor, Mobile transferee)
         {
-            if (Deleted || !from.CheckAlive() || !IsOwner(from))
+            if (Deleted || !transferor.CheckAlive() || !IsOwner(transferor))
             {
                 return;
             }
@@ -2295,42 +2294,42 @@ namespace Server.Multis
             if (NewVendorSystem && HasPersonalVendors)
             {
                 // You cannot trade this house while you still have personal vendors inside.
-                from.SendLocalizedMessage(1062467);
+                transferor.SendLocalizedMessage(1062467);
             }
             else if (DecayLevel == DecayLevel.DemolitionPending)
             {
                 // This house has been marked for demolition, and it cannot be transferred.
-                from.SendLocalizedMessage(1005321);
+                transferor.SendLocalizedMessage(1005321);
             }
-            else if (from == to)
+            else if (transferor == transferee)
             {
-                from.SendLocalizedMessage(1005330); // You cannot transfer a house to yourself, silly.
+                transferor.SendLocalizedMessage(1005330); // You cannot transfer a house to yourself, silly.
             }
-            else if (HasAccountHouse(to))
+            else if (HasAccountHouse(transferee))
             {
-                from.SendLocalizedMessage(501388); // You cannot transfer ownership to another house owner or co-owner!
+                transferor.SendLocalizedMessage(501388); // You cannot transfer ownership to another house owner or co-owner!
             }
-            else if (CheckTransferPosition(from, to))
+            else if (CheckTransferPosition(transferor, transferee))
             {
-                var fromState = from.NetState;
-                var toState = to.NetState;
+                var fromState = transferor.NetState;
+                var toState = transferee.NetState;
 
                 if (fromState != null && toState != null)
                 {
-                    if (from.HasTrade)
+                    if (transferor.HasTrade)
                     {
                         // You cannot trade a house while you have other trades pending.
-                        from.SendLocalizedMessage(1062071);
+                        transferor.SendLocalizedMessage(1062071);
                     }
-                    else if (to.HasTrade)
+                    else if (transferee.HasTrade)
                     {
                         // You cannot trade a house while you have other trades pending.
-                        to.SendLocalizedMessage(1062071);
+                        transferee.SendLocalizedMessage(1062071);
                     }
-                    else if (!to.Alive)
+                    else if (!transferee.Alive)
                     {
                         // TODO: Check if the message is correct.
-                        from.SendLocalizedMessage(1062069); // You cannot transfer this house to that person.
+                        transferor.SendLocalizedMessage(1062069); // You cannot transfer this house to that person.
                     }
                     else
                     {
@@ -2400,8 +2399,7 @@ namespace Server.Multis
 
                 if (info != null)
                 {
-                    m.CloseGump<SetSecureLevelGump>();
-                    m.SendGump(new SetSecureLevelGump(m_Owner, info, this));
+                    m.SendGump(new SetSecureLevelGump(info, this));
                 }
                 else if (item.Parent != null)
                 {
@@ -2436,8 +2434,7 @@ namespace Server.Multis
                     LockDowns.Remove(item);
                     item.Movable = false;
 
-                    m.CloseGump<SetSecureLevelGump>();
-                    m.SendGump(new SetSecureLevelGump(m_Owner, info, this));
+                    m.SendGump(new SetSecureLevelGump(info, this));
                 }
             }
         }
@@ -4296,13 +4293,8 @@ namespace Server.Multis
 
     public class SetSecureLevelEntry : ContextMenuEntry
     {
-        private readonly Item m_Item;
-        private ISecurable m_Securable;
-
-        public SetSecureLevelEntry(Item item, ISecurable securable) : base(6203, 6)
+        public SetSecureLevelEntry() : base(6203, 6)
         {
-            m_Item = item;
-            m_Securable = securable;
         }
 
         public static ISecurable GetSecurable(Mobile from, Item item)
@@ -4313,8 +4305,6 @@ namespace Server.Multis
             {
                 return null;
             }
-
-            ISecurable sec = null;
 
             if (item is ISecurable securable)
             {
@@ -4332,45 +4322,49 @@ namespace Server.Multis
 
                 if (isOwned)
                 {
-                    sec = securable;
+                    return securable;
                 }
             }
             else
             {
                 var list = house.Secures;
 
-                for (var i = 0; sec == null && i < list?.Count; ++i)
+                for (var i = 0; i < list?.Count; ++i)
                 {
                     var si = list[i];
 
                     if (si.Item == item)
                     {
-                        sec = si;
+                        return si;
                     }
                 }
             }
 
-            return sec;
+            return null;
         }
 
-        public static void AddTo(Mobile from, Item item, List<ContextMenuEntry> list)
+        public static void AddTo(Mobile from, Item item, ref PooledRefList<ContextMenuEntry> list)
         {
             var sec = GetSecurable(from, item);
 
             if (sec != null)
             {
-                list.Add(new SetSecureLevelEntry(item, sec));
+                list.Add(new SetSecureLevelEntry());
             }
         }
 
-        public override void OnClick()
+        public override void OnClick(Mobile from, IEntity target)
         {
-            var sec = GetSecurable(Owner.From, m_Item);
+            if (target is not Item item)
+            {
+                return;
+            }
+
+            var sec = GetSecurable(from, item);
 
             if (sec != null)
             {
-                Owner.From.CloseGump<SetSecureLevelGump>();
-                Owner.From.SendGump(new SetSecureLevelGump(Owner.From, sec, BaseHouse.FindHouseAt(m_Item)));
+                from.SendGump(new SetSecureLevelGump(sec, BaseHouse.FindHouseAt(item)));
             }
         }
     }

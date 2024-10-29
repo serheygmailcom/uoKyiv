@@ -10,7 +10,7 @@ namespace Server.Engines.Quests
     {
         private int m_CurProgress;
 
-        public abstract object Message { get; }
+        public abstract int Message { get; }
 
         public virtual int MaxProgress => 1;
         public virtual QuestItemInfo[] Info => null;
@@ -129,6 +129,8 @@ namespace Server.Engines.Quests
     public class QuestLogUpdatedGump : BaseQuestGump
     {
         private readonly QuestSystem m_System;
+
+        public override bool Singleton => true;
 
         public QuestLogUpdatedGump(QuestSystem system) : base(3, 30)
         {

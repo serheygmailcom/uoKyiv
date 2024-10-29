@@ -11,7 +11,7 @@ namespace Server.Gumps
             // Opening Message
             "<center>Treasures of Tokuno Admin</center><br>" +
             "-Use the gems to switch eras<br>" +
-            "-Drop era and Reward era can be changed seperately<br>" +
+            "-Drop era and Reward era can be changed separately<br>" +
             "-Drop era can be deactivated, Reward era is always activated",
             // Treasures of Tokuno 1 message
             "<center>Treasures of Tokuno 1</center><br>" +
@@ -30,6 +30,8 @@ namespace Server.Gumps
         };
 
         private readonly int m_ToTEras;
+
+        public override bool Singleton => true;
 
         public ToTAdminGump() : base(30, 50)
         {
@@ -123,11 +125,7 @@ namespace Server.Gumps
         [Usage("ToTAdmin"), Description("Displays a menu to configure Treasures of Tokuno.")]
         public static void ToTAdmin_OnCommand(CommandEventArgs e)
         {
-            ToTAdminGump tg;
-
-            tg = new ToTAdminGump();
-            e.Mobile.CloseGump<ToTAdminGump>();
-            e.Mobile.SendGump(tg);
+            e.Mobile.SendGump(new ToTAdminGump());
         }
     }
 }

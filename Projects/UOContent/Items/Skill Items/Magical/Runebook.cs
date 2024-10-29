@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using ModernUO.Serialization;
+using Server.Collections;
 using Server.ContextMenus;
 using Server.Engines.Craft;
 using Server.Gumps;
@@ -72,7 +73,7 @@ public partial class Runebook : Item, ISecurable, ICraftable
     [CommandProperty(AccessLevel.GameMaster)]
     public DateTime NextUse { get; set; }
 
-    public List<Mobile> Openers { get; set; } = new();
+    public HashSet<Mobile> Openers { get; } = new();
 
     public override int LabelNumber => 1041267; // runebook
 
@@ -113,10 +114,10 @@ public partial class Runebook : Item, ISecurable, ICraftable
 
     public override bool AllowEquippedCast(Mobile from) => true;
 
-    public override void GetContextMenuEntries(Mobile from, List<ContextMenuEntry> list)
+    public override void GetContextMenuEntries(Mobile from, ref PooledRefList<ContextMenuEntry> list)
     {
-        base.GetContextMenuEntries(from, list);
-        SetSecureLevelEntry.AddTo(from, this, list);
+        base.GetContextMenuEntries(from, ref list);
+        SetSecureLevelEntry.AddTo(from, this, ref list);
     }
 
     private void Deserialize(IGenericReader reader, int version)
@@ -169,25 +170,7 @@ public partial class Runebook : Item, ISecurable, ICraftable
         from.SendLocalizedMessage(502421); // You have removed the rune.
     }
 
-    public bool IsOpen(Mobile toCheck)
-    {
-        var ns = toCheck.NetState;
-
-        if (ns == null)
-        {
-            return false;
-        }
-
-        foreach (var gump in ns.Gumps)
-        {
-            if ((gump as RunebookGump)?.Book == this)
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
+    public bool IsOpen(Mobile toCheck) => toCheck.FindGump<RunebookGump>()?.Book == this;
 
     public override void GetProperties(IPropertyList list)
     {
@@ -261,11 +244,14 @@ public partial class Runebook : Item, ISecurable, ICraftable
                 return;
             }
 
-            from.CloseGump<RunebookGump>();
-            from.SendGump(new RunebookGump(from, this));
-
-            Openers.Add(from);
+            SendGumpTo(from);
         }
+    }
+
+    public void SendGumpTo(Mobile from)
+    {
+        from.SendGump(new RunebookGump(this), true);
+        Openers.Add(from);
     }
 
     public virtual void OnTravel()
@@ -407,7 +393,7 @@ public partial class RunebookEntry
 
     public RunebookEntry(
         Runebook runebook,
-        Point3D loc = new(),
+        Point3D loc = default,
         Map map = null,
         string description = null,
         BaseHouse house = null

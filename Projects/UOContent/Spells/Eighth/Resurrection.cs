@@ -4,7 +4,7 @@ using Server.Targeting;
 
 namespace Server.Spells.Eighth
 {
-    public class ResurrectionSpell : MagerySpell, ISpellTargetingMobile
+    public class ResurrectionSpell : MagerySpell, ITargetingSpell<Mobile>
     {
         private static readonly SpellInfo _info = new(
             "Resurrection",
@@ -21,6 +21,8 @@ namespace Server.Spells.Eighth
         }
 
         public override SpellCircle Circle => SpellCircle.Eighth;
+
+        public int TargetRange => 1;
 
         public void Target(Mobile m)
         {
@@ -61,8 +63,7 @@ namespace Server.Spells.Eighth
                 m.PlaySound(0x214);
                 m.FixedEffect(0x376A, 10, 16);
 
-                m.CloseGump<ResurrectGump>();
-                m.SendGump(new ResurrectGump(m, Caster));
+                m.SendGump(new ResurrectGump(Caster));
             }
         }
 
@@ -79,7 +80,7 @@ namespace Server.Spells.Eighth
 
         public override void OnCast()
         {
-            Caster.Target = new SpellTargetMobile(this, TargetFlags.Beneficial, 1);
+            Caster.Target = new SpellTarget<Mobile>(this, TargetFlags.Beneficial);
         }
     }
 }

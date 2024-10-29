@@ -1,3 +1,5 @@
+using Server.Gumps;
+
 namespace Server.Engines.AdvancedSearch;
 
 public static class AdvancedSearchCommand
@@ -12,9 +14,6 @@ public static class AdvancedSearchCommand
     [Aliases("AdvSrch", "AS", "XmlFind")]
     private static void OnCommand(CommandEventArgs e)
     {
-        var from = e.Mobile;
-
-        from.CloseGump<AdvancedSearchGump>();
-        from.SendGump(new AdvancedSearchGump(from));
+        e.Mobile.SendGump(new AdvancedSearchGump(), true);
     }
 }

@@ -226,11 +226,14 @@ public partial class Map
 
             _bounds = bounds;
 
-            map.CalculateSectors(bounds, out _sectorStartX, out var _sectorStartY, out _sectorEndX, out _sectorEndY);
+            if (map != null)
+            {
+                map.CalculateSectors(bounds, out _sectorStartX, out var _sectorStartY, out _sectorEndX, out _sectorEndY);
 
-            // We start the X sector one short because it gets incremented immediately in MoveNext()
-            _currentSectorX = _sectorStartX - 1;
-            _currentSectorY = _sectorStartY;
+                // We start the X sector one short because it gets incremented immediately in MoveNext()
+                _currentSectorX = _sectorStartX - 1;
+                _currentSectorY = _sectorStartY;
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -241,6 +244,11 @@ public partial class Map
             if (map == null)
             {
                 return false;
+            }
+
+            if (!Unsafe.IsNullRef(in _linkList) && _linkList.Version != _currentVersion)
+            {
+                throw new InvalidOperationException(CollectionThrowStrings.InvalidOperation_EnumFailedVersion);
             }
 
             Item current = _current;
@@ -275,11 +283,6 @@ public partial class Map
                     _linkList = ref map.GetRealSector(currentSectorX, currentSectorY).Items;
                     _currentVersion = _linkList.Version;
                     current = _linkList._first;
-                }
-
-                if (_linkList.Version != _currentVersion)
-                {
-                    throw new InvalidOperationException(CollectionThrowStrings.InvalidOperation_EnumFailedVersion);
                 }
 
                 if (current is T { Deleted: false, Parent: null } o && bounds.Contains(o.Location))

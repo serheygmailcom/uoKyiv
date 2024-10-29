@@ -174,7 +174,7 @@ public class AddonGenerator
 
         using var target = PooledRefList<Item>.Create();
 
-        foreach(Static s in map.GetItemsInBounds<Static>(bounds))
+        foreach (Static s in map.GetItemsInBounds<Static>(bounds))
         {
             if (!range || s.Z >= min && s.Z <= max)
             {
@@ -189,7 +189,7 @@ public class AddonGenerator
         }
 
         // Get correct bounds
-        foreach(Item item in target)
+        foreach (Item item in target)
         {
             if (item.Z < center.Z)
             {
@@ -241,7 +241,7 @@ public class AddonGenerator
             }
         }
 
-        foreach(Item item in target)
+        foreach (Item item in target)
         {
             int xOffset = item.X - center.X;
             int yOffset = item.Y - center.Y;
@@ -307,9 +307,10 @@ public class AddonGenerator
         private const int GreenHue = 0x40;
         private readonly PickerState _state;
 
+        public override bool Singleton => true;
+
         public InternalGump(Mobile m, PickerState state) : base(100, 50)
         {
-            m.CloseGump<InternalGump>();
             _state = state;
             MakeGump();
         }
