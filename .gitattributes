@@ -38,7 +38,7 @@ publish.cmd             text eol=lf
 # Exclude specific files from merging
 Distribution/Data/regions.json merge=ours
 Distribution/Data/teleporters.json merge=ours
-Distribution/Data/Decorations/* merge=ours
+Distribution/Data/Decoration/* merge=ours
 Distribution/Data/Components/* merge=ours
 Distribution/Data/Spawns/* merge=ours
 Distribution/Data/Locations/* merge=ours
