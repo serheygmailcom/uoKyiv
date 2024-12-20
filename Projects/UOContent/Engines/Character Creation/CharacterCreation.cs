@@ -88,13 +88,13 @@ public static partial class CharacterCreation
     public static readonly CityInfo[] FeluccaStartingCities =
     [
         new("Yew", "The Empath Abbey", 1075072, 633, 858, 0, Map.Felucca),
-        new("Minoc", "The Barnacle", 1075073, 2476, 413, 15, Map.Felucca),
+        //new("Minoc", "The Barnacle", 1075073, 2476, 413, 15, Map.Felucca),
         new("Britain", "Sweet Dreams Inn", 1075074, 1496, 1628, 10, Map.Felucca),
         new("Moonglow", "The Scholars Inn", 1075075, 4408, 1168, 0, Map.Felucca),
         new("Trinsic", "The Traveler's Inn", 1075076, 1845, 2745, 0, Map.Felucca),
         new("Magincia", "The Great Horns Tavern", 1075077, 3734, 2222, 20, Map.Felucca),
-        new("Jhelom", "The Mercenary Inn", 1075078, 1374, 3826, 0, Map.Felucca),
-        new("Skara Brae", "The Falconer's Inn", 1075079, 618, 2234, 0, Map.Felucca),
+        //new("Jhelom", "The Mercenary Inn", 1075078, 1374, 3826, 0, Map.Felucca),
+        //new("Skara Brae", "The Falconer's Inn", 1075079, 618, 2234, 0, Map.Felucca),
         new("Vesper", "The Ironwood Inn", 1075080, 2771, 976, 0, Map.Felucca)
     ];
 
@@ -173,9 +173,10 @@ public static partial class CharacterCreation
         }
 
         m.PackItem(new RedBook("a book", m.Name, 20, true));
-        m.PackItem(new Gold(1000)); // Starting gold can be customized here
+        m.PackItem(new Gold(1)); // Starting gold can be customized here
         m.PackItem(new Dagger());
         m.PackItem(new Candle());
+        m.PackItem(new Bag() { Hue = 3, LootType = LootType.Newbied, Name = "Quintessence Oils", Movable = false } );
     }
 
     private static Mobile CreateMobile(Account a)
@@ -493,13 +494,15 @@ public static partial class CharacterCreation
             if (skill != null)
             {
                 skill.BaseFixedPoint = value * 10;
-                m.AddSkillItems(name);
+                //m.AddSkillItems(name);
             }
         }
     }
 
     private static void GiveProfessionItems(Mobile m, ProfessionInfo profession, int shirtHue, int pantsHue)
     {
+        return;
+
         var elf = m.Race == Race.Elf;
         var gargoyle = m.Race == Race.Gargoyle;
 

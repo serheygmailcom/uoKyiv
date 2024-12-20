@@ -33,7 +33,8 @@ public abstract partial class BaseWeapon : Item, IWeapon, IFactionItem, ICraftab
 
     public static void Configure()
     {
-        _enableInstaHit = ServerConfiguration.GetSetting("melee.enableInstaHit", !Core.UOR);
+        _enableInstaHit = false;
+        //_enableInstaHit = ServerConfiguration.GetSetting("melee.enableInstaHit", !Core.UOR);
     }
 
     /* Weapon internals work differently now (Mar 13 2003)
