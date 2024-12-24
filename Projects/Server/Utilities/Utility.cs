@@ -943,6 +943,13 @@ public static partial class Utility
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double RandomDouble() => BuiltInRng.NextDouble();
 
+#region Mine
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int RandomLerp(int skillValue) => BuiltInRng.GetRandomBoundedValue(skillValue);
+
+#endregion
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Point3D RandomPointIn(Rectangle2D rect, Map map)
     {

@@ -8,8 +8,9 @@ namespace Server.SkillHandlers
 #pragma warning disable CA1052 // Static holder types should be Static or NotInheritable
     public class Stealth
     {
-        public static double HidingRequirement => Core.ML ? 30.0 :
-            Core.SE ? 50.0 : 80.0;
+        public static double HidingRequirement => 0;
+            //Core.ML ? 30.0 :
+            //Core.SE ? 50.0 : 80.0;
 
         // TODO: Move to configuration
         public static int[,] ArmorTable { get; } =
@@ -37,6 +38,8 @@ namespace Server.SkillHandlers
 
         public static int GetArmorRating(Mobile m)
         {
+            return 0;
+
             if (!Core.AOS)
             {
                 return (int)m.ArmorRating;
@@ -74,11 +77,7 @@ namespace Server.SkillHandlers
             {
                 m.SendLocalizedMessage(502725); // You must hide first
             }
-            else if (m.Skills.Hiding.Base < HidingRequirement)
-            {
-                m.SendLocalizedMessage(502726); // You are not hidden well enough.  Become better at hiding.
-                m.RevealingAction();
-            }
+
             else if (!m.CanBeginAction<Stealth>())
             {
                 m.SendLocalizedMessage(1063086); // You cannot use this skill right now.
@@ -86,20 +85,21 @@ namespace Server.SkillHandlers
             }
             else
             {
-                var armorRating = GetArmorRating(m);
+                //var armorRating = GetArmorRating(m);
 
-                if (armorRating >= (Core.AOS ? 42 : 26)) // I have a hunch '42' was chosen cause someone's a fan of DNA
-                {
-                    m.SendLocalizedMessage(502727); // You could not hope to move quietly wearing this much armor.
-                    m.RevealingAction();
-                }
-                else if (m.CheckSkill(
-                    SkillName.Stealth,
-                    -20.0 + armorRating * 2,
-                    (Core.AOS ? 60.0 : 80.0) + armorRating * 2
-                ))
-                {
-                    m.AllowedStealthSteps = Math.Max((int)(m.Skills.Stealth.Value / (Core.AOS ? 5.0 : 10.0)), 1);
+                //if (armorRating >= (Core.AOS ? 42 : 26)) // I have a hunch '42' was chosen cause someone's a fan of DNA
+                //{
+                //    m.SendLocalizedMessage(502727); // You could not hope to move quietly wearing this much armor.
+                //    m.RevealingAction();
+                //}
+                //else if (m.CheckSkill(
+                //    SkillName.Stealth,
+                //    -20.0 + armorRating * 2,
+                //    (Core.AOS ? 60.0 : 80.0) + armorRating * 2
+                //))
+                //{
+                    //m.AllowedStealthSteps = Math.Max((int)(m.Skills.Stealth.Value / (Core.AOS ? 5.0 : 10.0)), 1);
+                    m.AllowedStealthSteps = Math.Max((int)(Utility.RandomLerp((int)m.Skills.Stealth.Value)), 1);
 
                     if (m is PlayerMobile pm)
                     {
@@ -109,12 +109,12 @@ namespace Server.SkillHandlers
                     m.SendLocalizedMessage(502730); // You begin to move quietly.
 
                     return TimeSpan.FromSeconds(10.0);
-                }
-                else
-                {
-                    m.SendLocalizedMessage(502731); // You fail in your attempt to move unnoticed.
-                    m.RevealingAction();
-                }
+                //}
+                //else
+                //{
+                //    m.SendLocalizedMessage(502731); // You fail in your attempt to move unnoticed.
+                //    m.RevealingAction();
+                //}
             }
 
             return TimeSpan.FromSeconds(10.0);

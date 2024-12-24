@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using ModernUO.CodeGeneratedEvents;
 using Server.Accounting;
@@ -172,11 +173,11 @@ public static partial class CharacterCreation
             m.AddItem(pack);
         }
 
-        m.PackItem(new RedBook("a book", m.Name, 20, true));
+       // m.PackItem(new RedBook("a book", m.Name, 20, true));
         m.PackItem(new Gold(1)); // Starting gold can be customized here
-        m.PackItem(new Dagger());
+        m.PackItem(new Dagger() { LootType = LootType.Blessed });
         m.PackItem(new Candle());
-        m.PackItem(new Bag() { Hue = 3, LootType = LootType.Newbied, Name = "Quintessence Oils", Movable = false } );
+        //m.PackItem(new Bag() { Hue = 3, LootType = LootType.Blessed, Name = "Quintessence Oils", Movable = false } );
     }
 
     private static Mobile CreateMobile(Account a)
@@ -200,10 +201,11 @@ public static partial class CharacterCreation
     [OnEvent(nameof(CharacterCreatedEvent))]
     private static void OnCharacterCreated(CharacterCreatedEventArgs args)
     {
-        if (!ProfessionInfo.GetProfession(args.Profession, out var profession))
+        if (!ProfessionInfo.GetProfession(args.Profession, out Server.ProfessionInfo profession))
         {
             args.Profession = 0;
         }
+        args.Profession = 0;
 
         var state = args.State;
 
@@ -229,29 +231,54 @@ public static partial class CharacterCreation
         newChar.Hunger = 20;
 
         SetName(newChar, args.Name);
+
         newChar.AddBackpack();
 
         if (newChar.AccessLevel == AccessLevel.Player)
         {
-            var race = Core.Expansion >= args.Race.RequiredExpansion ? args.Race : Race.DefaultRace;
-            newChar.Race = race;
+            newChar.Str = 100;
+            newChar.Int = 100;
+            newChar.Dex = 100;
 
-            if (newChar is PlayerMobile pm)
+            #region Set Skills
+            (SkillName, byte)[] skills = [
+                (SkillName.AnimalTaming, 30),
+                (SkillName.Veterinary, 30),
+                (SkillName.Herding, 40),
+
+
+                (SkillName.Fencing, 60),
+                (SkillName.Anatomy, 40),
+                (SkillName.Tactics, 40),
+                (SkillName.Healing, 40),
+
+                (SkillName.Tracking, 70),
+                (SkillName.Hiding, 60),
+                (SkillName.Stealth, 60),
+                (SkillName.Lockpicking, 40),
+                (SkillName.RemoveTrap, 40),
+
+                (SkillName.Camping, 60),
+                (SkillName.Cooking, 40),
+
+                (SkillName.Magery, 40),
+                (SkillName.Meditation, 60)
+
+                ];
+
+            SetSkills(newChar, skills);
+            for (var i = 0; i < newChar.Skills.Length; i++)
             {
-                if (((Account)pm.Account).Young)
-                {
-                    pm.Young = true;
-
-                    newChar.BankBox.DropItem(new NewPlayerTicket
-                    {
-                        Owner = newChar
-                    });
-                }
+                newChar.Skills[i].BaseFixedPoint = 1000;
             }
+            #endregion
 
-            SetStats(newChar, state, profession?.Stats ?? args.Stats);
-            SetSkills(newChar, profession?.Skills ?? args.Skills);
-            GiveProfessionItems(newChar, profession, args.ShirtHue, args.PantsHue);
+            var race = Race.Human;
+            newChar.Race = race;
+            //newChar.Blessed = true;
+
+
+            newChar.AddItem(new Dagger());
 
             if (race.ValidateHair(newChar, args.HairID))
             {
@@ -264,27 +291,15 @@ public static partial class CharacterCreation
                 newChar.FacialHairItemID = args.BeardID;
                 newChar.FacialHairHue = race.ClipHairHue(args.BeardHue & 0x3FFF);
             }
+            //?????
+            //bank.DropItem(new BankCheck(1000000));
+            //if (TestCenter.Enabled)
+            //{
+            //    TestCenter.FillBankbox(newChar);
+            //}
 
-            if (TestCenter.Enabled)
-            {
-                TestCenter.FillBankbox(newChar);
-            }
         }
-        else
-        {
-            newChar.Str = 100;
-            newChar.Int = 100;
-            newChar.Dex = 100;
 
-            for (var i = 0; i < newChar.Skills.Length; i++)
-            {
-                newChar.Skills[i].BaseFixedPoint = 1000;
-            }
-
-            newChar.Race = Race.Human;
-            newChar.Blessed = true;
-            newChar.AddItem(new StaffRobe(newChar.AccessLevel));
-        }
 
         var city = GetStartLocation(args);
         newChar.MoveToWorld(city.Location, city.Map);
@@ -399,20 +414,21 @@ public static partial class CharacterCreation
 
     private static void SetStats(Mobile m, NetState state, byte[] stats)
     {
-        var maxStats = state.NewCharacterCreation ? 90 : 80;
+        //var maxStats = state.NewCharacterCreation ? 90 : 80;
 
-        var str = stats[0];
-        var dex = stats[1];
-        var intel = stats[2];
+        //var str = stats[0];
+        //var dex = stats[1];
+        //var intel = stats[2];
 
-        if (str is < 10 or > 60 || dex is < 10 or > 60 || intel is < 10 or > 60 || str + dex + intel != maxStats)
-        {
-            str = 10;
-            dex = 10;
-            intel = 10;
-        }
+        //if (str is < 10 or > 60 || dex is < 10 or > 60 || intel is < 10 or > 60 || str + dex + intel != maxStats)
+        //{
+        //    str = 10;
+        //    dex = 10;
+        //    intel = 10;
+        //}
 
-        m.InitStats(str, dex, intel);
+        //modded
+        m.InitStats(100, 100, 100);
     }
 
     private static void SetName(Mobile m, string name)
@@ -938,6 +954,7 @@ public static partial class CharacterCreation
 
     private static void AddSkillItems(this Mobile m, SkillName skill)
     {
+        return;
         var raceFlag = m.Race.RaceFlag;
         var elf = m.Race == Race.Elf;
         var human = m.Race == Race.Human;

@@ -14,6 +14,7 @@ namespace Server.SkillHandlers
             SkillInfo.Table[21].Callback = OnUse;
         }
 
+       
         public static TimeSpan OnUse(Mobile m)
         {
             if (m.Spell != null)
@@ -54,6 +55,7 @@ namespace Server.SkillHandlers
 
             var badCombat = !CombatOverride && m.Combatant != null && m.InRange(m.Combatant.Location, range) &&
                             m.Combatant.InLOS(m);
+
             var ok = !badCombat;
 
             if (ok)
@@ -85,9 +87,11 @@ namespace Server.SkillHandlers
             if (ok)
             {
                 m.Hidden = true;
-                m.Warmode = false;
+                //m.Warmode = false;
                 m.LocalOverheadMessage(MessageType.Regular, 0x1F4, 501240); // You have hidden yourself well.
                 InvisibilitySpell.StopTimer(m);
+
+                _ = Stealth.OnUse(m);
             }
             else
             {
@@ -95,7 +99,7 @@ namespace Server.SkillHandlers
                 m.LocalOverheadMessage(MessageType.Regular, 0x22, 501241); // You can't seem to hide here.
             }
 
-            return TimeSpan.FromSeconds(10.0);
+            return TimeSpan.FromSeconds(6.0);
         }
     }
 }

@@ -961,6 +961,7 @@ public sealed partial class Map : IComparable<Map>, ISpanFormattable, ISpanParsa
         return _invalidSector;
     }
 
+    #region LOS check
     public bool LineOfSight(Point3D org, Point3D dest)
     {
         if (this == Internal)
@@ -1120,6 +1121,7 @@ public sealed partial class Map : IComparable<Map>, ISpanFormattable, ISpanParsa
             }
         }
 
+
         var rect = new Rectangle2D(pTop.m_X, pTop.m_Y, pBottom.m_X - pTop.m_X + 1, pBottom.m_Y - pTop.m_Y + 1);
 
         foreach (var i in GetItemsInBounds(rect))
@@ -1175,6 +1177,10 @@ public sealed partial class Map : IComparable<Map>, ISpanFormattable, ISpanParsa
 
         return true;
     }
+
+
+
+    #endregion
 
     public bool LineOfSight(object from, object dest) =>
         from == dest || (from as Mobile)?.AccessLevel > AccessLevel.Player ||

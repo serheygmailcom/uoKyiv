@@ -55,7 +55,7 @@ public class ProfessionInfo
             var parent = Path.Combine(Core.BaseDirectory, "Data/Professions");
             file = Path.Combine(ExpansionInfo.GetEraFolder(parent), "prof.txt");
         }
-
+        /*
         if (File.Exists(file))
         {
             var maxProf = 0;
@@ -190,15 +190,13 @@ public class ProfessionInfo
             profs.Clear();
             profs.TrimExcess();
         }
-        else
-        {
+        */
+        //else
+        //{
             _professions = new ProfessionInfo[1];
-        }
+        //}
 
-        _professions[0] = new ProfessionInfo
-        {
-            Name = "Advanced Skills"
-        };
+        _professions[0] = new ProfessionInfo();
     }
 
     private (SkillName, byte)[] _skills;

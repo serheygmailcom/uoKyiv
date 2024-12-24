@@ -27,12 +27,12 @@ namespace Server.SkillHandlers
                 return TimeSpan.FromSeconds(5.0);
             }
 
-            if (!Core.AOS && m.Hits < m.HitsMax / 10) // Less than 10% health
-            {
-                m.SendLocalizedMessage(501849); // The mind is strong but the body is weak.
+            //if (!Core.AOS && m.Hits < m.HitsMax / 10) // Less than 10% health
+            //{
+            //    m.SendLocalizedMessage(501849); // The mind is strong but the body is weak.
 
-                return TimeSpan.FromSeconds(5.0);
-            }
+            //    return TimeSpan.FromSeconds(5.0);
+            //}
 
             if (m.Mana >= m.ManaMax)
             {
@@ -51,24 +51,24 @@ namespace Server.SkillHandlers
             var oneHanded = m.FindItemOnLayer(Layer.OneHanded);
             var twoHanded = m.FindItemOnLayer(Layer.TwoHanded);
 
-            if (Core.AOS && m.Player)
-            {
-                if (!CheckOkayHolding(oneHanded))
-                {
-                    m.AddToBackpack(oneHanded);
-                }
+            //if (Core.AOS && m.Player)
+            //{
+            //    if (!CheckOkayHolding(oneHanded))
+            //    {
+            //        m.AddToBackpack(oneHanded);
+            //    }
 
-                if (!CheckOkayHolding(twoHanded))
-                {
-                    m.AddToBackpack(twoHanded);
-                }
-            }
-            else if (!CheckOkayHolding(oneHanded) || !CheckOkayHolding(twoHanded))
-            {
-                m.SendLocalizedMessage(502626); // Your hands must be free to cast spells or meditate.
+            //    if (!CheckOkayHolding(twoHanded))
+            //    {
+            //        m.AddToBackpack(twoHanded);
+            //    }
+            //}
+            //else if (!CheckOkayHolding(oneHanded) || !CheckOkayHolding(twoHanded))
+            //{
+            //    m.SendLocalizedMessage(502626); // Your hands must be free to cast spells or meditate.
 
-                return TimeSpan.FromSeconds(2.5);
-            }
+            //    return TimeSpan.FromSeconds(2.5);
+            //}
 
             var skillVal = m.Skills.Meditation.Value;
             var chance = (50.0 + (skillVal - (m.ManaMax - m.Mana)) * 2) / 100;

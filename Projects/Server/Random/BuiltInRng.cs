@@ -33,6 +33,9 @@ public static class BuiltInRng
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int Next(int minValue, int count) => minValue + Generator.Next(count);
 
+
+
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static long Next(long maxValue) => Generator.NextInt64(maxValue);
 
@@ -47,4 +50,19 @@ public static class BuiltInRng
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void NextBytes(Span<byte> buffer) => Generator.NextBytes(buffer);
+
+
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static double Lerp(double start, double end, double t)
+    {
+        return start + (end - start) * t;
+    }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int GetRandomBoundedValue(int value)
+    {
+        double minBound = Lerp(3, 7, value / 100);
+        double maxBound = Lerp(5, 18, value / 100);
+        return (int)(Generator.NextDouble() * (maxBound - minBound) + minBound);
+    }
 }
