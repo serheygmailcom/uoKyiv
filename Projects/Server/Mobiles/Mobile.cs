@@ -4082,7 +4082,7 @@ public partial class Mobile : IHued, IComparable<Mobile>, ISpawnable, IObjectPro
     {
         if (m_Hidden && m_AccessLevel == AccessLevel.Player)
         {
-            if (AllowedStealthSteps-- <= 0 || (d & Direction.Running) != 0 || Mounted)
+            if (AllowedStealthSteps-- <= 0 || (d & Direction.Running) != 0)
             {
                 RevealingAction();
             }
