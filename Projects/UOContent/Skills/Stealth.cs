@@ -40,35 +40,35 @@ namespace Server.SkillHandlers
         {
             return 0;
 
-            if (!Core.AOS)
-            {
-                return (int)m.ArmorRating;
-            }
+            //if (!Core.AOS)
+            //{
+            //    return (int)m.ArmorRating;
+            //}
 
-            var ar = 0;
+            //var ar = 0;
 
-            for (var i = 0; i < m.Items.Count; i++)
-            {
-                if (m.Items[i] is not BaseArmor armor)
-                {
-                    continue;
-                }
+            //for (var i = 0; i < m.Items.Count; i++)
+            //{
+            //    if (m.Items[i] is not BaseArmor armor)
+            //    {
+            //        continue;
+            //    }
 
-                var materialType = (int)armor.MaterialType;
-                var bodyPosition = (int)armor.BodyPosition;
+            //    var materialType = (int)armor.MaterialType;
+            //    var bodyPosition = (int)armor.BodyPosition;
 
-                if (materialType >= ArmorTable.GetLength(0) || bodyPosition >= ArmorTable.GetLength(1))
-                {
-                    continue;
-                }
+            //    if (materialType >= ArmorTable.GetLength(0) || bodyPosition >= ArmorTable.GetLength(1))
+            //    {
+            //        continue;
+            //    }
 
-                if (armor.ArmorAttributes.MageArmor == 0)
-                {
-                    ar += ArmorTable[materialType, bodyPosition];
-                }
-            }
+            //    if (armor.ArmorAttributes.MageArmor == 0)
+            //    {
+            //        ar += ArmorTable[materialType, bodyPosition];
+            //    }
+            //}
 
-            return ar;
+            //return ar;
         }
 
         public static TimeSpan OnUse(Mobile m)

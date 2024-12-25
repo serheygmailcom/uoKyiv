@@ -250,7 +250,7 @@ public static partial class CharacterCreation
                 (SkillName.Fencing, 60),
                 (SkillName.Anatomy, 40),
                 (SkillName.Tactics, 40),
-                (SkillName.Healing, 40),
+                (SkillName.Healing, 60),
 
                 (SkillName.Tracking, 70),
                 (SkillName.Hiding, 60),

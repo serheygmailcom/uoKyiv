@@ -3,103 +3,102 @@ using Server.Multis;
 using Server.Spells.Sixth;
 using Server.Targeting;
 
-namespace Server.SkillHandlers
-{
-    public static class Hiding
-    {
-        public static bool CombatOverride { get; set; }
+namespace Server.SkillHandlers;
 
-        public static void Initialize()
+public static class Hiding
+{
+    public static bool CombatOverride { get; set; }
+
+    public static void Initialize()
+    {
+        SkillInfo.Table[21].Callback = OnUse;
+    }
+
+
+    public static TimeSpan OnUse(Mobile m)
+    {
+        m.RevealingAction();
+
+        if (m.Spell != null)
         {
-            SkillInfo.Table[21].Callback = OnUse;
+            m.SendLocalizedMessage(501238); // You are busy doing something else and cannot hide.
+            
         }
 
-       
-        public static TimeSpan OnUse(Mobile m)
+        Target.Cancel(m);
+
+        if (m.Warmode)
         {
+            m.SendLocalizedMessage(501237); // You can't seem to hide right now.
+            return TimeSpan.FromSeconds(3.0);
+        }
+
+        new InternalTimer(m).Start();
+
+        return TimeSpan.FromSeconds(3.5);
+    }
+
+    private class InternalTimer : Timer
+    {
+        private readonly Mobile m;
+        private readonly DateTime m_StartTime;
+
+        public InternalTimer(Mobile m) : base(TimeSpan.FromSeconds(2.0))
+        {
+            this.m = m;
+            m_StartTime = Core.Now;
+        }
+
+        protected override void OnTick()
+        {
+
             if (m.Spell != null)
             {
                 m.SendLocalizedMessage(501238); // You are busy doing something else and cannot hide.
-                return TimeSpan.FromSeconds(1.0);
+                Stop();
             }
-
-            if (Core.ML && m.Target != null)
+            if (!m.CheckAlive())
             {
-                Target.Cancel(m);
+                m.SendLocalizedMessage(501237); // You can't seem to hide right now.
+                Stop();
             }
-
-            var bonus = 0.0;
-
-            var house = BaseHouse.FindHouseAt(m);
-
-            if (house?.IsFriend(m) == true)
+            if (!m.Region.OnSkillUse(m, 21))
             {
-                bonus = 100.0;
+                m.SendLocalizedMessage(501237); // You can't seem to hide right now.
+                Stop();
             }
-            else if (!Core.AOS)
+            if (!m.AllowSkillUse((SkillName)21))
             {
-                house ??= BaseHouse.FindHouseAt(new Point3D(m.X - 1, m.Y, 127), m.Map, 16) ??
-                          BaseHouse.FindHouseAt(new Point3D(m.X + 1, m.Y, 127), m.Map, 16) ??
-                          BaseHouse.FindHouseAt(new Point3D(m.X, m.Y - 1, 127), m.Map, 16) ??
-                          BaseHouse.FindHouseAt(new Point3D(m.X, m.Y + 1, 127), m.Map, 16);
-
-                if (house != null)
-                {
-                    bonus = 50.0;
-                }
+                m.SendLocalizedMessage(501237); // You can't seem to hide right now.
+                Stop();
             }
-
-            // int range = 18 - (int)(m.Skills.Hiding.Value / 10);
-            // Cap of 18 not OSI-exact, intentional difference
-            var range = Math.Min((int)((100 - m.Skills.Hiding.Value) / 2) + 8, 18);
-
-            var badCombat = !CombatOverride && m.Combatant != null && m.InRange(m.Combatant.Location, range) &&
-                            m.Combatant.InLOS(m);
-
-            var ok = !badCombat;
-
-            if (ok)
+            var de = m.FindMostRecentDamageEntry(false);
+            if (de != null && de.LastDamage > m_StartTime)
             {
-                if (!CombatOverride)
-                {
-                    foreach (var check in m.GetMobilesInRange(range))
-                    {
-                        if (check.InLOS(m) && check.Combatant == m)
-                        {
-                            badCombat = true;
-                            break;
-                        }
-                    }
-                }
-
-                ok = !badCombat && m.CheckSkill(SkillName.Hiding, 0.0 - bonus, 100.0 - bonus);
+                m.SendLocalizedMessage(501237); // You can't seem to hide right now.
+                Stop();
             }
+            Target.Cancel(m);
 
-            if (badCombat)
+            if (m.Warmode)
             {
-                m.RevealingAction();
-
-                m.LocalOverheadMessage(MessageType.Regular, 0x22, 501237); // You can't seem to hide right now.
-
-                return TimeSpan.FromSeconds(1.0);
+                m.SendLocalizedMessage(501237); // You can't seem to hide right now.
+                Stop();
             }
 
-            if (ok)
-            {
-                m.Hidden = true;
-                //m.Warmode = false;
-                m.LocalOverheadMessage(MessageType.Regular, 0x1F4, 501240); // You have hidden yourself well.
-                InvisibilitySpell.StopTimer(m);
 
-                _ = Stealth.OnUse(m);
-            }
             else
             {
-                m.RevealingAction();
-                m.LocalOverheadMessage(MessageType.Regular, 0x22, 501241); // You can't seem to hide here.
+                m.Hidden = true;
+                m.LocalOverheadMessage(MessageType.Regular, 0x1F4, 501240); // You have hidden yourself well.
+                InvisibilitySpell.StopTimer(m);
+                _ = Stealth.OnUse(m);// 10 sec dealay of stealth is not used
+                Stop();
             }
 
-            return TimeSpan.FromSeconds(6.0);
+
         }
+
     }
+
 }

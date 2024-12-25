@@ -26,6 +26,7 @@ namespace Server.SkillHandlers
             m.RevealingAction();
 
             m.Target = new InternalTarget();
+
             m.RevealingAction();
 
             if (!DisableMessage)
@@ -33,13 +34,14 @@ namespace Server.SkillHandlers
                 m.SendLocalizedMessage(502789); // Tame which animal?
             }
 
-            return TimeSpan.FromSeconds(30);
+            return TimeSpan.FromSeconds(20);
         }
 
         public static bool CheckMastery(Mobile tamer, BaseCreature creature) =>
             SummonFamiliarSpell.Table.TryGetValue(tamer, out var bc)
             && bc is DarkWolfFamiliar { Deleted: false }
             && creature is DireWolf or GreyWolf or TimberWolf or WhiteWolf or BakeKitsune;
+
 
         public static bool MustBeSubdued(BaseCreature bc) =>
             bc.Owners.Count <= 0 && bc.SubdueBeforeTame && bc.Hits > bc.HitsMax / 10;
@@ -96,7 +98,7 @@ namespace Server.SkillHandlers
 
         private class InternalTarget : Target
         {
-            private bool m_SetSkillTime = true;
+            private bool tamingStarted = false;
 
             public InternalTarget() : base(Core.AOS ? 3 : 2, false, TargetFlags.None)
             {
@@ -104,7 +106,8 @@ namespace Server.SkillHandlers
 
             protected override void OnTargetFinish(Mobile from)
             {
-                if (m_SetSkillTime)
+                //reset taming cooldown if taming is started, target not valid
+                if (!tamingStarted)
                 {
                     from.NextSkillTime = Core.TickCount;
                 }
@@ -141,26 +144,26 @@ namespace Server.SkillHandlers
                     return;
                 }
 
-                if (from.Female && !creature.AllowFemaleTamer)
-                {
-                    // That creature can only be tamed by males.
-                    creature.PrivateOverheadMessage(MessageType.Regular, 0x3B2, 1049653, from.NetState);
-                    return;
-                }
+                //if (from.Female && !creature.AllowFemaleTamer)
+                //{
+                //    // That creature can only be tamed by males.
+                //    creature.PrivateOverheadMessage(MessageType.Regular, 0x3B2, 1049653, from.NetState);
+                //    return;
+                //}
 
-                if (!from.Female && !creature.AllowMaleTamer)
-                {
-                    // That creature can only be tamed by females.
-                    creature.PrivateOverheadMessage(MessageType.Regular, 0x3B2, 1049652, from.NetState);
-                    return;
-                }
+                //if (!from.Female && !creature.AllowMaleTamer)
+                //{
+                //    // That creature can only be tamed by females.
+                //    creature.PrivateOverheadMessage(MessageType.Regular, 0x3B2, 1049652, from.NetState);
+                //    return;
+                //}
 
-                if (creature is CuSidhe && from.Race != Race.Elf)
-                {
-                    // You can't tame that!
-                    creature.PrivateOverheadMessage(MessageType.Regular, 0x3B2, 502801, from.NetState);
-                    return;
-                }
+                //if (creature is CuSidhe && from.Race != Race.Elf)
+                //{
+                //    // You can't tame that!
+                //    creature.PrivateOverheadMessage(MessageType.Regular, 0x3B2, 502801, from.NetState);
+                //    return;
+                //}
 
                 if (from.Followers + creature.ControlSlots > from.FollowersMax)
                 {
@@ -206,7 +209,7 @@ namespace Server.SkillHandlers
                     // Someone else is already taming this.
                     creature.PrivateOverheadMessage(MessageType.Regular, 0x3B2, 502802, from.NetState);
                 }
-                else if (creature.CanAngerOnTame && Utility.RandomDouble() < 0.95)
+                else if (creature.CanAngerOnTame && Utility.RandomDouble() < 0.80)
                 {
                     // You seem to anger the beast!
                     creature.PrivateOverheadMessage(MessageType.Regular, 0x3B2, 502805, from.NetState);
@@ -234,6 +237,7 @@ namespace Server.SkillHandlers
                         creature.Combatant = pm;
                     }
                 }
+                //START TAMING
                 else
                 {
                     m_BeingTamed.Add(creature);
@@ -243,10 +247,12 @@ namespace Server.SkillHandlers
 
                     // *begins taming a creature.*
                     from.NonlocalOverheadMessage(MessageType.Emote, 0x59, 1010598);
+                    //SETS COUNT FOR ONTICK, STARTS TIMER
+                    //(3, 2)3 is minimum + 2-1 is additional to min =  maximum. so it's 3 or 4
+                    new InternalTimer(from, creature, Utility.Random(2, 3)).Start();
 
-                    new InternalTimer(from, creature, Utility.Random(3, 2)).Start();
-
-                    m_SetSkillTime = false;
+                    //no need to reduce default skill time delay
+                    tamingStarted = true;
                 }
             }
 
@@ -259,8 +265,9 @@ namespace Server.SkillHandlers
                 private readonly DateTime m_StartTime;
                 private readonly Mobile m_Tamer;
                 private int m_Count;
-                private bool m_Paralyzed;
+                //private bool m_Paralyzed;
 
+                //after 3 seconds delay OnTick will be called, and every 3 seconds interval after that until count is reached
                 public InternalTimer(Mobile tamer, BaseCreature creature, int count) : base(
                     TimeSpan.FromSeconds(3.0),
                     TimeSpan.FromSeconds(3.0),
@@ -270,7 +277,7 @@ namespace Server.SkillHandlers
                     m_Tamer = tamer;
                     m_Creature = creature;
                     m_MaxCount = count;
-                    m_Paralyzed = creature.Paralyzed;
+                    //m_Paralyzed = creature.Paralyzed;
                     m_StartTime = Core.Now;
                 }
 
@@ -281,6 +288,7 @@ namespace Server.SkillHandlers
                     var de = m_Creature.FindMostRecentDamageEntry(false);
                     var alreadyOwned = m_Creature.Owners.Contains(m_Tamer);
 
+                    //CONDTIONS TO STOP TAMING TIMER
                     if (!m_Tamer.InRange(m_Creature, Core.AOS ? 7 : 6))
                     {
                         m_BeingTamed.Remove(m_Creature);
@@ -345,6 +353,8 @@ namespace Server.SkillHandlers
                         m_Creature.PrivateOverheadMessage(MessageType.Regular, 0x3B2, 502794, m_Tamer.NetState);
                         Stop();
                     }
+
+                    //COUNT ++, PRINTS  TAMING TALK, RAISES ANIMAL LORE
                     else if (m_Count < m_MaxCount)
                     {
                         m_Tamer.RevealingAction();
@@ -373,26 +383,27 @@ namespace Server.SkillHandlers
                             m_Tamer.CheckTargetSkill(SkillName.AnimalLore, m_Creature, 0.0, 120.0);
                         }
 
-                        if (m_Creature.Paralyzed)
-                        {
-                            m_Paralyzed = true;
-                        }
+                        //if (m_Creature.Paralyzed)
+                        //{
+                        //    m_Paralyzed = true;
+                        //}
                     }
+
                     else
                     {
                         m_Tamer.RevealingAction();
                         m_Tamer.NextSkillTime = Core.TickCount;
                         m_BeingTamed.Remove(m_Creature);
 
-                        if (m_Creature.Paralyzed)
-                        {
-                            m_Paralyzed = true;
-                        }
+                        //if (m_Creature.Paralyzed)
+                        //{
+                        //    m_Paralyzed = true;
+                        //}
 
-                        if (!alreadyOwned) // Passively check animal lore for gain
-                        {
-                            m_Tamer.CheckTargetSkill(SkillName.AnimalLore, m_Creature, 0.0, 120.0);
-                        }
+                        //if (!alreadyOwned) // Passively check animal lore for gain
+                        //{
+                        //    m_Tamer.CheckTargetSkill(SkillName.AnimalLore, m_Creature, 0.0, 120.0);
+                        //}
 
                         var minSkill = m_Creature.MinTameSkill + m_Creature.Owners.Count * 6.0;
 
@@ -408,26 +419,27 @@ namespace Server.SkillHandlers
                         {
                             if (m_Creature.Owners.Count == 0) // First tame
                             {
-                                if (m_Creature is GreaterDragon)
-                                {
-                                    ScaleSkills(m_Creature, 0.72, 0.90); // 72% of original skills trainable to 90%
-                                    // Greater dragons have a 90% cap reduction and 90% skill reduction on magery
-                                    m_Creature.Skills.Magery.Base = m_Creature.Skills.Magery.Cap;
-                                }
-                                else if (m_Paralyzed)
-                                {
-                                    // 86% of original skills if they were paralyzed during the taming
-                                    ScaleSkills(m_Creature, 0.86);
-                                }
-                                else
-                                {
-                                    ScaleSkills(m_Creature, 0.90); // 90% of original skills
-                                }
+                                 ScaleSkills(m_Creature, 0.90); // 90% of original skills
+                                //if (m_Creature is GreaterDragon)
+                                //{
+                                //    ScaleSkills(m_Creature, 0.72, 0.90); // 72% of original skills trainable to 90%
+                                //    // Greater dragons have a 90% cap reduction and 90% skill reduction on magery
+                                //    m_Creature.Skills.Magery.Base = m_Creature.Skills.Magery.Cap;
+                                //}
+                                //else if (m_Paralyzed)
+                                //{
+                                //    // 86% of original skills if they were paralyzed during the taming
+                                //    ScaleSkills(m_Creature, 0.86);
+                                //}
+                                //else
+                                //{
+                                    //ScaleSkills(m_Creature, 0.90); // 90% of original skills
+                                //}
 
-                                if (m_Creature.StatLossAfterTame)
-                                {
-                                    ScaleStats(m_Creature, 0.50);
-                                }
+                                //if (m_Creature.StatLossAfterTame)
+                                //{
+                                //    ScaleStats(m_Creature, 0.50);
+                                //}
                             }
 
                             if (alreadyOwned)

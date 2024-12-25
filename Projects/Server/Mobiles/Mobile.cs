@@ -241,11 +241,12 @@ public partial class Mobile : IHued, IComparable<Mobile>, ISpawnable, IObjectPro
         " (Order)"
     };
 
-    private static bool _disableCastParalyze = true;
+    private static bool _disableCastParalyze = false;
 
     public static void Configure()
     {
-        _disableCastParalyze = ServerConfiguration.GetSetting("spellCasting.disableCastParalyze", true);
+        _disableCastParalyze = false;
+        //_disableCastParalyze = ServerConfiguration.GetSetting("spellCasting.disableCastParalyze", true);
     }
 
     private List<object> _actions;
