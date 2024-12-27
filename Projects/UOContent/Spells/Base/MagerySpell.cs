@@ -20,6 +20,8 @@ namespace Server.Spells
         {
         }
 
+        public override bool BlocksMovement => false;
+
         public abstract SpellCircle Circle { get; }
 
         public override TimeSpan CastDelayBase => TimeSpan.FromSeconds((3 + (int)Circle) * CastDelaySecondsPerTick);
