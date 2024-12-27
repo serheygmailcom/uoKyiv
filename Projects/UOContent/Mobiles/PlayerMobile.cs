@@ -3489,9 +3489,43 @@ namespace Server.Mobiles
             base.OnSingleClick(from);
         }
 
-        protected override bool OnMove(Direction d) => OnMove(d);
+        protected override bool OnMove(Direction d)
+        {
+            if (!Core.SE)
+            {
+                return base.OnMove(d);
+            }
 
+            if (AccessLevel != AccessLevel.Player)
+            {
+                return true;
+            }
 
+            if (Hidden && DesignContext.Find(this) == null) // Hidden & NOT customizing a house
+            {
+                if (Skills.Stealth.Value >= 25.0)
+                {
+                    var running = (d & Direction.Running) != 0;
+
+                    if (running)
+                    {
+                        if ((AllowedStealthSteps -= 6) <= 0)
+                        {
+                            RevealingAction();
+                        }
+                    }
+                    else if (AllowedStealthSteps-- <= 0)
+                    {
+                        RevealingAction();
+                    }
+                }
+                else
+                {
+                    RevealingAction();
+                }
+            }
+            return true;
+        }
         public void AddFollower(Mobile m)
         {
             _allFollowers ??= new HashSet<Mobile>();
