@@ -1,9 +1,8 @@
 [
   {
     "type": "Spawner",
-    "guid": "97b2dcc3-dbbf-4bf5-89a2-47a112b9e4af",
-    "name": "Spawner (222)",
-    "location": [ 1427, 1697, 4 ], 
+
+    "location": [ 5407, 1232, 4 ], 
     "map": "Felucca",
     "count": 3,
     "minDelay": "00:05:00",
@@ -26,14 +25,14 @@
   },
   {
     "type": "Spawner",
-    "guid": "91ddce58-c241-4606-81e8-1d08cfb7de58",
-    "name": "Spawner (222)",
-    "location": [ 1429, 1700, 4 ],
+
+
+    "location": [ 5407, 1233, 4 ],
     "map": "Felucca",
     "count": 3,
     "minDelay": "00:05:00",
     "maxDelay": "00:10:00",
-    "team": 0,
+    "team": 1,
     "homeRange": 15,
     "walkingRange": 15,
     "entries": [
