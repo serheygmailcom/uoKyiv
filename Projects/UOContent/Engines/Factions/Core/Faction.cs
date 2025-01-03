@@ -541,20 +541,16 @@ public abstract class Faction : IComparable<Faction>
 
         var pl = PlayerState.Find(pm);
 
-        if (pm.Young)
-        {
-            pm.SendLocalizedMessage(1010104); // You cannot join a faction as a young player
-        }
-        else if (pl?.IsLeaving == true)
+        if (pl?.IsLeaving == true)
         {
             // You cannot use the faction stone until you have finished quitting your current faction
             pm.SendLocalizedMessage(1005051);
         }
-        else if (AlreadyHasCharInFaction(pm))
-        {
-            // You cannot join a faction because you already declared your allegiance with another character
-            pm.SendLocalizedMessage(1005059);
-        }
+        //else if (AlreadyHasCharInFaction(pm))
+        //{
+        //    // You cannot join a faction because you already declared your allegiance with another character
+        //    pm.SendLocalizedMessage(1005059);
+        //}
         else if (IsFactionBanned(mob))
         {
             pm.SendLocalizedMessage(1005052); // You are currently banned from the faction system
