@@ -29,6 +29,9 @@
 /Distribution/ref
 /Distribution/web
 
+
+/Distribution/Data/Decoration Defaults
+
 /Projects/*/obj
 /Projects/*/bin
 /Projects/*/Generated
