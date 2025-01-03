@@ -322,7 +322,7 @@ public class Item : IHued, IComparable<Item>, ISpawnable, IObjectPropertyListEnt
         }
     }
 
-    public static TimeSpan DefaultDecayTime { get; set; } = TimeSpan.FromHours(1.0);
+    public static TimeSpan DefaultDecayTime { get; set; } = TimeSpan.FromMinutes(15.0);
 
     [CommandProperty(AccessLevel.GameMaster)]
     public virtual TimeSpan DecayTime => DefaultDecayTime;

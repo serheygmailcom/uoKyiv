@@ -146,7 +146,7 @@ public partial class MonsterStatuette : Item, IRewardItem, IGumpToggleItem
         MonsterStatuetteInfo.GetInfo(type).ItemID
     )
     {
-        LootType = LootType.Blessed;
+        LootType = LootType.Regular;
 
         _type = type;
 

@@ -203,7 +203,7 @@ namespace Server.SkillHandlers
 
             from.CheckSkill(SkillName.Tracking, 21.1, 100.0); // Passive gain
 
-            var range = 10 + (int)(from.Skills.Tracking.Value / 10);
+            var range = 15 + (int)(from.Skills.Tracking.Value / 5);
 
             var mobs = GetClosestMobs(from, range, type);
 
