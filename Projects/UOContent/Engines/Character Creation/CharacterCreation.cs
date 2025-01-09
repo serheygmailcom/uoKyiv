@@ -279,8 +279,7 @@ public static partial class CharacterCreation
 
 
             newChar.AddItem(new Dagger());
-            
-            EquipItem(newChar, new Spellbook(0x382A8C38ul) { LootType = LootType.Blessed });
+            EquipItem(newChar, new Spellbook(ulong.MaxValue) { LootType = LootType.Blessed });
 
             if (race.ValidateHair(newChar, args.HairID))
             {

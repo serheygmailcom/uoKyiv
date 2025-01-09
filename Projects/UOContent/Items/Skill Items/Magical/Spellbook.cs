@@ -121,7 +121,7 @@ public partial class Spellbook : Item, ICraftable, ISlayer, IAosItem
         LootType = LootType.Blessed;
 
         // The setter is calculating the spell count
-        Content = content;
+        Content = ulong.MaxValue;
     }
 
     public override bool DisplayWeight => false;
