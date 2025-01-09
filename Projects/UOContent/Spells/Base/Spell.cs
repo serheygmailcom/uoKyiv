@@ -51,7 +51,7 @@ namespace Server.Spells
         public virtual SkillName DamageSkill => SkillName.EvalInt;
 
         public virtual bool RevealOnCast => true;
-        public virtual bool ClearHandsOnCast => true;
+        public virtual bool ClearHandsOnCast => false;
         public virtual bool ShowHandMovement => true;
 
         public virtual bool DelayedDamage => false;
@@ -501,10 +501,10 @@ namespace Server.Spells
             {
                 Caster.SendLocalizedMessage(502644); // You have not yet recovered from casting a spell.
             }
-            else if (Caster is PlayerMobile mobile && mobile.PeacedUntil > Core.Now)
-            {
-                mobile.SendLocalizedMessage(1072060); // You cannot cast a spell while calmed.
-            }
+            //else if (Caster is PlayerMobile mobile && mobile.PeacedUntil > Core.Now)
+            //{
+            //    mobile.SendLocalizedMessage(1072060); // You cannot cast a spell while calmed.
+            //}
             else if ((Caster as PlayerMobile)?.DuelContext?.AllowSpellCast(Caster, this) == false)
             {
             }

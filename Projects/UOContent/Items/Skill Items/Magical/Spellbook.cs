@@ -111,7 +111,7 @@ public partial class Spellbook : Item, ICraftable, ISlayer, IAosItem
     private int _spellCount;
 
     [Constructible]
-    public Spellbook(ulong content = 0, int itemID = 0xEFA) : base(itemID)
+    public Spellbook(ulong content = ulong.MaxValue, int itemID = 0xEFA) : base(itemID)
     {
         _attributes = new AosAttributes(this);
         _skillBonuses = new AosSkillBonuses(this);

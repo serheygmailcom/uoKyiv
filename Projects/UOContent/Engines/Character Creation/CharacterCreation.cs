@@ -279,6 +279,8 @@ public static partial class CharacterCreation
 
 
             newChar.AddItem(new Dagger());
+            
+            EquipItem(newChar, new Spellbook(0x382A8C38ul) { LootType = LootType.Blessed });
 
             if (race.ValidateHair(newChar, args.HairID))
             {
@@ -1208,9 +1210,7 @@ public static partial class CharacterCreation
                     }
 
                     m.PackItem(regs);
-                    m.PackScroll(0);
-                    m.PackScroll(1);
-                    m.PackScroll(2);
+
 
                     EquipItem(m, new Spellbook(0x382A8C38ul) { LootType = LootType.Blessed });
                     EquipItem(m, Robe(raceFlag, female, Utility.RandomBlueHue()));
