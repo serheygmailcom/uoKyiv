@@ -242,14 +242,14 @@ public abstract class Faction : IComparable<Faction>
     {
         Members.Insert(ZeroRankOffset, new PlayerState(mob, this, Members));
 
-        mob.AddToBackpack(FactionItem.Imbue(new Robe(), this, false, Definition.HuePrimary));
-        mob.SendLocalizedMessage(1010374); // You have been granted a robe which signifies your faction
+        //mob.AddToBackpack(FactionItem.Imbue(new Robe(), this, false, Definition.HuePrimary));
+        //mob.SendLocalizedMessage(1010374); // You have been granted a robe which signifies your faction
 
-        mob.InvalidateProperties();
-        mob.Delta(MobileDelta.Noto);
+        //mob.InvalidateProperties();
+        //mob.Delta(MobileDelta.Noto);
 
-        mob.FixedEffect(0x373A, 10, 30);
-        mob.PlaySound(0x209);
+        //mob.FixedEffect(0x373A, 10, 30);
+        //mob.PlaySound(0x209);
     }
 
     public static bool IsNearType(Mobile mob, Type type, int range)

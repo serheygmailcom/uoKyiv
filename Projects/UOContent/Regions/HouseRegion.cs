@@ -110,11 +110,11 @@ public class HouseRegion : BaseRegion
                     m.SendLocalizedMessage(501284); // You may not enter.
                 }
             }
-            else if (House.IsCombatRestricted(m) && House.IsInside(m) && !House.IsInside(oldLocation, 16))
-            {
-                m.Location = House.BanLocation;
-                m.SendLocalizedMessage(1061637); // You are not allowed to access this.
-            }
+            //else if (House.IsCombatRestricted(m) && House.IsInside(m) && !House.IsInside(oldLocation, 16))
+            //{
+            //    m.Location = House.BanLocation;
+            //    m.SendLocalizedMessage(1061637); // You are not allowed to access this.
+            //}
             else if (House is HouseFoundation foundation && foundation.Customizer != null &&
                      foundation.Customizer != m &&
                      House.IsInside(m))
@@ -155,33 +155,33 @@ public class HouseRegion : BaseRegion
                 return false;
             }
 
-            if ((House.Public || !House.IsAosRules) && House.IsBanned(from) && House.IsInside(newLocation, 16))
-            {
-                from.Location = House.BanLocation;
+            //if ((House.Public || !House.IsAosRules) && House.IsBanned(from) && House.IsInside(newLocation, 16))
+            //{
+            //    from.Location = House.BanLocation;
 
-                if (!Core.SE)
-                {
-                    from.SendLocalizedMessage(501284); // You may not enter.
-                }
+            //    if (!Core.SE)
+            //    {
+            //        from.SendLocalizedMessage(501284); // You may not enter.
+            //    }
 
-                return false;
-            }
+            //    return false;
+            //}
 
-            if (House.IsAosRules && !House.Public && !House.HasAccess(from) && House.IsInside(newLocation, 16))
-            {
-                if (!Core.SE)
-                {
-                    from.SendLocalizedMessage(501284); // You may not enter.
-                }
+            //if (House.IsAosRules && !House.Public && !House.HasAccess(from) && House.IsInside(newLocation, 16))
+            //{
+            //    if (!Core.SE)
+            //    {
+            //        from.SendLocalizedMessage(501284); // You may not enter.
+            //    }
 
-                return false;
-            }
+            //    return false;
+            //}
 
-            if (House.IsCombatRestricted(from) && !House.IsInside(oldLocation, 16) && House.IsInside(newLocation, 16))
-            {
-                from.SendLocalizedMessage(1061637); // You are not allowed to access this.
-                return false;
-            }
+            //if (House.IsCombatRestricted(from) && !House.IsInside(oldLocation, 16) && House.IsInside(newLocation, 16))
+            //{
+            //    from.SendLocalizedMessage(1061637); // You are not allowed to access this.
+            //    return false;
+            //}
 
             if (House is HouseFoundation foundation && foundation.Customizer != null && foundation.Customizer != from &&
                 House.IsInside(newLocation, 16))

@@ -22,7 +22,7 @@ namespace Server.Multis
 
         public const int MaxCoOwners = 15;
 
-        public const int MaximumBarkeepCount = 2;
+        public const int MaximumBarkeepCount = 0;
 
         private static readonly Dictionary<Mobile, List<BaseHouse>> m_Table = new();
 
@@ -509,7 +509,7 @@ namespace Server.Multis
         public virtual int ConvertOffsetY => 0;
         public virtual int ConvertOffsetZ => 0;
 
-        public virtual int DefaultPrice => 0;
+        public virtual int DefaultPrice => 45000;
 
         [CommandProperty(AccessLevel.GameMaster)]
         public int Price { get; set; }
