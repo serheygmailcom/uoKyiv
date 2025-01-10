@@ -65,7 +65,7 @@ namespace Server.Spells
         private static readonly TimeSpan AosDamageDelay = TimeSpan.FromSeconds(1.25);
         private static readonly TimeSpan OldDamageDelay = TimeSpan.FromSeconds(0.5);
 
-        private static readonly TimeSpan CombatHeatDelay = TimeSpan.FromSeconds(30.0);
+        private static readonly TimeSpan CombatHeatDelay = TimeSpan.FromSeconds(20.0);
         private static readonly bool RestrictTravelCombat = true;
 
         private static readonly int[] m_Offsets =

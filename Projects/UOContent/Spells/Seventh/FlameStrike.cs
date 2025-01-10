@@ -19,7 +19,7 @@ namespace Server.Spells.Seventh
 
         public override SpellCircle Circle => SpellCircle.Seventh;
 
-        public override bool DelayedDamage => true;
+        public override bool DelayedDamage => false;
 
         public void Target(Mobile m)
         {
@@ -27,7 +27,7 @@ namespace Server.Spells.Seventh
             {
                 SpellHelper.Turn(Caster, m);
 
-                SpellHelper.CheckReflect((int)Circle, Caster, ref m);
+                //SpellHelper.CheckReflect((int)Circle, Caster, ref m);
 
                 double damage;
 
@@ -37,7 +37,7 @@ namespace Server.Spells.Seventh
                 }
                 else
                 {
-                    damage = Utility.Random(27, 22);
+                    damage = 40;
 
                     if (CheckResisted(m))
                     {

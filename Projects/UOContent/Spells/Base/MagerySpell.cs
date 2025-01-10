@@ -62,6 +62,8 @@ namespace Server.Spells
 
         public virtual bool CheckResisted(Mobile target)
         {
+            return false;
+
             var n = GetResistPercent(target) / 100.0;
 
             if (n <= 0.0)

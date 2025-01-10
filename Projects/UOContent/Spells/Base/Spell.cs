@@ -550,10 +550,9 @@ namespace Server.Spells
                             }
                         }
 
-                        if (ClearHandsOnCast)
-                        {
-                            Caster.ClearHands();
-                        }
+
+                        Caster.ClearHands();
+                        
 
                         if (Core.ML)
                         {

@@ -91,9 +91,9 @@ public static partial class CharacterCreation
         new("Yew", "The Empath Abbey", 1075072, 633, 858, 0, Map.Felucca),
         //new("Minoc", "The Barnacle", 1075073, 2476, 413, 15, Map.Felucca),
         new("Britain", "Sweet Dreams Inn", 1075074, 1496, 1628, 10, Map.Felucca),
-        new("Moonglow", "The Scholars Inn", 1075075, 4408, 1168, 0, Map.Felucca),
+        //new("Moonglow", "The Scholars Inn", 1075075, 4408, 1168, 0, Map.Felucca),
         new("Trinsic", "The Traveler's Inn", 1075076, 1845, 2745, 0, Map.Felucca),
-        new("Magincia", "The Great Horns Tavern", 1075077, 3734, 2222, 20, Map.Felucca),
+        //new("Magincia", "The Great Horns Tavern", 1075077, 3734, 2222, 20, Map.Felucca),
         //new("Jhelom", "The Mercenary Inn", 1075078, 1374, 3826, 0, Map.Felucca),
         //new("Skara Brae", "The Falconer's Inn", 1075079, 618, 2234, 0, Map.Felucca),
         new("Vesper", "The Ironwood Inn", 1075080, 2771, 976, 0, Map.Felucca)
@@ -303,7 +303,7 @@ public static partial class CharacterCreation
 
 
         var city = GetStartLocation(args);
-        newChar.MoveToWorld(city.Location, city.Map);
+        newChar.MoveToWorld(city.Location, Map.Felucca);
 
         logger.Information(
             "Login: {0}: New character being created (account={1}, character={2}, serial={3}, started.city={4}, started.location={5}, started.map={6})",
@@ -313,7 +313,7 @@ public static partial class CharacterCreation
             newChar.Serial,
             city.City,
             city.Location,
-            city.Map);
+            Map.Felucca);
 
         new WelcomeTimer(newChar).Start();
     }
