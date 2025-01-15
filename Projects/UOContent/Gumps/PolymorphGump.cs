@@ -140,7 +140,7 @@ namespace Server.Gumps
             if (ent < 0 || ent >= entries.Entries.Length)
             {
                 Spell spell = new PolymorphSpell(state.Mobile, _scroll, entries.Entries[ent].BodyID);
-                spell.Cast();
+                spell.BeginCasting();
             }
         }
 
@@ -243,7 +243,7 @@ namespace Server.Gumps
             }
 
             Spell spell = new PolymorphSpell(sender.Mobile, _scroll, _entries[idx].BodyID);
-            spell.Cast();
+            spell.BeginCasting();
         }
     }
 }

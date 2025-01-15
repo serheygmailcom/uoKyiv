@@ -110,7 +110,7 @@ namespace Server.Engines.PartySystem
         public static void ListenToParty_OnCommand(CommandEventArgs e)
         {
             e.Mobile.BeginTarget(-1, false, TargetFlags.None, ListenToParty_OnTarget);
-            e.Mobile.SendMessage("Target a partied player.");
+            e.Mobile.SendMessage("CastSpellOnTarget a partied player.");
         }
 
         public static void ListenToParty_OnTarget(Mobile from, object obj)

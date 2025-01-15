@@ -109,7 +109,7 @@ public class AnimateDeadSpell : NecromancerSpell, ITargetingSpell<Item>
     public override double RequiredSkill => 40.0;
     public override int RequiredMana => 23;
 
-    public void Target(Item item)
+    public void CastSpellOnTarget(Item item)
     {
         var comp = item as MaabusCoffinComponent;
 
@@ -189,7 +189,7 @@ public class AnimateDeadSpell : NecromancerSpell, ITargetingSpell<Item>
         FinishSequence();
     }
 
-    public override void OnCast()
+    public override void OnCastingAfterMantra()
     {
         Caster.Target = new SpellTarget<Item>(this);
         Caster.SendLocalizedMessage(1061083); // Animate what corpse?

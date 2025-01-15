@@ -43,10 +43,10 @@ public class SpellTarget<T> : Target, ISpellTarget<T> where T : class, IPoint3D
 
     protected override void OnCantSeeTarget(Mobile from, object o)
     {
-        from.SendLocalizedMessage(500237); // Target can not be seen.
+        from.SendLocalizedMessage(500237); // CastSpellOnTarget can not be seen.
     }
 
-    protected override void OnTarget(Mobile from, object o) => _spell.Target(o as T);
+    protected override void OnTarget(Mobile from, object o) => _spell.CastSpellOnTarget(o as T);
 
     protected override void OnTargetOutOfLOS(Mobile from, object o)
     {
@@ -55,7 +55,7 @@ public class SpellTarget<T> : Target, ISpellTarget<T> where T : class, IPoint3D
             return;
         }
 
-        from.SendLocalizedMessage(501943); // Target cannot be seen. Try again.
+        from.SendLocalizedMessage(501943); // CastSpellOnTarget cannot be seen. Try again.
         from.Target = new SpellTarget<T>(_spell, AllowGround, Flags, true);
         from.Target.BeginTimeout(from, TimeoutTime - Core.TickCount);
     }

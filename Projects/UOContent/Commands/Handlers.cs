@@ -28,7 +28,7 @@ namespace Server.Commands
             Register("Where", AccessLevel.Counselor, Where_OnCommand);
             Register("AutoPageNotify", AccessLevel.Counselor, APN_OnCommand);
             Register("Animate", AccessLevel.GameMaster, Animate_OnCommand);
-            Register("Cast", AccessLevel.Counselor, Cast_OnCommand);
+            Register("BeginCasting", AccessLevel.Counselor, Cast_OnCommand);
             Register("Stuck", AccessLevel.Counselor, Stuck_OnCommand);
             Register("Help", AccessLevel.Player, Help_OnCommand);
             Register("Move", AccessLevel.GameMaster, Move_OnCommand);
@@ -110,7 +110,7 @@ namespace Server.Commands
         public static void DropHolding_OnCommand(CommandEventArgs e)
         {
             e.Mobile.BeginTarget(-1, false, TargetFlags.None, DropHolding_OnTarget);
-            e.Mobile.SendMessage("Target the player to drop what they are holding.");
+            e.Mobile.SendMessage("CastSpellOnTarget the player to drop what they are holding.");
         }
 
         public static void DropHolding_OnTarget(Mobile from, object obj)
@@ -167,7 +167,7 @@ namespace Server.Commands
         public static void GetFollowers_OnCommand(CommandEventArgs e)
         {
             e.Mobile.BeginTarget(-1, false, TargetFlags.None, GetFollowers_OnTarget);
-            e.Mobile.SendMessage("Target a player to get their pets.");
+            e.Mobile.SendMessage("CastSpellOnTarget a player to get their pets.");
         }
 
         public static void GetFollowers_OnTarget(Mobile from, object obj)
@@ -695,7 +695,7 @@ namespace Server.Commands
             }
         }
 
-        [Usage("Cast <name>")]
+        [Usage("BeginCasting <name>")]
         [Description("Casts a spell by name.")]
         public static void Cast_OnCommand(CommandEventArgs e)
         {
@@ -710,7 +710,7 @@ namespace Server.Commands
 
                 if (spell != null)
                 {
-                    spell.Cast();
+                    spell.BeginCasting();
                 }
                 else
                 {
@@ -719,7 +719,7 @@ namespace Server.Commands
             }
             else
             {
-                e.Mobile.SendMessage("Format: Cast <name>");
+                e.Mobile.SendMessage("Format: BeginCasting <name>");
             }
         }
 

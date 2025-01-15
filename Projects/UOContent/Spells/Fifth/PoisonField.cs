@@ -26,7 +26,7 @@ public class PoisonFieldSpell : MagerySpell, ITargetingSpell<IPoint3D>
 
     public override SpellCircle Circle => SpellCircle.Fifth;
 
-    public void Target(IPoint3D p)
+    public void CastSpellOnTarget(IPoint3D p)
     {
         if (SpellHelper.CheckTown(p, Caster) && CheckSequence())
         {
@@ -55,7 +55,7 @@ public class PoisonFieldSpell : MagerySpell, ITargetingSpell<IPoint3D>
         }
     }
 
-    public override void OnCast()
+    public override void OnCastingAfterMantra()
     {
         Caster.Target = new SpellTarget<IPoint3D>(this, allowGround: true);
     }

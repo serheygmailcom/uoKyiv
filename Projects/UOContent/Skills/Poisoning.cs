@@ -85,7 +85,7 @@ namespace Server.SkillHandlers
                             from.AddToBackpack(new Bottle());
                         }
                     }
-                    else // Target can't be poisoned
+                    else // CastSpellOnTarget can't be poisoned
                     {
                         if (Core.AOS)
                         {

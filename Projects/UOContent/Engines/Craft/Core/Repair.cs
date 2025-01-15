@@ -11,13 +11,13 @@ namespace Server.Engines.Craft
         public static void Do(Mobile from, CraftSystem craftSystem, BaseTool tool)
         {
             from.Target = new InternalTarget(craftSystem, tool);
-            from.SendLocalizedMessage(1044276); // Target an item to repair.
+            from.SendLocalizedMessage(1044276); // CastSpellOnTarget an item to repair.
         }
 
         public static void Do(Mobile from, CraftSystem craftSystem, RepairDeed deed)
         {
             from.Target = new InternalTarget(craftSystem, deed);
-            from.SendLocalizedMessage(1044276); // Target an item to repair.
+            from.SendLocalizedMessage(1044276); // CastSpellOnTarget an item to repair.
         }
 
         private class InternalTarget : Target

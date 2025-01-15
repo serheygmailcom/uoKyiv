@@ -9,8 +9,8 @@ public enum AssistantFeatures : ulong
 
     FilterWeather = 1ul << 0,   // Weather Filter
     FilterLight = 1ul << 1,     // Light Filter
-    SmartTarget = 1ul << 2,     // Smart Last Target
-    RangedTarget = 1ul << 3,    // Range Check Last Target
+    SmartTarget = 1ul << 2,     // Smart Last CastSpellOnTarget
+    RangedTarget = 1ul << 3,    // Range Check Last CastSpellOnTarget
     AutoOpenDoors = 1ul << 4,   // Automatically Open Doors
     DequipOnCast = 1ul << 5,    // Unequip Weapon on spell cast
     AutoPotionEquip = 1ul << 6, // Un/Re-equip weapon on potion use

@@ -277,7 +277,7 @@ public class RunebookGump : DynamicGump
                         SendTargetCoordinates(from, e.Location, e.Map);
 
                         _book.OnTravel();
-                        new RecallSpell(from, e, _book, _book).Cast();
+                        new RecallSpell(from, e, _book, _book).BeginCasting();
                     }
 
                     break;
@@ -326,7 +326,7 @@ public class RunebookGump : DynamicGump
                     SendTargetCoordinates(from, e.Location, e.Map);
 
                     _book.OnTravel();
-                    new RecallSpell(from, e).Cast();
+                    new RecallSpell(from, e).BeginCasting();
                     break;
                 }
             case 4: // Gate
@@ -340,7 +340,7 @@ public class RunebookGump : DynamicGump
                     SendTargetCoordinates(from, e.Location, e.Map);
 
                     _book.OnTravel();
-                    new GateTravelSpell(from, e).Cast();
+                    new GateTravelSpell(from, e).BeginCasting();
                     break;
                 }
             case 5: // Sacred Journey
@@ -357,7 +357,7 @@ public class RunebookGump : DynamicGump
                         SendTargetCoordinates(from, e.Location, e.Map);
 
                         _book.OnTravel();
-                        new SacredJourneySpell(from, e).Cast();
+                        new SacredJourneySpell(from, e).BeginCasting();
                     }
                     break;
                 }

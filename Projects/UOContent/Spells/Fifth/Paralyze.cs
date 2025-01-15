@@ -23,7 +23,7 @@ namespace Server.Spells.Fifth
 
         public override SpellCircle Circle => SpellCircle.Fifth;
 
-        public void Target(Mobile m)
+        public void CastSpellOnTarget(Mobile m)
         {
             if (Core.AOS && (m.Frozen || m.Paralyzed || m.Spell?.IsCasting == true && m.Spell is not PaladinSpell))
             {
@@ -80,7 +80,7 @@ namespace Server.Spells.Fifth
             }
         }
 
-        public override void OnCast()
+        public override void OnCastingAfterMantra()
         {
             Caster.Target = new SpellTarget<Mobile>(this, TargetFlags.Harmful);
         }

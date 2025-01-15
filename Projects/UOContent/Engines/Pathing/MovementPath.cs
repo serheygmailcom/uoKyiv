@@ -66,7 +66,7 @@ namespace Server
         public static void Path_OnCommand(CommandEventArgs e)
         {
             e.Mobile.BeginTarget(-1, true, TargetFlags.None, Path_OnTarget);
-            e.Mobile.SendMessage("Target a location and a path will be drawn there.");
+            e.Mobile.SendMessage("CastSpellOnTarget a location and a path will be drawn there.");
         }
 
         private static void Path(Mobile from, IPoint3D p, PathAlgorithm alg, string name, int zOffset)

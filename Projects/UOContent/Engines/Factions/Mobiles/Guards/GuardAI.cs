@@ -388,10 +388,10 @@ namespace Server.Factions
         {
             /*if (!m_Mobile.DisallowAllMoves && 20 > Utility.Random( 100 ) && IsAllowed( GuardAI.Magic ))
             {
-              if (m_Mobile.Target != null)
-                m_Mobile.Target.Cancel( m_Mobile, TargetCancelType.Canceled );
+              if (m_Mobile.CastSpellOnTarget != null)
+                m_Mobile.CastSpellOnTarget.Cancel( m_Mobile, TargetCancelType.Canceled );
 
-              new TeleportSpell( m_Mobile, null ).Cast();
+              new TeleportSpell( m_Mobile, null ).BeginCasting();
 
               m_Mobile.DebugSay( "I am stuck, I'm going to try teleporting away" );
             }
@@ -811,7 +811,7 @@ namespace Server.Factions
                     UseItemByType(typeof(BaseRefreshPotion));
                 }
 
-                if (spell?.Cast() != true)
+                if (spell?.BeginCasting() != true)
                 {
                     EquipWeapon();
                 }

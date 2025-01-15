@@ -167,7 +167,7 @@ public partial class CommodityDeed : Item
         }
         else
         {
-            number = 1047029; // Target the commodity to fill this deed with.
+            number = 1047029; // CastSpellOnTarget the commodity to fill this deed with.
 
             from.Target = new InternalTarget(this);
         }

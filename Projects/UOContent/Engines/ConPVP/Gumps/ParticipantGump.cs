@@ -174,7 +174,7 @@ namespace Server.Engines.ConPVP
                     if (Participant.Players[bid] == null)
                     {
                         From.Target = new ParticipantTarget(Context, Participant, bid);
-                        From.SendMessage("Target a player.");
+                        From.SendMessage("CastSpellOnTarget a player.");
                     }
                     else
                     {

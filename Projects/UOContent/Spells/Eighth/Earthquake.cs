@@ -25,7 +25,7 @@ namespace Server.Spells.Eighth
 
         public override bool DelayedDamage => !Core.AOS;
 
-        public override void OnCast()
+        public override void OnCastingAfterMantra()
         {
             if (SpellHelper.CheckTown(Caster, Caster) && CheckSequence())
             {

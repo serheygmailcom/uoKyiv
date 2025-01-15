@@ -271,7 +271,7 @@ public class HouseRegion : BaseRegion
 
         if (e.HasKeyword(0x33)) // remove thyself
         {
-            from.SendLocalizedMessage(501326); // Target the individual to eject from this house.
+            from.SendLocalizedMessage(501326); // CastSpellOnTarget the individual to eject from this house.
             from.Target = new HouseKickTarget(House);
         }
         else if (e.HasKeyword(0x34)) // I ban thee
@@ -284,7 +284,7 @@ public class HouseRegion : BaseRegion
             }
             else
             {
-                from.SendLocalizedMessage(501325); // Target the individual to ban from this house.
+                from.SendLocalizedMessage(501325); // CastSpellOnTarget the individual to ban from this house.
                 from.Target = new HouseBanTarget(true, House);
             }
         }

@@ -156,7 +156,7 @@ public partial class BallOfSummoning : Item, TranslocationItem
             return;
         }
 
-        // Target your pet that you wish to link to this Crystal Ball of Pet Summoning.
+        // CastSpellOnTarget your pet that you wish to link to this Crystal Ball of Pet Summoning.
         from.SendLocalizedMessage(1054114);
         from.Target = new PetLinkTarget(this);
     }
@@ -208,7 +208,7 @@ public partial class BallOfSummoning : Item, TranslocationItem
         }
         else if (Core.ML)
         {
-            new PetSummoningSpell(this, from).Cast();
+            new PetSummoningSpell(this, from).BeginCasting();
         }
         else
         {
@@ -423,7 +423,7 @@ public partial class BallOfSummoning : Item, TranslocationItem
             }
         }
 
-        public override void OnCast()
+        public override void OnCastingAfterMantra()
         {
             _ball.SummonPet(_caster);
 

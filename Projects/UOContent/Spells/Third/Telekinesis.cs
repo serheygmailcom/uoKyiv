@@ -19,7 +19,7 @@ namespace Server.Spells.Third
 
         public override SpellCircle Circle => SpellCircle.Third;
 
-        public void Target(Item item)
+        public void CastSpellOnTarget(Item item)
         {
             var t = item as ITelekinesisable;
             if (!(t != null || item is Container))
@@ -70,7 +70,7 @@ namespace Server.Spells.Third
             }
         }
 
-        public override void OnCast()
+        public override void OnCastingAfterMantra()
         {
             Caster.Target = new SpellTarget<Item>(this);
         }

@@ -38,7 +38,7 @@ public partial class TaxidermyKit : Item
         }
         else
         {
-            from.SendLocalizedMessage(1042595); // Target the corpse to make a trophy out of.
+            from.SendLocalizedMessage(1042595); // CastSpellOnTarget the corpse to make a trophy out of.
             from.Target = new CorpseTarget(this);
         }
     }

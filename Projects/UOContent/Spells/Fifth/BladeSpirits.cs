@@ -22,7 +22,7 @@ namespace Server.Spells.Fifth
 
         public override SpellCircle Circle => SpellCircle.Fifth;
 
-        public void Target(IPoint3D p)
+        public void CastSpellOnTarget(IPoint3D p)
         {
             var map = Caster.Map;
 
@@ -76,7 +76,7 @@ namespace Server.Spells.Fifth
             return true;
         }
 
-        public override void OnCast()
+        public override void OnCastingAfterMantra()
         {
             Caster.Target = new SpellTarget<IPoint3D>(this, allowGround: true, retryOnLos: true);
         }

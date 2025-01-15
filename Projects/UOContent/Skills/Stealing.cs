@@ -112,7 +112,7 @@ namespace Server.SkillHandlers
                 }
                 else if (!m_Thief.CanSee(toSteal))
                 {
-                    m_Thief.SendLocalizedMessage(500237); // Target can not be seen.
+                    m_Thief.SendLocalizedMessage(500237); // CastSpellOnTarget can not be seen.
                 }
                 else if (m_Thief.Backpack?.CheckHold(m_Thief, toSteal, false, true) != true)
                 {

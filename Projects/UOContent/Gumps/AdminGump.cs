@@ -1465,7 +1465,7 @@ namespace Server.Gumps
             AddTextField(200, 20, 200, 20, 0);
             AddButtonLabeled(320, 50, GetButtonID(6, 0), "Search");
             AddButtonLabeled(200, 50, GetButtonID(6, 1), "Add (Input)");
-            AddButtonLabeled(200, 80, GetButtonID(6, 2), "Add (Target)");
+            AddButtonLabeled(200, 80, GetButtonID(6, 2), "Add (CastSpellOnTarget)");
         }
 
         private static List<object> GetAllSharedAccounts()
@@ -2168,19 +2168,19 @@ namespace Server.Gumps
                             case 300:
                                 {
                                     InvokeCommand("Kick");
-                                    notice = "Target the player to kick.";
+                                    notice = "CastSpellOnTarget the player to kick.";
                                     break;
                                 }
                             case 301:
                                 {
                                     InvokeCommand("Ban");
-                                    notice = "Target the player to ban.";
+                                    notice = "CastSpellOnTarget the player to ban.";
                                     break;
                                 }
                             case 302:
                                 {
                                     InvokeCommand("Firewall");
-                                    notice = "Target the player to firewall.";
+                                    notice = "CastSpellOnTarget the player to firewall.";
                                     break;
                                 }
 
@@ -2193,25 +2193,25 @@ namespace Server.Gumps
                             case 310:
                                 {
                                     InvokeCommand("Set AccessLevel Player");
-                                    notice = "Target the player to change their access level. (Player)";
+                                    notice = "CastSpellOnTarget the player to change their access level. (Player)";
                                     break;
                                 }
                             case 311:
                                 {
                                     InvokeCommand("Set AccessLevel Counselor");
-                                    notice = "Target the player to change their access level. (Counselor)";
+                                    notice = "CastSpellOnTarget the player to change their access level. (Counselor)";
                                     break;
                                 }
                             case 312:
                                 {
                                     InvokeCommand("Set AccessLevel GameMaster");
-                                    notice = "Target the player to change their access level. (Game Master)";
+                                    notice = "CastSpellOnTarget the player to change their access level. (Game Master)";
                                     break;
                                 }
                             case 313:
                                 {
                                     InvokeCommand("Set AccessLevel Seer");
-                                    notice = "Target the player to change their access level. (Seer)";
+                                    notice = "CastSpellOnTarget the player to change their access level. (Seer)";
                                     break;
                                 }
 
@@ -2220,7 +2220,7 @@ namespace Server.Gumps
                                     if (from.AccessLevel > AccessLevel.Administrator)
                                     {
                                         InvokeCommand("Set AccessLevel Administrator");
-                                        notice = "Target the player to change their access level. (Administrator)";
+                                        notice = "CastSpellOnTarget the player to change their access level. (Administrator)";
                                     }
 
                                     break;
@@ -2231,7 +2231,7 @@ namespace Server.Gumps
                                     if (from.AccessLevel > AccessLevel.Developer)
                                     {
                                         InvokeCommand("Set AccessLevel Developer");
-                                        notice = "Target the player to change their access level. (Developer)";
+                                        notice = "CastSpellOnTarget the player to change their access level. (Developer)";
                                     }
 
                                     break;
@@ -2242,7 +2242,7 @@ namespace Server.Gumps
                                     if (from.AccessLevel >= AccessLevel.Owner)
                                     {
                                         InvokeCommand("Set AccessLevel Owner");
-                                        notice = "Target the player to change their access level. (Owner)";
+                                        notice = "CastSpellOnTarget the player to change their access level. (Owner)";
                                     }
 
                                     break;
@@ -2256,103 +2256,103 @@ namespace Server.Gumps
                             case 401:
                                 {
                                     InvokeCommand("Remove");
-                                    notice = "Target the item or mobile to remove.";
+                                    notice = "CastSpellOnTarget the item or mobile to remove.";
                                     break;
                                 }
                             case 402:
                                 {
                                     InvokeCommand("Dupe");
-                                    notice = "Target the item to dupe.";
+                                    notice = "CastSpellOnTarget the item to dupe.";
                                     break;
                                 }
                             case 403:
                                 {
                                     InvokeCommand("DupeInBag");
-                                    notice = "Target the item to dupe. The item will be duped at it's current location.";
+                                    notice = "CastSpellOnTarget the item to dupe. The item will be duped at it's current location.";
                                     break;
                                 }
                             case 404:
                                 {
                                     InvokeCommand("Props");
-                                    notice = "Target the item or mobile to inspect.";
+                                    notice = "CastSpellOnTarget the item or mobile to inspect.";
                                     break;
                                 }
                             case 405:
                                 {
                                     InvokeCommand("Skills");
-                                    notice = "Target a mobile to view their skills.";
+                                    notice = "CastSpellOnTarget a mobile to view their skills.";
                                     break;
                                 }
                             case 406:
                                 {
                                     InvokeCommand("Set Blessed False");
-                                    notice = "Target the mobile to make mortal.";
+                                    notice = "CastSpellOnTarget the mobile to make mortal.";
                                     break;
                                 }
                             case 407:
                                 {
                                     InvokeCommand("Set Blessed True");
-                                    notice = "Target the mobile to make immortal.";
+                                    notice = "CastSpellOnTarget the mobile to make immortal.";
                                     break;
                                 }
                             case 408:
                                 {
                                     InvokeCommand("Set Squelched True");
-                                    notice = "Target the mobile to squelch.";
+                                    notice = "CastSpellOnTarget the mobile to squelch.";
                                     break;
                                 }
                             case 409:
                                 {
                                     InvokeCommand("Set Squelched False");
-                                    notice = "Target the mobile to unsquelch.";
+                                    notice = "CastSpellOnTarget the mobile to unsquelch.";
                                     break;
                                 }
                             case 410:
                                 {
                                     InvokeCommand("Set Frozen True");
-                                    notice = "Target the mobile to freeze.";
+                                    notice = "CastSpellOnTarget the mobile to freeze.";
                                     break;
                                 }
                             case 411:
                                 {
                                     InvokeCommand("Set Frozen False");
-                                    notice = "Target the mobile to unfreeze.";
+                                    notice = "CastSpellOnTarget the mobile to unfreeze.";
                                     break;
                                 }
                             case 412:
                                 {
                                     InvokeCommand("Set Hidden True");
-                                    notice = "Target the mobile to hide.";
+                                    notice = "CastSpellOnTarget the mobile to hide.";
                                     break;
                                 }
                             case 413:
                                 {
                                     InvokeCommand("Set Hidden False");
-                                    notice = "Target the mobile to unhide.";
+                                    notice = "CastSpellOnTarget the mobile to unhide.";
                                     break;
                                 }
                             case 414:
                                 {
                                     InvokeCommand("Kill");
-                                    notice = "Target the mobile to kill.";
+                                    notice = "CastSpellOnTarget the mobile to kill.";
                                     break;
                                 }
                             case 415:
                                 {
                                     InvokeCommand("Resurrect");
-                                    notice = "Target the mobile to resurrect.";
+                                    notice = "CastSpellOnTarget the mobile to resurrect.";
                                     break;
                                 }
                             case 416:
                                 {
                                     InvokeCommand("Move");
-                                    notice = "Target the item or mobile to move.";
+                                    notice = "CastSpellOnTarget the item or mobile to move.";
                                     break;
                                 }
                             case 417:
                                 {
                                     InvokeCommand("Wipe");
-                                    notice = "Target bounding points.";
+                                    notice = "CastSpellOnTarget bounding points.";
                                     break;
                                 }
                             case 418:
@@ -3585,7 +3585,7 @@ namespace Server.Gumps
                                             m_PageType,
                                             m_ListPage,
                                             m_List,
-                                            "Target the player to firewall.",
+                                            "CastSpellOnTarget the player to firewall.",
                                             m_State
                                         )
                                     );

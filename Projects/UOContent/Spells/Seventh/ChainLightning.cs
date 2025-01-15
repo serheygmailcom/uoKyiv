@@ -24,7 +24,7 @@ namespace Server.Spells.Seventh
 
         public override bool DelayedDamage => true;
 
-        public void Target(IPoint3D p)
+        public void CastSpellOnTarget(IPoint3D p)
         {
             var loc = (p as Item)?.GetWorldLocation() ?? new Point3D(p);
             if (SpellHelper.CheckTown(loc, Caster) && CheckSequence())
@@ -97,7 +97,7 @@ namespace Server.Spells.Seventh
             }
         }
 
-        public override void OnCast()
+        public override void OnCastingAfterMantra()
         {
             Caster.Target = new SpellTarget<IPoint3D>(this, allowGround: true);
         }

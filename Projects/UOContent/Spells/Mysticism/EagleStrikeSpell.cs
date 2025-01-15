@@ -22,7 +22,7 @@ public class EagleStrikeSpell : MysticSpell, ITargetingSpell<Mobile>
 
     public override SpellCircle Circle => SpellCircle.Third;
 
-    public void Target(Mobile m)
+    public void CastSpellOnTarget(Mobile m)
     {
         if (CheckHSequence(m))
         {
@@ -40,7 +40,7 @@ public class EagleStrikeSpell : MysticSpell, ITargetingSpell<Mobile>
             {
                 Timer.StartTimer(TimeSpan.FromSeconds(0.5), () =>
                 {
-                    /* Conjures a magical eagle that assaults the Target with its talons, dealing energy damage. */
+                    /* Conjures a magical eagle that assaults the CastSpellOnTarget with its talons, dealing energy damage. */
                     source.MovingEffect(m, 0x407A, 8, 1, false, true, 0, 0);
                     source.PlaySound(0x2EE);
                 });
@@ -53,7 +53,7 @@ public class EagleStrikeSpell : MysticSpell, ITargetingSpell<Mobile>
         }
     }
 
-    public override void OnCast()
+    public override void OnCastingAfterMantra()
     {
         Caster.Target = new SpellTarget<Mobile>(this, TargetFlags.Harmful);
     }

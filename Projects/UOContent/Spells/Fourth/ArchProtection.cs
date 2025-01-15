@@ -27,7 +27,7 @@ namespace Server.Spells.Fourth
 
         public override SpellCircle Circle => SpellCircle.Fourth;
 
-        public void Target(IPoint3D p)
+        public void CastSpellOnTarget(IPoint3D p)
         {
             if (Caster.Map == null)
             {
@@ -92,7 +92,7 @@ namespace Server.Spells.Fourth
             }
         }
 
-        public override void OnCast()
+        public override void OnCastingAfterMantra()
         {
             Caster.Target = new SpellTarget<IPoint3D>(this, allowGround: true);
         }

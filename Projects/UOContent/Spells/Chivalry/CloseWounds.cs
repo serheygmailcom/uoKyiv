@@ -26,7 +26,7 @@ namespace Server.Spells.Chivalry
         public override int RequiredTithing => 10;
         public override int MantraNumber => 1060719; // Obsu Vulni
 
-        public void Target(Mobile m)
+        public void CastSpellOnTarget(Mobile m)
         {
             if (m == null)
             {
@@ -91,7 +91,7 @@ namespace Server.Spells.Chivalry
             return base.CheckCast();
         }
 
-        public override void OnCast()
+        public override void OnCastingAfterMantra()
         {
             Caster.Target = new SpellTarget<Mobile>(this, TargetFlags.Beneficial);
         }

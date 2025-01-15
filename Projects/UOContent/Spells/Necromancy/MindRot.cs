@@ -27,7 +27,7 @@ public class MindRotSpell : NecromancerSpell, ITargetingSpell<Mobile>
     public override double RequiredSkill => 30.0;
     public override int RequiredMana => 17;
 
-    public void Target(Mobile m)
+    public void CastSpellOnTarget(Mobile m)
     {
         if (m == null)
         {
@@ -41,8 +41,8 @@ public class MindRotSpell : NecromancerSpell, ITargetingSpell<Mobile>
         {
             SpellHelper.Turn(Caster, m);
 
-            /* Attempts to place a curse on the Target that increases the mana cost of any spells they cast,
-             * for a duration based off a comparison between the Caster's Spirit Speak skill and the Target's Resisting Spells skill.
+            /* Attempts to place a curse on the CastSpellOnTarget that increases the mana cost of any spells they cast,
+             * for a duration based off a comparison between the Caster's Spirit Speak skill and the CastSpellOnTarget's Resisting Spells skill.
              * The effect lasts for ((Spirit Speak skill level - target's Resist Magic skill level) / 50 ) + 20 seconds.
              */
 
@@ -61,7 +61,7 @@ public class MindRotSpell : NecromancerSpell, ITargetingSpell<Mobile>
         }
     }
 
-    public override void OnCast()
+    public override void OnCastingAfterMantra()
     {
         Caster.Target = new SpellTarget<Mobile>(this, TargetFlags.Harmful);
     }

@@ -21,18 +21,18 @@ public class NetherCycloneSpell : MysticSpell, ITargetingSpell<IPoint3D>
 
     public override SpellCircle Circle => SpellCircle.Eighth;
 
-    public void Target(IPoint3D p)
+    public void CastSpellOnTarget(IPoint3D p)
     {
         var loc = (p as Item)?.GetWorldLocation() ?? new Point3D(p);
 
         if (SpellHelper.CheckTown(loc, Caster) && CheckSequence())
         {
             /* Summons a gale of lethal winds that strikes all Targets within a radius around
-             * the Target's Location, dealing chaos damage. In addition to inflicting damage,
-             * each Target of the Nether Cyclone temporarily loses a percentage of mana and
+             * the CastSpellOnTarget's Location, dealing chaos damage. In addition to inflicting damage,
+             * each CastSpellOnTarget of the Nether Cyclone temporarily loses a percentage of mana and
              * stamina. The effectiveness of the Nether Cyclone is determined by a comparison
              * between the Caster's Mysticism and either Focus or Imbuing (whichever is greater)
-             * skills and the Resisting Spells skill of the Target.
+             * skills and the Resisting Spells skill of the CastSpellOnTarget.
              */
 
             SpellHelper.Turn(Caster, p);
@@ -87,7 +87,7 @@ public class NetherCycloneSpell : MysticSpell, ITargetingSpell<IPoint3D>
         }
     }
 
-    public override void OnCast()
+    public override void OnCastingAfterMantra()
     {
         Caster.Target = new SpellTarget<IPoint3D>(this, allowGround: true);
     }

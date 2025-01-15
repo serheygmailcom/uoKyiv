@@ -36,7 +36,7 @@ namespace Server.Items
 
         public override void OnDoubleClick(Mobile from)
         {
-            from.SendLocalizedMessage(502464); // Target the animal you wish to herd.
+            from.SendLocalizedMessage(502464); // CastSpellOnTarget the animal you wish to herd.
             from.Target = new HerdingTarget();
         }
 

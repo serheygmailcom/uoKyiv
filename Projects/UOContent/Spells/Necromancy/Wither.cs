@@ -34,7 +34,7 @@ public class WitherSpell : NecromancerSpell
 
     public override bool DelayedDamage => false;
 
-    public override void OnCast()
+    public override void OnCastingAfterMantra()
     {
         if (CheckSequence())
         {

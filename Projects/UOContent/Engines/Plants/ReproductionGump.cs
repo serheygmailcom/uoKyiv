@@ -205,7 +205,7 @@ namespace Server.Engines.Plants
                         else
                         {
                             from.Target = new PollinateTarget(m_Plant);
-                            from.SendLocalizedMessage(1053054); // Target the plant you wish to cross-pollinate to.
+                            from.SendLocalizedMessage(1053054); // CastSpellOnTarget the plant you wish to cross-pollinate to.
 
                             break;
                         }

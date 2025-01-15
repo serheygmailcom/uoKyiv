@@ -129,7 +129,7 @@ public partial class VendorRentalContract : Item
             {
                 if (sendMessage)
                 {
-                    from.SendLocalizedMessage(501853); // Target is too far away.
+                    from.SendLocalizedMessage(501853); // CastSpellOnTarget is too far away.
                 }
 
                 return false;
@@ -187,7 +187,7 @@ public partial class VendorRentalContract : Item
             }
             else
             {
-                from.SendLocalizedMessage(1062337); // Target the exact location you wish to rent out.
+                from.SendLocalizedMessage(1062337); // CastSpellOnTarget the exact location you wish to rent out.
                 from.Target = new RentTarget(this);
             }
         }
@@ -199,7 +199,7 @@ public partial class VendorRentalContract : Item
             }
             else
             {
-                from.SendLocalizedMessage(501853); // Target is too far away.
+                from.SendLocalizedMessage(501853); // CastSpellOnTarget is too far away.
             }
         }
     }

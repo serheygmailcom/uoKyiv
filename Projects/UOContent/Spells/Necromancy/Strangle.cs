@@ -26,7 +26,7 @@ public class StrangleSpell : NecromancerSpell, ITargetingSpell<Mobile>
     public override double RequiredSkill => 65.0;
     public override int RequiredMana => 29;
 
-    public void Target(Mobile m)
+    public void CastSpellOnTarget(Mobile m)
     {
         if (m == null)
         {
@@ -42,7 +42,7 @@ public class StrangleSpell : NecromancerSpell, ITargetingSpell<Mobile>
 
             /* Temporarily chokes off the air supply of the target with poisonous fumes.
              * The target is inflicted with poison damage over time.
-             * The amount of damage dealt each "hit" is based off of the caster's Spirit Speak skill and the Target's current Stamina.
+             * The amount of damage dealt each "hit" is based off of the caster's Spirit Speak skill and the CastSpellOnTarget's current Stamina.
              * The less Stamina the target has, the more damage is done by Strangle.
              * Duration of the effect is Spirit Speak skill level / 10 rounds, with a minimum number of 4 rounds.
              * The first round of damage is dealt after 5 seconds, and every next round after that comes 1 second sooner than the one before, until there is only 1 second between rounds.
@@ -109,7 +109,7 @@ public class StrangleSpell : NecromancerSpell, ITargetingSpell<Mobile>
         BuffInfo.AddBuff(m, new BuffInfo(BuffIcon.Strangle, 1075794, 1075795, t_Duration, m, args));
     }
 
-    public override void OnCast()
+    public override void OnCastingAfterMantra()
     {
         Caster.Target = new SpellTarget<Mobile>(this, TargetFlags.Harmful);
     }

@@ -27,7 +27,7 @@ namespace Server.Spells.Chivalry
         public override int MantraNumber => 1060723; // Forul Solum
         public override bool BlocksMovement => false;
 
-        public override void OnCast()
+        public override void OnCastingAfterMantra()
         {
             if (CheckSequence())
             {

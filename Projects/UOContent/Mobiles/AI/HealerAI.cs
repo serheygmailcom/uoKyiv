@@ -64,9 +64,9 @@ public class HealerAI : BaseAI
                     m_Mobile.DebugSay($"{toHelp.Name} needs a cure");
                 }
 
-                if (!new CureSpell(m_Mobile).Cast())
+                if (!new CureSpell(m_Mobile).BeginCasting())
                 {
-                    new CureSpell(m_Mobile).Cast();
+                    new CureSpell(m_Mobile).BeginCasting();
                 }
             }
             else if (NeedGHeal(toHelp))
@@ -76,9 +76,9 @@ public class HealerAI : BaseAI
                     m_Mobile.DebugSay($"{toHelp.Name} needs a greater heal");
                 }
 
-                if (!new GreaterHealSpell(m_Mobile).Cast())
+                if (!new GreaterHealSpell(m_Mobile).BeginCasting())
                 {
-                    new HealSpell(m_Mobile).Cast();
+                    new HealSpell(m_Mobile).BeginCasting();
                 }
             }
             else if (NeedLHeal(toHelp))
@@ -88,7 +88,7 @@ public class HealerAI : BaseAI
                     m_Mobile.DebugSay($"{toHelp.Name} needs a lesser heal");
                 }
 
-                new HealSpell(m_Mobile).Cast();
+                new HealSpell(m_Mobile).BeginCasting();
             }
 
             return true;

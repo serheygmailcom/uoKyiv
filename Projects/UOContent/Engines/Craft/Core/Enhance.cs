@@ -357,7 +357,7 @@ namespace Server.Engines.Craft
                     if (resource != CraftResource.None)
                     {
                         from.Target = new InternalTarget(craftSystem, tool, res.ItemType, resource);
-                        // Target an item to enhance with the properties of your selected material.
+                        // CastSpellOnTarget an item to enhance with the properties of your selected material.
                         from.SendLocalizedMessage(1061004);
                     }
                     else

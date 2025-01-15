@@ -20,7 +20,7 @@ public static class HonorVirtue
     {
         if (from.Alive)
         {
-            from.SendLocalizedMessage(1063160); // Target what you wish to honor.
+            from.SendLocalizedMessage(1063160); // CastSpellOnTarget what you wish to honor.
             from.Target = new InternalTarget();
         }
     }

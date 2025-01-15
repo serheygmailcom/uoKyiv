@@ -30,7 +30,7 @@ public partial class StoneMiningBook : Item
         else
         {
             pm.StoneMining = true;
-            // You have learned to mine for stones.  Target mountains when mining to find stones.
+            // You have learned to mine for stones.  CastSpellOnTarget mountains when mining to find stones.
             pm.SendLocalizedMessage(1080045);
             Delete();
         }

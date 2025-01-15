@@ -20,7 +20,7 @@ namespace Server.Spells.Third
 
         public override bool DelayedDamage => true;
 
-        public void Target(Mobile m)
+        public void CastSpellOnTarget(Mobile m)
         {
             if (CheckHSequence(m))
             {
@@ -57,7 +57,7 @@ namespace Server.Spells.Third
             }
         }
 
-        public override void OnCast()
+        public override void OnCastingAfterMantra()
         {
             Caster.Target = new SpellTarget<Mobile>(this, TargetFlags.Harmful);
         }

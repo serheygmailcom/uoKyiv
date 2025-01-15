@@ -34,7 +34,7 @@ namespace Server.Spells.Chivalry
             Caster.FixedEffect(0x37C4, 10, 7, 4, 3); // At player
         }
 
-        public override void OnCast()
+        public override void OnCastingAfterMantra()
         {
             if (CheckSequence())
             {

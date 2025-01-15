@@ -25,12 +25,12 @@ public class CleansingWindsSpell : MysticSpell, ITargetingSpell<Mobile>
     {
     }
 
-    public override void OnCast()
+    public override void OnCastingAfterMantra()
     {
         Caster.Target = new SpellTarget<Mobile>(this, TargetFlags.Beneficial);
     }
 
-    public void Target(Mobile m)
+    public void CastSpellOnTarget(Mobile m)
     {
         if (CheckBSequence(m))
         {

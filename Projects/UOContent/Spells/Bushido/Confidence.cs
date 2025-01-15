@@ -31,7 +31,7 @@ public class Confidence : SamuraiSpell
         Caster.FixedEffect(0x37C4, 10, 7, 4, 3);
     }
 
-    public override void OnCast()
+    public override void OnCastingAfterMantra()
     {
         if (CheckSequence())
         {

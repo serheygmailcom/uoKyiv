@@ -45,7 +45,7 @@ public class Recipe
     private static void LearnAllRecipes_OnCommand(CommandEventArgs e)
     {
         var m = e.Mobile;
-        m.SendMessage("Target a player to teach them all of the recipes.");
+        m.SendMessage("CastSpellOnTarget a player to teach them all of the recipes.");
 
         m.BeginTarget(
             -1,
@@ -74,7 +74,7 @@ public class Recipe
     private static void ForgetAllRecipes_OnCommand(CommandEventArgs e)
     {
         var m = e.Mobile;
-        m.SendMessage("Target a player to have them forget all of the recipes they've learned.");
+        m.SendMessage("CastSpellOnTarget a player to have them forget all of the recipes they've learned.");
 
         m.BeginTarget(
             -1,

@@ -354,7 +354,7 @@ namespace Server.Gumps
                 }
                 else if (!mob.InRange(m_Contract, 5))
                 {
-                    from.SendLocalizedMessage(501853); // Target is too far away.
+                    from.SendLocalizedMessage(501853); // CastSpellOnTarget is too far away.
                 }
                 else
                 {

@@ -116,7 +116,7 @@ public class MageAI : BaseAI
             {
                 var spell = CheckCastHealingSpell();
 
-                spell?.Cast();
+                spell?.BeginCasting();
             }
         }
 
@@ -223,7 +223,7 @@ public class MageAI : BaseAI
         {
             m_Mobile.Target?.Cancel(m_Mobile, TargetCancelType.Canceled);
 
-            new TeleportSpell(m_Mobile).Cast();
+            new TeleportSpell(m_Mobile).BeginCasting();
 
             if (m_Mobile.Debug)
             {
@@ -835,7 +835,7 @@ public class MageAI : BaseAI
             // After running, make sure we are still in range
             if (spell == null || m_Mobile.InRange(c, range))
             {
-                spell?.Cast();
+                spell?.BeginCasting();
 
                 // Even if we don't have a spell, delay the next potential cast
                 m_NextCastTime = Core.TickCount + (int)GetDelay(spell).TotalMilliseconds;
@@ -877,7 +877,7 @@ public class MageAI : BaseAI
                 m_RevealTarget = new LandTarget(m_LastTargetLoc, map);
                 Spell spell = new RevealSpell(m_Mobile);
 
-                if (spell.Cast())
+                if (spell.BeginCasting())
                 {
                     m_LastTarget = null; // only do it once
                 }
@@ -904,7 +904,7 @@ public class MageAI : BaseAI
 
                 var spell = CheckCastHealingSpell();
 
-                spell?.Cast();
+                spell?.BeginCasting();
             }
 
             base.DoActionGuard();
@@ -938,7 +938,7 @@ public class MageAI : BaseAI
 
             if (m_Mobile.Poisoned && Utility.Random(0, 5) == 0)
             {
-                new CureSpell(m_Mobile).Cast();
+                new CureSpell(m_Mobile).BeginCasting();
             }
         }
         else

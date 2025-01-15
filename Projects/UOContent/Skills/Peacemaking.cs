@@ -143,7 +143,7 @@ namespace Server.SkillHandlers
                     }
                     else
                     {
-                        // Target mode : pacify a single target for a longer duration
+                        // CastSpellOnTarget mode : pacify a single target for a longer duration
                         var bc = targ as BaseCreature;
 
                         if (!from.CanBeHarmful(targ, false))

@@ -52,7 +52,7 @@ namespace Server.Spells
             }
         }
 
-        public override void OnCast()
+        public override void OnCastingAfterMantra()
         {
             Caster.Flying = false;
             BuffInfo.RemoveBuff(Caster, BuffIcon.Fly);

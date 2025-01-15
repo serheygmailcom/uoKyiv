@@ -27,7 +27,7 @@ public class PoisonStrikeSpell : NecromancerSpell, ITargetingSpell<Mobile>
 
     public override bool DelayedDamage => false;
 
-    public void Target(Mobile m)
+    public void CastSpellOnTarget(Mobile m)
     {
         if (CheckHSequence(m))
         {
@@ -144,7 +144,7 @@ public class PoisonStrikeSpell : NecromancerSpell, ITargetingSpell<Mobile>
         }
     }
 
-    public override void OnCast()
+    public override void OnCastingAfterMantra()
     {
         Caster.Target = new SpellTarget<Mobile>(this, TargetFlags.Harmful);
     }

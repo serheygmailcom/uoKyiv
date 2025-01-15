@@ -48,7 +48,7 @@ namespace Server.Guilds
                 26,
                 m_Member == player.GuildFealty && guild.Leader != m_Member ? 1063082 : 1062996,
                 0x0
-            ); // Clear/Cast Vote For This Member
+            ); // Clear/BeginCasting Vote For This Member
 
             AddBackground(20, 180, 150, 26, 0x2486);
             AddButton(25, 185, 0x845, 0x846, 1);

@@ -30,7 +30,7 @@ public class Shadowjump : NinjaSpell, ITargetingSpell<IPoint3D>
 
     public int TargetRange => 11;
 
-    public void Target(IPoint3D p)
+    public void CastSpellOnTarget(IPoint3D p)
     {
         var orig = p;
         var map = Caster.Map;
@@ -109,7 +109,7 @@ public class Shadowjump : NinjaSpell, ITargetingSpell<IPoint3D>
 
     public override bool CheckDisturb(DisturbType type, bool firstCircle, bool resistable) => false;
 
-    public override void OnCast()
+    public override void OnCastingAfterMantra()
     {
         Caster.SendLocalizedMessage(1063088); // You prepare to perform a Shadowjump.
         Caster.Target = new SpellTarget<IPoint3D>(this, allowGround: true);

@@ -85,7 +85,7 @@ namespace Server.Spells.Ninjitsu
             Caster.SendLocalizedMessage(1063134); // You begin to summon a mirror image of yourself.
         }
 
-        public override void OnCast()
+        public override void OnCastingAfterMantra()
         {
             if (Caster.Mounted)
             {

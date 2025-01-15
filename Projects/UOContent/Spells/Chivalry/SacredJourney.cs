@@ -111,7 +111,7 @@ namespace Server.Spells.Chivalry
             }
         }
 
-        public override void OnCast()
+        public override void OnCastingAfterMantra()
         {
             if (m_Entry == null)
             {

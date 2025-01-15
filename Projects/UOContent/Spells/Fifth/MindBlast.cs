@@ -28,7 +28,7 @@ namespace Server.Spells.Fifth
 
         public override bool DelayedDamage => !Core.AOS;
 
-        public void Target(Mobile m)
+        public void CastSpellOnTarget(Mobile m)
         {
             if (Core.AOS)
             {
@@ -108,7 +108,7 @@ namespace Server.Spells.Fifth
             }
         }
 
-        public override void OnCast()
+        public override void OnCastingAfterMantra()
         {
             Caster.Target = new SpellTarget<Mobile>(this, TargetFlags.Harmful);
         }

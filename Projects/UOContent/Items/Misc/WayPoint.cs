@@ -35,7 +35,7 @@ public partial class WayPoint : Item
     [Description("Creates a sequence of way points.")]
     public static void WayPointSeq_OnCommand(CommandEventArgs arg)
     {
-        arg.Mobile.SendMessage("Target the position of the first way point.");
+        arg.Mobile.SendMessage("CastSpellOnTarget the position of the first way point.");
         arg.Mobile.Target = new WayPointSeqTarget(null);
     }
 
@@ -43,7 +43,7 @@ public partial class WayPoint : Item
     {
         if (from.AccessLevel >= AccessLevel.GameMaster)
         {
-            from.SendMessage("Target the next way point in the sequence.");
+            from.SendMessage("CastSpellOnTarget the next way point in the sequence.");
 
             from.Target = new NextPointTarget(this);
         }
@@ -78,7 +78,7 @@ public class NextPointTarget : Target
         }
         else
         {
-            from.SendMessage("Target a way point.");
+            from.SendMessage("CastSpellOnTarget a way point.");
         }
     }
 }
@@ -107,12 +107,12 @@ public class WayPointSeqTarget : Target
 
             from.Target = new WayPointSeqTarget(point);
             from.SendMessage(
-                "Target the position of the next way point in the sequence, or target a way point link the newest way point to."
+                "CastSpellOnTarget the position of the next way point in the sequence, or target a way point link the newest way point to."
             );
         }
         else
         {
-            from.SendMessage("Target a position, or another way point.");
+            from.SendMessage("CastSpellOnTarget a position, or another way point.");
         }
     }
 }

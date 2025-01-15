@@ -8,7 +8,7 @@ namespace Server
     {
         public static void Begin(Mobile from, BoundingBoxCallback callback)
         {
-            from.SendMessage("Target the first location of the bounding box.");
+            from.SendMessage("CastSpellOnTarget the first location of the bounding box.");
             from.Target = new PickTarget(callback);
         }
 
@@ -51,7 +51,7 @@ namespace Server
 
                 if (m_First)
                 {
-                    from.SendMessage("Target another location to complete the bounding box.");
+                    from.SendMessage("CastSpellOnTarget another location to complete the bounding box.");
                     from.Target = new PickTarget(p, false, from.Map, m_Callback);
                 }
                 else if (from.Map != m_Map)

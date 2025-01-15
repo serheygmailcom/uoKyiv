@@ -22,7 +22,7 @@ namespace Server.Spells.Spellweaving
         public override double RequiredSkill => 0.0;
         public override int RequiredMana => 24;
 
-        public void Target(IPoint3D point)
+        public void CastSpellOnTarget(IPoint3D point)
         {
             var p = new Point3D(point);
             var map = Caster.Map;
@@ -68,7 +68,7 @@ namespace Server.Spells.Spellweaving
             return true;
         }
 
-        public override void OnCast()
+        public override void OnCastingAfterMantra()
         {
             Caster.Target = new SpellTarget<IPoint3D>(this, allowGround: true);
         }

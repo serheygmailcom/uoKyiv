@@ -47,7 +47,7 @@ namespace Server.Spells.First
             return true;
         }
 
-        public override void OnCast()
+        public override void OnCastingAfterMantra()
         {
             if (Core.AOS)
             {

@@ -366,7 +366,7 @@ namespace Server.Engines.Plants
                         {
                             from.Target = new PlantPourTarget(m_Plant);
 
-                            // Target the container you wish to use to water the ~1_val~.
+                            // CastSpellOnTarget the container you wish to use to water the ~1_val~.
                             from.SendLocalizedMessage(1060808, $"#{m_Plant.GetLocalizedPlantStatus()}");
                         }
                         else
@@ -435,7 +435,7 @@ namespace Server.Engines.Plants
 
                     from.Target = new PlantPourTarget(m_Plant);
 
-                    // Target the container you wish to use to water the ~1_val~.
+                    // CastSpellOnTarget the container you wish to use to water the ~1_val~.
                     from.SendLocalizedMessage(1060808, $"#{m_Plant.GetLocalizedPlantStatus()}");
 
                     return;

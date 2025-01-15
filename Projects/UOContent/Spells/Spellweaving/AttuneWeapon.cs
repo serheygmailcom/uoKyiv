@@ -40,7 +40,7 @@ namespace Server.Spells.Spellweaving
             return false;
         }
 
-        public override void OnCast()
+        public override void OnCastingAfterMantra()
         {
             if (CheckSequence())
             {

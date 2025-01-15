@@ -10,5 +10,5 @@ public interface IRangedSpell
 
 public interface ITargetingSpell<in T> : IRangedSpell where T : IPoint3D
 {
-    void Target(T target);
+    void CastSpellOnTarget(T target);
 }

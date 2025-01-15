@@ -134,7 +134,7 @@ public abstract partial class BaseDoor : Item, ILockable, ITelekinesisable
     private static void Link_OnCommand(CommandEventArgs e)
     {
         e.Mobile.BeginTarget(-1, false, TargetFlags.None, Link_OnFirstTarget);
-        e.Mobile.SendMessage("Target the first door to link.");
+        e.Mobile.SendMessage("CastSpellOnTarget the first door to link.");
     }
 
     private static void Link_OnFirstTarget(Mobile from, object targeted)
@@ -147,7 +147,7 @@ public abstract partial class BaseDoor : Item, ILockable, ITelekinesisable
         else
         {
             from.BeginTarget(-1, false, TargetFlags.None, Link_OnSecondTarget, door);
-            from.SendMessage("Target the second door to link.");
+            from.SendMessage("CastSpellOnTarget the second door to link.");
         }
     }
 
@@ -170,7 +170,7 @@ public abstract partial class BaseDoor : Item, ILockable, ITelekinesisable
     private static void ChainLink_OnCommand(CommandEventArgs e)
     {
         e.Mobile.BeginTarget(-1, false, TargetFlags.None, ChainLink_OnTarget, new List<BaseDoor>());
-        e.Mobile.SendMessage("Target the first of a sequence of doors to link.");
+        e.Mobile.SendMessage("CastSpellOnTarget the first of a sequence of doors to link.");
     }
 
     private static void ChainLink_OnTarget(Mobile from, object targeted, List<BaseDoor> list)
@@ -196,14 +196,14 @@ public abstract partial class BaseDoor : Item, ILockable, ITelekinesisable
                 else
                 {
                     from.BeginTarget(-1, false, TargetFlags.None, ChainLink_OnTarget, list);
-                    from.SendMessage("You have not yet targeted two unique doors. Target the second door to link.");
+                    from.SendMessage("You have not yet targeted two unique doors. CastSpellOnTarget the second door to link.");
                 }
             }
             else if (list.Contains(door))
             {
                 from.BeginTarget(-1, false, TargetFlags.None, ChainLink_OnTarget, list);
                 from.SendMessage(
-                    "You have already targeted that door. Target another door, or retarget the first door to complete the chain."
+                    "You have already targeted that door. CastSpellOnTarget another door, or retarget the first door to complete the chain."
                 );
             }
             else
@@ -214,11 +214,11 @@ public abstract partial class BaseDoor : Item, ILockable, ITelekinesisable
 
                 if (list.Count == 1)
                 {
-                    from.SendMessage("Target the second door to link.");
+                    from.SendMessage("CastSpellOnTarget the second door to link.");
                 }
                 else
                 {
-                    from.SendMessage("Target another door to link. To complete the chain, retarget the first door.");
+                    from.SendMessage("CastSpellOnTarget another door to link. To complete the chain, retarget the first door.");
                 }
             }
         }

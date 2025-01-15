@@ -21,11 +21,11 @@ namespace Server.Spells.Third
 
         public override SpellCircle Circle => SpellCircle.Third;
 
-        public void Target(Item item)
+        public void CastSpellOnTarget(Item item)
         {
             if (item is not LockableContainer cont)
             {
-                Caster.SendLocalizedMessage(501762); // Target must be an unlocked chest.
+                Caster.SendLocalizedMessage(501762); // CastSpellOnTarget must be an unlocked chest.
             }
             else if (BaseHouse.CheckLockedDownOrSecured(cont))
             {
@@ -34,7 +34,7 @@ namespace Server.Spells.Third
             }
             else if (cont.Locked || cont.LockLevel == ILockpickable.CannotPick || cont is ParagonChest)
             {
-                Caster.SendLocalizedMessage(501762); // Target must be an unlocked chest.
+                Caster.SendLocalizedMessage(501762); // CastSpellOnTarget must be an unlocked chest.
             }
             else if (CheckSequence())
             {
@@ -60,7 +60,7 @@ namespace Server.Spells.Third
             }
         }
 
-        public override void OnCast()
+        public override void OnCastingAfterMantra()
         {
             Caster.Target = new SpellTarget<Item>(this);
         }

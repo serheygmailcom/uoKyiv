@@ -129,7 +129,7 @@ namespace Server.Gumps
                         shouldSend = false;
                         break;
                     }
-                case 1: // Change by Target
+                case 1: // Change by CastSpellOnTarget
                     {
                         m_Mobile.Target = new SetObjectTarget(
                             m_Property,

@@ -22,13 +22,13 @@ public class HailStormSpell : MysticSpell, ITargetingSpell<IPoint3D>
     public override SpellCircle Circle => SpellCircle.Seventh;
     public override int GetMana() => 50;
 
-    public void Target(IPoint3D p)
+    public void CastSpellOnTarget(IPoint3D p)
     {
         var loc = (p as Item)?.GetWorldLocation() ?? new Point3D(p);
 
         if (SpellHelper.CheckTown(loc, Caster) && CheckSequence())
         {
-            /* Summons a storm of hailstones that strikes all Targets within a radius around the Target's Location,
+            /* Summons a storm of hailstones that strikes all Targets within a radius around the CastSpellOnTarget's Location,
              * dealing cold damage.
              */
 
@@ -71,7 +71,7 @@ public class HailStormSpell : MysticSpell, ITargetingSpell<IPoint3D>
         }
     }
 
-    public override void OnCast()
+    public override void OnCastingAfterMantra()
     {
         Caster.Target = new SpellTarget<IPoint3D>(this, allowGround: true);
     }

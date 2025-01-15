@@ -38,7 +38,7 @@ namespace Server.Spells.Eighth
             return true;
         }
 
-        public override void OnCast()
+        public override void OnCastingAfterMantra()
         {
             if (CheckSequence())
             {

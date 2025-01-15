@@ -221,7 +221,7 @@ public class BandageContext : Timer
         {
             if (Patient.Map?.CanFit(Patient.Location, 16, false, false) != true)
             {
-                Healer.SendLocalizedMessage(501042);  // Target can not be resurrected at that location.
+                Healer.SendLocalizedMessage(501042);  // CastSpellOnTarget can not be resurrected at that location.
                 Patient.SendLocalizedMessage(502391); // Thou can not be resurrected there!
                 return;
             }
@@ -464,7 +464,7 @@ public class BandageContext : Timer
         }
         else if (!patient.Alive && patient.Map?.CanFit(patient.Location, 16, false, false) != true)
         {
-            healer.SendLocalizedMessage(501042); // Target cannot be resurrected at that location.
+            healer.SendLocalizedMessage(501042); // CastSpellOnTarget cannot be resurrected at that location.
         }
         else if (healer.CanBeBeneficial(patient, true, true))
         {

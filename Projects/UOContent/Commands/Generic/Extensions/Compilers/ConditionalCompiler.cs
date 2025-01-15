@@ -15,7 +15,7 @@ namespace Server.Commands.Generic
         // Invoked during the constructor
         void Construct(TypeBuilder typeBuilder, ILGenerator il, int index);
 
-        // Target object will be loaded on the stack
+        // CastSpellOnTarget object will be loaded on the stack
         void Compile(MethodEmitter emitter);
     }
 

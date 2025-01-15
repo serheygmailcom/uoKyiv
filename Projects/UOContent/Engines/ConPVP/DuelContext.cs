@@ -1495,7 +1495,7 @@ namespace Server.Engines.ConPVP
                     }
                     else
                     {
-                        pm.SendMessage("Target a player to view their ranking and level.");
+                        pm.SendMessage("CastSpellOnTarget a player to view their ranking and level.");
                         pm.BeginTarget(16, false, TargetFlags.None, ViewLadder_OnTarget, instance);
                     }
                 }

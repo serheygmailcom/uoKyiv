@@ -20,7 +20,7 @@ public static class ValorVirtue
     {
         if (from.Alive)
         {
-            from.SendLocalizedMessage(1054034); // Target the Champion Idol of the Champion you wish to challenge!.
+            from.SendLocalizedMessage(1054034); // CastSpellOnTarget the Champion Idol of the Champion you wish to challenge!.
             from.Target = new InternalTarget();
         }
     }

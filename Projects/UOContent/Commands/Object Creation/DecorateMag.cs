@@ -635,7 +635,7 @@ namespace Server.Commands
                             rune.TargetMap = Map.Parse(m_Params[i][++indexOf..]);
                         }
                     }
-                    else if (m_Params[i].StartsWithOrdinal("Target"))
+                    else if (m_Params[i].StartsWithOrdinal("CastSpellOnTarget"))
                     {
                         var indexOf = m_Params[i].IndexOfOrdinal('=');
 

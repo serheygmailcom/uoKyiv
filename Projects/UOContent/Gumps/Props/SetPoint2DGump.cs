@@ -75,7 +75,7 @@ namespace Server.Gumps
             y += EntryHeight + OffsetSize;
 
             AddImageTiled(x, y, EntryWidth, EntryHeight, EntryGumpID);
-            AddLabelCropped(x + TextOffsetX, y, EntryWidth - TextOffsetX, EntryHeight, TextHue, "Target a location");
+            AddLabelCropped(x + TextOffsetX, y, EntryWidth - TextOffsetX, EntryHeight, TextHue, "CastSpellOnTarget a location");
             x += EntryWidth + OffsetSize;
 
             if (SetGumpID != 0)

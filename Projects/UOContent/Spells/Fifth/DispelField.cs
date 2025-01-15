@@ -22,7 +22,7 @@ namespace Server.Spells.Fifth
 
         public override SpellCircle Circle => SpellCircle.Fifth;
 
-        public void Target(Item item)
+        public void CastSpellOnTarget(Item item)
         {
             if (!item.GetType().IsDefined(typeof(DispellableFieldAttribute), false))
             {
@@ -49,7 +49,7 @@ namespace Server.Spells.Fifth
             }
         }
 
-        public override void OnCast()
+        public override void OnCastingAfterMantra()
         {
             Caster.Target = new SpellTarget<Item>(this);
         }

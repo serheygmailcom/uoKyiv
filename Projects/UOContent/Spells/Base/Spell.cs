@@ -64,7 +64,7 @@ namespace Server.Spells
 
         public virtual bool BlockedByHorrificBeast => true;
         public virtual bool BlockedByAnimalForm => true;
-        public virtual bool BlocksMovement => IsCasting;
+        public virtual bool BlocksMovement => false;
 
         public virtual bool CheckNextSpellTime => Scroll is not BaseWand;
 
@@ -459,7 +459,9 @@ namespace Server.Spells
             }
         }
 
-        public bool Cast()
+
+        //FS will ask for target after 3 seconds
+        public bool BeginCasting()
         {
             StartCastTime = Core.TickCount;
 
@@ -592,7 +594,7 @@ namespace Server.Spells
             return false;
         }
 
-        public abstract void OnCast();
+        public abstract void OnCastingAfterMantra();
 
         public virtual void OnBeginCast()
         {
@@ -936,7 +938,7 @@ namespace Server.Spells
                 {
                     return;
                 }
-
+                //this spell instance checks if it is assigned now to the caster or other spell
                 if (m_Spell.State == SpellState.Casting && caster.Spell == m_Spell)
                 {
                     m_Spell.State = SpellState.Sequencing;
@@ -950,7 +952,7 @@ namespace Server.Spells
 
                     var originalTarget = caster.Target;
 
-                    m_Spell.OnCast();
+                    m_Spell.OnCastingAfterMantra(); 
 
                     if (caster.Player && caster.Target != originalTarget)
                     {

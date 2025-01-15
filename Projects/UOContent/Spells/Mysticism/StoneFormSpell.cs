@@ -59,7 +59,7 @@ namespace Server.Spells.Mysticism
             return base.CheckCast();
         }
 
-        public override void OnCast()
+        public override void OnCastingAfterMantra()
         {
             if (Sigil.ExistsOn(Caster))
             {

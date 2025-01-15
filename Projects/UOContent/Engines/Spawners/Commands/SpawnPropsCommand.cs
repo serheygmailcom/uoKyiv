@@ -48,7 +48,7 @@ public class SpawnPropsCommand : BaseCommand
             return;
         }
 
-        e.Mobile.SendMessage("Target the object you want to use as a template for modifying the spawner properties.");
+        e.Mobile.SendMessage("CastSpellOnTarget the object you want to use as a template for modifying the spawner properties.");
         e.Mobile.Target = new InternalTarget(list);
     }
 

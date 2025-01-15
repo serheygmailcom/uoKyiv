@@ -31,7 +31,7 @@ namespace Server.Spells.Spellweaving
 
         public override bool CheckCast() => TransformationSpellHelper.CheckCast(Caster, this) && base.CheckCast();
 
-        public override void OnCast()
+        public override void OnCastingAfterMantra()
         {
             TransformationSpellHelper.OnCast(Caster, this);
 

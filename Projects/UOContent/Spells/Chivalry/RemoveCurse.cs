@@ -30,7 +30,7 @@ namespace Server.Spells.Chivalry
         public override int RequiredTithing => 10;
         public override int MantraNumber => 1060726; // Extermo Vomica
 
-        public void Target(Mobile m)
+        public void CastSpellOnTarget(Mobile m)
         {
             if (m == null)
             {
@@ -41,7 +41,7 @@ namespace Server.Spells.Chivalry
             {
                 SpellHelper.Turn(Caster, m);
 
-                /* Attempts to remove all Curse effects from Target.
+                /* Attempts to remove all Curse effects from CastSpellOnTarget.
                  * Curses include Mage spells such as Clumsy, Weaken, Feeblemind and Paralyze
                  * as well as all Necromancer curses.
                  * Chance of removing curse is affected by Caster's Karma.
@@ -137,7 +137,7 @@ namespace Server.Spells.Chivalry
             return base.CheckCast();
         }
 
-        public override void OnCast()
+        public override void OnCastingAfterMantra()
         {
             Caster.Target = new SpellTarget<Mobile>(this, TargetFlags.Beneficial);
         }

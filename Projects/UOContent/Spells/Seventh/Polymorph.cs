@@ -86,7 +86,7 @@ namespace Server.Spells.Seventh
             return true;
         }
 
-        public override void OnCast()
+        public override void OnCastingAfterMantra()
         {
             var caster = Caster;
 

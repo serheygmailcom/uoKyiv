@@ -82,7 +82,7 @@ public class ExorcismSpell : NecromancerSpell
 
     public override int ComputeKarmaAward() => 0;
 
-    public override void OnCast()
+    public override void OnCastingAfterMantra()
     {
         var r = Caster.Region.GetRegion<ChampionSpawnRegion>();
         if (r == null || !Caster.InRange(r.Spawn, Range))

@@ -22,7 +22,7 @@ public class AnimatedWeaponSpell : MysticSpell, ITargetingSpell<IPoint3D>
 
     public override SpellCircle Circle => SpellCircle.Fourth;
 
-    public void Target(IPoint3D p)
+    public void CastSpellOnTarget(IPoint3D p)
     {
         if (Caster.Followers + 4 > Caster.FollowersMax)
         {
@@ -53,7 +53,7 @@ public class AnimatedWeaponSpell : MysticSpell, ITargetingSpell<IPoint3D>
         }
     }
 
-    public override void OnCast()
+    public override void OnCastingAfterMantra()
     {
         Caster.Target = new SpellTarget<IPoint3D>(this, allowGround: true);
     }

@@ -137,7 +137,7 @@ public partial class KronusScroll : QuestItem
             {
                 _player.Frozen = true;
             }
-            else // Cast completed
+            else // BeginCasting completed
             {
                 _player.Frozen = false;
 

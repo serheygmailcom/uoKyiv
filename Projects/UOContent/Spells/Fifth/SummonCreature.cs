@@ -61,7 +61,7 @@ namespace Server.Spells.Fifth
             return true;
         }
 
-        public override void OnCast()
+        public override void OnCastingAfterMantra()
         {
             if (CheckSequence())
             {

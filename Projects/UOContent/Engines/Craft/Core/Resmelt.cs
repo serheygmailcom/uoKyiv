@@ -25,7 +25,7 @@ namespace Server.Engines.Craft
             else
             {
                 from.Target = new InternalTarget(craftSystem, tool);
-                from.SendLocalizedMessage(1044273); // Target an item to recycle.
+                from.SendLocalizedMessage(1044273); // CastSpellOnTarget an item to recycle.
             }
         }
 

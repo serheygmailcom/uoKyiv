@@ -25,7 +25,7 @@ public class CurseWeaponSpell : NecromancerSpell
     public override double RequiredSkill => 0.0;
     public override int RequiredMana => 7;
 
-    public override void OnCast()
+    public override void OnCastingAfterMantra()
     {
         if (Caster.Weapon is not BaseWeapon weapon || weapon is Fists)
         {

@@ -17,7 +17,7 @@ namespace Server.SkillHandlers
             {
                 Spell spell = new SpiritSpeakSpell(m);
 
-                spell.Cast();
+                spell.BeginCasting();
 
                 if (spell.IsCasting)
                 {
@@ -122,7 +122,7 @@ namespace Server.SkillHandlers
                 Caster.PlaySound(0x24A);
             }
 
-            public override void OnCast()
+            public override void OnCastingAfterMantra()
             {
                 Corpse toChannel = null;
                 foreach (var corpse in Caster.GetItemsInRange<Corpse>(3))

@@ -25,7 +25,7 @@ namespace Server.Spells.Fourth
         // Arch cure is now 1/4th of a second faster
         public override TimeSpan CastDelayBase => base.CastDelayBase - TimeSpan.FromSeconds(0.25);
 
-        public void Target(IPoint3D p)
+        public void CastSpellOnTarget(IPoint3D p)
         {
             if (CheckSequence())
             {
@@ -93,7 +93,7 @@ namespace Server.Spells.Fourth
             }
         }
 
-        public override void OnCast()
+        public override void OnCastingAfterMantra()
         {
             Caster.Target = new SpellTarget<IPoint3D>(this, allowGround: true);
         }

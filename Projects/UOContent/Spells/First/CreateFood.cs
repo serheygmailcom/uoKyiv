@@ -36,7 +36,7 @@ public class CreateFoodSpell : MagerySpell
 
     public override SpellCircle Circle => SpellCircle.First;
 
-    public override void OnCast()
+    public override void OnCastingAfterMantra()
     {
         if (CheckSequence())
         {

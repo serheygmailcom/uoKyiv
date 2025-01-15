@@ -285,7 +285,7 @@ public partial class BraceletOfBinding : BaseBracelet, TranslocationItem
         }
         else
         {
-            from.SendLocalizedMessage(1054001); // Target the bracelet of binding you wish to bind this bracelet to.
+            from.SendLocalizedMessage(1054001); // CastSpellOnTarget the bracelet of binding you wish to bind this bracelet to.
             from.Target = new BindTarget(this);
         }
     }

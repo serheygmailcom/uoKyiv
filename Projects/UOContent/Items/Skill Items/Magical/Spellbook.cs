@@ -4,6 +4,7 @@ using ModernUO.Serialization;
 using Server.Commands;
 using Server.Engines.Craft;
 using Server.Ethics;
+using Server.Mobiles;
 using Server.Multis;
 using Server.Network;
 using Server.Spells;
@@ -224,7 +225,7 @@ public partial class Spellbook : Item, ICraftable, ISlayer, IAosItem
     private static void AllSpells_OnCommand(CommandEventArgs e)
     {
         e.Mobile.BeginTarget(-1, false, TargetFlags.None, AllSpells_OnTarget);
-        e.Mobile.SendMessage("Target the spellbook to fill.");
+        e.Mobile.SendMessage("CastSpellOnTarget the spellbook to fill.");
     }
 
     private static void AllSpells_OnTarget(Mobile from, object obj)
@@ -294,7 +295,7 @@ public partial class Spellbook : Item, ICraftable, ISlayer, IAosItem
         }
         else
         {
-            SpellRegistry.NewSpell(spellId, from, null)?.Cast();
+            SpellRegistry.NewSpell(spellId, from, null)?.BeginCasting();
         }
     }
 
@@ -324,9 +325,16 @@ public partial class Spellbook : Item, ICraftable, ISlayer, IAosItem
             {
                 var spell = SpellRegistry.NewSpell(spellID, from, null);
 
+
+
                 if (spell != null)
                 {
-                    spell.Cast();
+                    //old 
+                    spell.BeginCasting();
+
+                    //new
+                    //from.Target = new SpellTarget<Mobile>(spell, TargetFlags.Harmful);
+
                 }
                 else
                 {

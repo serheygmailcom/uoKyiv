@@ -25,7 +25,7 @@ public class VengefulSpiritSpell : NecromancerSpell, ITargetingSpell<Mobile>
     public override double RequiredSkill => 80.0;
     public override int RequiredMana => 41;
 
-    public void Target(Mobile m)
+    public void CastSpellOnTarget(Mobile m)
     {
         if (m == null)
         {
@@ -64,7 +64,7 @@ public class VengefulSpiritSpell : NecromancerSpell, ITargetingSpell<Mobile>
         }
     }
 
-    public override void OnCast()
+    public override void OnCastingAfterMantra()
     {
         Caster.Target = new SpellTarget<Mobile>(this, TargetFlags.Harmful);
     }

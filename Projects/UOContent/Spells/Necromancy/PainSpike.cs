@@ -31,7 +31,7 @@ public class PainSpikeSpell : NecromancerSpell, ITargetingSpell<Mobile>
 
     public static bool UnderEffect(Mobile m) => _table.ContainsKey(m);
 
-    public void Target(Mobile m)
+    public void CastSpellOnTarget(Mobile m)
     {
         if (m == null)
         {
@@ -83,7 +83,7 @@ public class PainSpikeSpell : NecromancerSpell, ITargetingSpell<Mobile>
         }
     }
 
-    public override void OnCast()
+    public override void OnCastingAfterMantra()
     {
         Caster.Target = new SpellTarget<Mobile>(this, TargetFlags.Harmful);
     }

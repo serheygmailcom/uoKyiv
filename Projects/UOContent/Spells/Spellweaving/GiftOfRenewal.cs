@@ -23,7 +23,7 @@ namespace Server.Spells.Spellweaving
         public override double RequiredSkill => 0.0;
         public override int RequiredMana => 24;
 
-        public void Target(Mobile m)
+        public void CastSpellOnTarget(Mobile m)
         {
             if (_table.ContainsKey(m))
             {
@@ -67,7 +67,7 @@ namespace Server.Spells.Spellweaving
             }
         }
 
-        public override void OnCast()
+        public override void OnCastingAfterMantra()
         {
             Caster.Target = new SpellTarget<Mobile>(this, TargetFlags.Beneficial);
         }

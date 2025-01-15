@@ -26,7 +26,7 @@ public partial class EnchantedPaints : QuestItem
             {
                 if (qs.IsObjectiveInProgress(typeof(CaptureImagesObjective)))
                 {
-                    player.SendAsciiMessage(0x59, "Target the creature whose image you wish to create.");
+                    player.SendAsciiMessage(0x59, "CastSpellOnTarget the creature whose image you wish to create.");
                     player.Target = new InternalTarget(this);
 
                     return;

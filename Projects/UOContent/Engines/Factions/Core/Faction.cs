@@ -847,7 +847,7 @@ public abstract class Faction : IComparable<Faction>
     [Description("Sets the targeted player as the faction commander.")]
     public static void FactionCommander_OnCommand(CommandEventArgs e)
     {
-        e.Mobile.SendMessage("Target a player to make them the faction commander.");
+        e.Mobile.SendMessage("CastSpellOnTarget a player to make them the faction commander.");
         e.Mobile.BeginTarget(-1, false, TargetFlags.None, FactionCommander_OnTarget);
     }
 
@@ -878,7 +878,7 @@ public abstract class Faction : IComparable<Faction>
     [Description("Opens the election properties for the targeted faction stone.")]
     public static void FactionElection_OnCommand(CommandEventArgs e)
     {
-        e.Mobile.SendMessage("Target a faction stone to open its election properties.");
+        e.Mobile.SendMessage("CastSpellOnTarget a faction stone to open its election properties.");
         e.Mobile.BeginTarget(-1, false, TargetFlags.None, FactionElection_OnTarget);
     }
 
@@ -906,7 +906,7 @@ public abstract class Faction : IComparable<Faction>
 
     public static void FactionKick_OnCommand(CommandEventArgs e)
     {
-        e.Mobile.SendMessage("Target a player to remove them from their faction.");
+        e.Mobile.SendMessage("CastSpellOnTarget a player to remove them from their faction.");
         e.Mobile.BeginTarget(-1, false, TargetFlags.None, FactionKick_OnTarget);
     }
 

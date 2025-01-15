@@ -35,7 +35,7 @@ public class RecallSpellTarget : Target
 
             if (e == null)
             {
-                from.SendLocalizedMessage(502354); // Target is not marked.
+                from.SendLocalizedMessage(502354); // CastSpellOnTarget is not marked.
                 return;
             }
 

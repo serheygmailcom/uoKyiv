@@ -229,7 +229,7 @@ namespace Server.Mobiles
         {
             if (Validate(from))
             {
-                new EtherealSpell(this, from).Cast();
+                new EtherealSpell(this, from).BeginCasting();
             }
         }
 
@@ -400,7 +400,7 @@ namespace Server.Mobiles
                 // m_Mount.UnmountMe();
             }
 
-            public override void OnCast()
+            public override void OnCastingAfterMantra()
             {
                 if (!m_Mount.Deleted && m_Mount.Rider == null && m_Mount.Validate(m_Rider))
                 {

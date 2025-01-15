@@ -805,7 +805,7 @@ namespace Server.Mobiles
                         spell.Stop();
                     }
 
-                    new FlySpell(this).Cast();
+                    new FlySpell(this).BeginCasting();
                 }
                 else
                 {
@@ -3725,7 +3725,7 @@ namespace Server.Mobiles
             }
 
             BeginTarget(-1, false, TargetFlags.None, ToggleItemInsurance_Callback);
-            SendLocalizedMessage(1060868); // Target the item you wish to toggle insurance status on <ESC> to cancel
+            SendLocalizedMessage(1060868); // CastSpellOnTarget the item you wish to toggle insurance status on <ESC> to cancel
         }
 
         private bool CanInsure(Item item)
@@ -3796,7 +3796,7 @@ namespace Server.Mobiles
                         1060868,
                         "",
                         0x23
-                    ); // Target the item you wish to toggle insurance status on <ESC> to cancel
+                    ); // CastSpellOnTarget the item you wish to toggle insurance status on <ESC> to cancel
                 }
             }
             else if (!CanInsure(item))
@@ -3840,7 +3840,7 @@ namespace Server.Mobiles
                         1060868,
                         "",
                         0x23
-                    ); // Target the item you wish to toggle insurance status on <ESC> to cancel
+                    ); // CastSpellOnTarget the item you wish to toggle insurance status on <ESC> to cancel
                 }
             }
         }
@@ -3957,7 +3957,7 @@ namespace Server.Mobiles
             }
 
             BeginTarget(-1, false, TargetFlags.None, ToggleQuestItem_Callback);
-            SendLocalizedMessage(1072352); // Target the item you wish to toggle Quest Item status on <ESC> to cancel
+            SendLocalizedMessage(1072352); // CastSpellOnTarget the item you wish to toggle Quest Item status on <ESC> to cancel
         }
 
         private void ToggleQuestItem_Callback(Mobile from, object obj)

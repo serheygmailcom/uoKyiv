@@ -18,7 +18,7 @@ namespace Server.SkillHandlers
         {
             Target target = new InternalTargetSrc();
             m.Target = target;
-            m.SendLocalizedMessage(1046295); // Target the book you wish to copy.
+            m.SendLocalizedMessage(1046295); // CastSpellOnTarget the book you wish to copy.
             target.BeginTimeout(m, 60000); // 1 minute
 
             return TimeSpan.FromSeconds(1.0);

@@ -22,7 +22,7 @@ namespace Server.Spells.Sixth
 
         public override SpellCircle Circle => SpellCircle.Sixth;
 
-        public void Target(Mobile m)
+        public void CastSpellOnTarget(Mobile m)
         {
             if (m is not BaseCreature { IsDispellable: true } bc)
             {
@@ -56,7 +56,7 @@ namespace Server.Spells.Sixth
             }
         }
 
-        public override void OnCast()
+        public override void OnCastingAfterMantra()
         {
             Caster.Target = new SpellTarget<Mobile>(this, TargetFlags.Harmful);
         }

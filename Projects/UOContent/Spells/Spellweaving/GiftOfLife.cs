@@ -28,7 +28,7 @@ namespace Server.Spells.Spellweaving
 
         public double HitsScalar => (Caster.Skills.Spellweaving.Value / 2.4 + FocusLevel) / 100;
 
-        public void Target(Mobile m)
+        public void CastSpellOnTarget(Mobile m)
         {
             if (m.IsDeadBondedPet || !m.Alive)
             {
@@ -71,7 +71,7 @@ namespace Server.Spells.Spellweaving
             }
         }
 
-        public override void OnCast()
+        public override void OnCastingAfterMantra()
         {
             Caster.Target = new SpellTarget<Mobile>(this, TargetFlags.Beneficial);
         }

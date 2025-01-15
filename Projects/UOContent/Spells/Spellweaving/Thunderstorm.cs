@@ -23,7 +23,7 @@ namespace Server.Spells.Spellweaving
         public override double RequiredSkill => 10.0;
         public override int RequiredMana => 32;
 
-        public override void OnCast()
+        public override void OnCastingAfterMantra()
         {
             if (CheckSequence())
             {

@@ -504,7 +504,7 @@ namespace Server.Gumps
                         {
                             from.SendLocalizedMessage(
                                 501328
-                            ); // Target the person you wish to name a co-owner of your household.
+                            ); // CastSpellOnTarget the person you wish to name a co-owner of your household.
                             from.Target = new CoOwnerTarget(true, _house);
                         }
                         else
@@ -560,7 +560,7 @@ namespace Server.Gumps
                         {
                             from.SendLocalizedMessage(
                                 501317
-                            ); // Target the person you wish to name a friend of your household.
+                            ); // CastSpellOnTarget the person you wish to name a friend of your household.
                             from.Target = new HouseFriendTarget(true, _house);
                         }
                         else
@@ -603,14 +603,14 @@ namespace Server.Gumps
                     }
                 case 10: // Ban
                     {
-                        from.SendLocalizedMessage(501325); // Target the individual to ban from this house.
+                        from.SendLocalizedMessage(501325); // CastSpellOnTarget the individual to ban from this house.
                         from.Target = new HouseBanTarget(true, _house);
 
                         break;
                     }
                 case 11: // Eject
                     {
-                        from.SendLocalizedMessage(501326); // Target the individual to eject from this house.
+                        from.SendLocalizedMessage(501326); // CastSpellOnTarget the individual to eject from this house.
                         from.Target = new HouseKickTarget(_house);
 
                         break;
@@ -637,7 +637,7 @@ namespace Server.Gumps
                     {
                         if (isOwner)
                         {
-                            from.SendLocalizedMessage(501309); // Target the person to whom you wish to give this house.
+                            from.SendLocalizedMessage(501309); // CastSpellOnTarget the person to whom you wish to give this house.
                             from.Target = new HouseOwnerTarget(_house);
                         }
                         else

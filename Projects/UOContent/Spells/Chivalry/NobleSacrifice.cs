@@ -30,7 +30,7 @@ namespace Server.Spells.Chivalry
         public override int MantraNumber => 1060725; // Dium Prostra
         public override bool BlocksMovement => false;
 
-        public override void OnCast()
+        public override void OnCastingAfterMantra()
         {
             if (CheckSequence())
             {

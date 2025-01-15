@@ -24,7 +24,7 @@ namespace Server.Spells.Eighth
 
         public int TargetRange => 1;
 
-        public void Target(Mobile m)
+        public void CastSpellOnTarget(Mobile m)
         {
             if (m == Caster)
             {
@@ -36,19 +36,19 @@ namespace Server.Spells.Eighth
             }
             else if (m.Alive)
             {
-                Caster.SendLocalizedMessage(501041); // Target is not dead.
+                Caster.SendLocalizedMessage(501041); // CastSpellOnTarget is not dead.
             }
             else if (!Caster.InRange(m, 1))
             {
-                Caster.SendLocalizedMessage(501042); // Target is not close enough.
+                Caster.SendLocalizedMessage(501042); // CastSpellOnTarget is not close enough.
             }
             else if (!m.Player)
             {
-                Caster.SendLocalizedMessage(501043); // Target is not a being.
+                Caster.SendLocalizedMessage(501043); // CastSpellOnTarget is not a being.
             }
             else if (m.Map?.CanFit(m.Location, 16, false, false) != true)
             {
-                Caster.SendLocalizedMessage(501042); // Target can not be resurrected at that location.
+                Caster.SendLocalizedMessage(501042); // CastSpellOnTarget can not be resurrected at that location.
                 m.SendLocalizedMessage(502391);      // Thou can not be resurrected there!
             }
             else if (m.Region?.IsPartOf("Khaldun") == true)
@@ -78,7 +78,7 @@ namespace Server.Spells.Eighth
             return base.CheckCast();
         }
 
-        public override void OnCast()
+        public override void OnCastingAfterMantra()
         {
             Caster.Target = new SpellTarget<Mobile>(this, TargetFlags.Beneficial);
         }

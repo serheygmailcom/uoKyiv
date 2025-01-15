@@ -183,7 +183,7 @@ public abstract class Town : IComparable<Town>
             type = "guard";
         }
 
-        from.SendMessage($"Target the {type} you wish to dismiss.");
+        from.SendMessage($"CastSpellOnTarget the {type} you wish to dismiss.");
         from.BeginTarget(12, false, TargetFlags.None, EndOrderFiring);
     }
 

@@ -111,7 +111,7 @@ namespace Server.Spells.Second
             BuffInfo.RemoveBuff(m, BuffIcon.Protection);
         }
 
-        public override void OnCast()
+        public override void OnCastingAfterMantra()
         {
             if (Core.AOS)
             {

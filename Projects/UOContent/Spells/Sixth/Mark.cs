@@ -21,7 +21,7 @@ namespace Server.Spells.Sixth
 
         public override SpellCircle Circle => SpellCircle.Sixth;
 
-        public void Target(Item item)
+        public void CastSpellOnTarget(Item item)
         {
             if (item is not RecallRune rune)
             {
@@ -57,7 +57,7 @@ namespace Server.Spells.Sixth
             }
         }
 
-        public override void OnCast()
+        public override void OnCastingAfterMantra()
         {
             Caster.Target = new SpellTarget<Item>(this);
         }

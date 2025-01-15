@@ -20,7 +20,7 @@ namespace Server.Spells.Second
 
         public override SpellCircle Circle => SpellCircle.Second;
 
-        public void Target(Item item)
+        public void CastSpellOnTarget(Item item)
         {
             if (item is not TrappableContainer cont)
             {
@@ -80,7 +80,7 @@ namespace Server.Spells.Second
             }
         }
 
-        public override void OnCast()
+        public override void OnCastingAfterMantra()
         {
             Caster.Target = new SpellTarget<Item>(this);
         }

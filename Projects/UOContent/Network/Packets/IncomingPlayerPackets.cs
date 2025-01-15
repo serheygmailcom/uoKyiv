@@ -159,7 +159,7 @@ public static class IncomingPlayerPackets
 
                     break;
                 }
-            case 0x27: // Cast spell from book
+            case 0x27: // BeginCasting spell from book
                 {
                     var tokenizer = command.Tokenize(' ');
                     var spellID = (tokenizer.MoveNext() ? Utility.ToInt32(tokenizer.Current) : 0) - 1;
@@ -175,7 +175,7 @@ public static class IncomingPlayerPackets
 
                     break;
                 }
-            case 0x56: // Cast spell from macro
+            case 0x56: // BeginCasting spell from macro
                 {
                     var spellID = Utility.ToInt32(command) - 1;
 

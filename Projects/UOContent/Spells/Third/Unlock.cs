@@ -20,7 +20,7 @@ namespace Server.Spells.Third
 
         public override SpellCircle Circle => SpellCircle.Third;
 
-        public void Target(IPoint3D p)
+        public void CastSpellOnTarget(IPoint3D p)
         {
             if (CheckSequence())
             {
@@ -82,7 +82,7 @@ namespace Server.Spells.Third
             }
         }
 
-        public override void OnCast()
+        public override void OnCastingAfterMantra()
         {
             Caster.Target = new SpellTarget<IPoint3D>(this);
         }

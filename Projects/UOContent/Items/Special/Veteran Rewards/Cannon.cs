@@ -299,13 +299,13 @@ public partial class CannonAddon : BaseAddon
             }
             else
             {
-                from.SendLocalizedMessage(1076203); // Target out of range.
+                from.SendLocalizedMessage(1076203); // CastSpellOnTarget out of range.
             }
         }
 
         protected override void OnTargetOutOfRange(Mobile from, object targeted)
         {
-            from.SendLocalizedMessage(1076203); // Target out of range.
+            from.SendLocalizedMessage(1076203); // CastSpellOnTarget out of range.
         }
     }
 

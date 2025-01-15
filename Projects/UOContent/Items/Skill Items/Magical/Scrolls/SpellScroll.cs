@@ -52,7 +52,7 @@ public partial class SpellScroll : Item, ICommodity
 
         if (spell != null)
         {
-            spell.Cast();
+            spell.BeginCasting();
         }
         else
         {

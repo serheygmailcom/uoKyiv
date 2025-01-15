@@ -24,7 +24,7 @@ namespace Server.Spells.Fourth
 
         public override SpellCircle Circle => SpellCircle.Fourth;
 
-        public void Target(Mobile m)
+        public void CastSpellOnTarget(Mobile m)
         {
             if (CheckHSequence(m))
             {
@@ -75,7 +75,7 @@ namespace Server.Spells.Fourth
             }
         }
 
-        public override void OnCast()
+        public override void OnCastingAfterMantra()
         {
             Caster.Target = new SpellTarget<Mobile>(this, TargetFlags.Harmful);
         }

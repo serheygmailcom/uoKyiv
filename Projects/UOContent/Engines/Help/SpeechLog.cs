@@ -39,7 +39,7 @@ namespace Server.Engines.Help
         {
             var from = e.Mobile;
 
-            from.SendMessage("Target a player to view his speech log.");
+            from.SendMessage("CastSpellOnTarget a player to view his speech log.");
             e.Mobile.Target = new SpeechLogTarget();
         }
 

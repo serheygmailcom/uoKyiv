@@ -110,7 +110,7 @@ public class AnimalForm : NinjaSpell
 
     public override bool CheckFizzle() => true;
 
-    public override void OnCast()
+    public override void OnCastingAfterMantra()
     {
         if (!Caster.CanBeginAction<PolymorphSpell>())
         {

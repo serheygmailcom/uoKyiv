@@ -96,7 +96,9 @@ public class GateTravelSpell : MagerySpell, IRecallSpell
         }
     }
 
-    public override void OnCast()
+
+    
+    public override void OnCastingAfterMantra()
     {
         if (m_Entry == null)
         {

@@ -235,7 +235,7 @@ public abstract partial class BaseWand : BaseBashing
         var m = Movable;
 
         Movable = false;
-        spell.Cast();
+        spell.BeginCasting();
         Movable = m;
     }
 

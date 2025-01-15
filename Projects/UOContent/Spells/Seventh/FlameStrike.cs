@@ -20,8 +20,16 @@ namespace Server.Spells.Seventh
         public override SpellCircle Circle => SpellCircle.Seventh;
 
         public override bool DelayedDamage => false;
+        //CALLED AFTER BASE ON CAST METHOD AND TIMER EXPIRED
+        //SPECIAL BEHAVIOR AFTER MANTRA - TARGETING
+        public override void OnCastingAfterMantra()
+        {
+            Caster.Target = new SpellTarget<Mobile>(this, TargetFlags.Harmful);
+        }
 
-        public void Target(Mobile m)
+        //CALLED BY SPELLTARGET .INVOKE WHEN TARGET CHOSEN BY PLAYER
+        //AFTER SPECIAL TARGET CHCCK FOR FS - DO DAMAGE
+        public void CastSpellOnTarget(Mobile m)
         {
             if (CheckHSequence(m))
             {
@@ -56,9 +64,6 @@ namespace Server.Spells.Seventh
             }
         }
 
-        public override void OnCast()
-        {
-            Caster.Target = new SpellTarget<Mobile>(this, TargetFlags.Harmful);
-        }
+
     }
 }

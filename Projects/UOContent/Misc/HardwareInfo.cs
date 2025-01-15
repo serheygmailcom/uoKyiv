@@ -99,7 +99,7 @@ namespace Server
         public static void HWInfo_OnCommand(CommandEventArgs e)
         {
             e.Mobile.BeginTarget(-1, false, TargetFlags.None, HWInfo_OnTarget);
-            e.Mobile.SendMessage("Target a player to view their hardware information.");
+            e.Mobile.SendMessage("CastSpellOnTarget a player to view their hardware information.");
         }
 
         public static void HWInfo_OnTarget(Mobile from, object obj)

@@ -20,7 +20,7 @@ namespace Server.Spells.Third
 
         public override SpellCircle Circle => SpellCircle.Third;
 
-        public void Target(Mobile m)
+        public void CastSpellOnTarget(Mobile m)
         {
             if (CheckBSequence(m))
             {
@@ -53,7 +53,7 @@ namespace Server.Spells.Third
             return base.CheckCast();
         }
 
-        public override void OnCast()
+        public override void OnCastingAfterMantra()
         {
             Caster.Target = new SpellTarget<Mobile>(this, TargetFlags.Beneficial);
         }

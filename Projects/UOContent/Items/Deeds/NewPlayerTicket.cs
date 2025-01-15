@@ -43,7 +43,7 @@ public partial class NewPlayerTicket : Item
         }
         else
         {
-            from.SendLocalizedMessage(501927); // Target any other ticket marked NEW PLAYER to win a prize.
+            from.SendLocalizedMessage(501927); // CastSpellOnTarget any other ticket marked NEW PLAYER to win a prize.
             from.Target = new InternalTarget(this);
         }
     }

@@ -24,12 +24,12 @@ public class BombardSpell : MysticSpell, ITargetingSpell<Mobile>
 
     public override Type[] DelayedDamageSpellFamilyStacking => AOSNoDelayedDamageStackingSelf;
 
-    public override void OnCast()
+    public override void OnCastingAfterMantra()
     {
         Caster.Target = new SpellTarget<Mobile>(this, TargetFlags.Harmful);
     }
 
-    public void Target(Mobile m)
+    public void CastSpellOnTarget(Mobile m)
     {
         if (CheckHSequence(m))
         {
