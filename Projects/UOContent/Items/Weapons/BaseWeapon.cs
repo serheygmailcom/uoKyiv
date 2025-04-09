@@ -17,6 +17,7 @@ using Server.Spells.Necromancy;
 using Server.Spells.Ninjitsu;
 using Server.Spells.Sixth;
 using Server.Spells.Spellweaving;
+using Server.Text;
 
 namespace Server.Items;
 
@@ -27,7 +28,8 @@ public interface ISlayer
 }
 
 [SerializationGenerator(10, false)]
-public abstract partial class BaseWeapon : Item, IWeapon, IFactionItem, ICraftable, ISlayer, IDurability, IAosItem
+public abstract partial class BaseWeapon
+    : Item, IWeapon, IFactionItem, ICraftable, ISlayer, IDurability, IAosItem, IIdentifiable
 {
     private static bool _enableInstaHit;
 
@@ -105,7 +107,7 @@ public abstract partial class BaseWeapon : Item, IWeapon, IFactionItem, ICraftab
 
     [SerializableFieldSaveFlag(9)]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool ShouldSerializeCrafter() => string.IsNullOrEmpty(_crafter);
+    private bool ShouldSerializeCrafter() => !string.IsNullOrEmpty(_crafter);
 
     [InvalidateProperties]
     [SerializableField(10)]
@@ -661,7 +663,7 @@ public abstract partial class BaseWeapon : Item, IWeapon, IFactionItem, ICraftab
     [SerializableFieldDefault(23)]
     private CraftResource ResourceDefaultValue() => CraftResource.Iron;
 
-    public int OnCraft(
+    public virtual int OnCraft(
         int quality, bool makersMark, Mobile from, CraftSystem craftSystem, Type typeRes, BaseTool tool,
         CraftItem craftItem, int resHue
     )
@@ -674,6 +676,7 @@ public abstract partial class BaseWeapon : Item, IWeapon, IFactionItem, ICraftab
         }
 
         PlayerConstructed = true;
+        Identified = true;
 
         var resourceType = typeRes ?? craftItem.Resources[0].ItemType;
 
@@ -729,21 +732,18 @@ public abstract partial class BaseWeapon : Item, IWeapon, IFactionItem, ICraftab
                 {
                     case CraftResource.DullCopper:
                         {
-                            Identified = true;
                             DurabilityLevel = WeaponDurabilityLevel.Durable;
                             AccuracyLevel = WeaponAccuracyLevel.Accurate;
                             break;
                         }
                     case CraftResource.ShadowIron:
                         {
-                            Identified = true;
                             DurabilityLevel = WeaponDurabilityLevel.Durable;
                             DamageLevel = WeaponDamageLevel.Ruin;
                             break;
                         }
                     case CraftResource.Copper:
                         {
-                            Identified = true;
                             DurabilityLevel = WeaponDurabilityLevel.Fortified;
                             DamageLevel = WeaponDamageLevel.Ruin;
                             AccuracyLevel = WeaponAccuracyLevel.Surpassingly;
@@ -751,7 +751,6 @@ public abstract partial class BaseWeapon : Item, IWeapon, IFactionItem, ICraftab
                         }
                     case CraftResource.Bronze:
                         {
-                            Identified = true;
                             DurabilityLevel = WeaponDurabilityLevel.Fortified;
                             DamageLevel = WeaponDamageLevel.Might;
                             AccuracyLevel = WeaponAccuracyLevel.Surpassingly;
@@ -759,7 +758,6 @@ public abstract partial class BaseWeapon : Item, IWeapon, IFactionItem, ICraftab
                         }
                     case CraftResource.Gold:
                         {
-                            Identified = true;
                             DurabilityLevel = WeaponDurabilityLevel.Indestructible;
                             DamageLevel = WeaponDamageLevel.Force;
                             AccuracyLevel = WeaponAccuracyLevel.Eminently;
@@ -767,7 +765,6 @@ public abstract partial class BaseWeapon : Item, IWeapon, IFactionItem, ICraftab
                         }
                     case CraftResource.Agapite:
                         {
-                            Identified = true;
                             DurabilityLevel = WeaponDurabilityLevel.Indestructible;
                             DamageLevel = WeaponDamageLevel.Power;
                             AccuracyLevel = WeaponAccuracyLevel.Eminently;
@@ -775,7 +772,6 @@ public abstract partial class BaseWeapon : Item, IWeapon, IFactionItem, ICraftab
                         }
                     case CraftResource.Verite:
                         {
-                            Identified = true;
                             DurabilityLevel = WeaponDurabilityLevel.Indestructible;
                             DamageLevel = WeaponDamageLevel.Power;
                             AccuracyLevel = WeaponAccuracyLevel.Exceedingly;
@@ -783,7 +779,6 @@ public abstract partial class BaseWeapon : Item, IWeapon, IFactionItem, ICraftab
                         }
                     case CraftResource.Valorite:
                         {
-                            Identified = true;
                             DurabilityLevel = WeaponDurabilityLevel.Indestructible;
                             DamageLevel = WeaponDamageLevel.Vanq;
                             AccuracyLevel = WeaponAccuracyLevel.Supremely;
@@ -947,9 +942,12 @@ public abstract partial class BaseWeapon : Item, IWeapon, IFactionItem, ICraftab
 
     public int GetDurabilityBonus()
     {
-        var bonus = _quality == WeaponQuality.Exceptional ? 20 : 0;
+        if (!Core.UOR)
+        {
+            return (int)_durabilityLevel * 5 + ((int)_quality - 1) * 10;
+        }
 
-        bonus += _durabilityLevel switch
+        var bonus = _durabilityLevel switch
         {
             WeaponDurabilityLevel.Durable        => 20,
             WeaponDurabilityLevel.Substantial    => 50,
@@ -961,23 +959,11 @@ public abstract partial class BaseWeapon : Item, IWeapon, IFactionItem, ICraftab
 
         if (Core.AOS)
         {
-            bonus += WeaponAttributes.DurabilityBonus;
-
             var resInfo = CraftResources.GetInfo(_resource);
-            CraftAttributeInfo attrInfo = null;
-
-            if (resInfo != null)
-            {
-                attrInfo = resInfo.AttributeInfo;
-            }
-
-            if (attrInfo != null)
-            {
-                bonus += attrInfo.WeaponDurability;
-            }
+            bonus += WeaponAttributes.DurabilityBonus + (resInfo?.AttributeInfo?.WeaponDurability ?? 0);
         }
 
-        return bonus;
+        return _quality == WeaponQuality.Exceptional ? bonus + 20 : bonus;
     }
 
     public int GetLowerStatReq()
@@ -1360,7 +1346,7 @@ public abstract partial class BaseWeapon : Item, IWeapon, IFactionItem, ICraftab
             theirValue = Math.Max(0.1, defValue + 50.0);
         }
 
-        var chance = ourValue / (theirValue * 2.0) * 1.0 + (double)bonus / 100;
+        var chance = ourValue / (theirValue * 2.0) * 1.0 + (double)bonus / 100;;
 
         if (Core.AOS && chance < 0.02)
         {
@@ -2490,7 +2476,15 @@ public abstract partial class BaseWeapon : Item, IWeapon, IFactionItem, ICraftab
          */
         if (_damageLevel != WeaponDamageLevel.Regular)
         {
-            damage += 2 * (int)_damageLevel - 1;
+            // Toward the end of T2A, calculations were changed
+            if (!Core.T2A)
+            {
+                damage += (int)_damageLevel;
+            }
+            else
+            {
+                damage += 2 * (int)_damageLevel - 1;
+            }
         }
 
         return damage;
@@ -3333,6 +3327,12 @@ public abstract partial class BaseWeapon : Item, IWeapon, IFactionItem, ICraftab
 
     public override void OnSingleClick(Mobile from)
     {
+        if (!Core.UOTD)
+        {
+            OnSingleClickPreUOTD(from);
+            return;
+        }
+
         var attrs = new List<EquipInfoAttribute>();
 
         if (DisplayLootType)
@@ -3422,6 +3422,130 @@ public abstract partial class BaseWeapon : Item, IWeapon, IFactionItem, ICraftab
         }
 
         from.NetState.SendDisplayEquipmentInfo(Serial, number, _crafter, false, attrs);
+    }
+
+    public virtual void OnSingleClickPreUOTD(Mobile from)
+    {
+        var isMagicItem = _durabilityLevel > WeaponDurabilityLevel.Regular ||
+                          _accuracyLevel > WeaponAccuracyLevel.Regular ||
+                          _damageLevel > WeaponDamageLevel.Regular ||
+                          _slayer != SlayerName.None;
+
+        if (isMagicItem && !_identified)
+        {
+            LabelTo(from, $"an unidentified {Name ?? Localization.GetText(LabelNumber).ToLowerInvariant()}");
+            return;
+        }
+
+        var name = Name;
+        var articleAnName = (TileData.ItemTable[ItemID].Flags & TileFlag.ArticleAn) != 0;
+
+        if (isMagicItem)
+        {
+            var builder = ValueStringBuilder.Create(128);
+
+            var durabilityText = DurabilityText(out var articleAnDurability);
+            if (durabilityText != null)
+            {
+                builder.AppendSpaceWithArticle(durabilityText, articleAnDurability);
+            }
+
+            var accuracyText = AccuracyText(out var articleAnAccuracy);
+            if (accuracyText != null)
+            {
+                builder.AppendSpaceWithArticle(accuracyText, articleAnAccuracy);
+            }
+
+            var slayerEntry = SlayerGroup.GetEntryByName(_slayer);
+            if (slayerEntry != null)
+            {
+                builder.AppendSpaceWithArticle(slayerEntry.SlayerText(out var articleAnSlayer), articleAnSlayer);
+            }
+
+            if (name == null)
+            {
+                builder.AppendSpaceWithArticle(Localization.GetText(LabelNumber).ToLowerInvariant(), articleAnName);
+            }
+            else if (builder.Length != 0)
+            {
+                builder.Append($" {name}");
+            }
+            else
+            {
+                builder.Append(name);
+            }
+
+            var weaponDamageText = WeaponDamageText;
+            if (weaponDamageText != null)
+            {
+                builder.Append($" of {weaponDamageText}");
+            }
+
+            // TODO: Spells (of Ghoul's Touch)
+
+            LabelTo(from, builder.ToString());
+            builder.Dispose();
+            return;
+        }
+
+        name ??= $"{(articleAnName ? "an" : "a")} {Localization.GetText(LabelNumber).ToLowerInvariant()}";
+
+        if (Crafter == null)
+        {
+            LabelTo(from, Quality == WeaponQuality.Exceptional ? $"{name} of exceptional quality" : name);
+            return;
+        }
+
+        LabelTo(
+            from,
+            Quality == WeaponQuality.Exceptional
+                ? $"{name} crafted with exceptional quality by {Crafter}"
+                : $"{name} crafted by {Crafter}"
+        );
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private string DurabilityText(out bool articleAn)
+    {
+        articleAn = _durabilityLevel is WeaponDurabilityLevel.Indestructible;
+        return _durabilityLevel switch
+        {
+            WeaponDurabilityLevel.Durable        => "durable",
+            WeaponDurabilityLevel.Substantial    => "substantial",
+            WeaponDurabilityLevel.Massive        => "massive",
+            WeaponDurabilityLevel.Fortified      => "fortified",
+            WeaponDurabilityLevel.Indestructible => "indestructible",
+            _                                    => null
+        };
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private string AccuracyText(out bool articleAn)
+    {
+        articleAn = _accuracyLevel is WeaponAccuracyLevel.Accurate or WeaponAccuracyLevel.Eminently;
+        return _accuracyLevel switch
+        {
+            WeaponAccuracyLevel.Accurate     => "accurate",
+            WeaponAccuracyLevel.Surpassingly => "surpassingly accurate",
+            WeaponAccuracyLevel.Eminently    => "eminently accurate",
+            WeaponAccuracyLevel.Exceedingly  => "exceedingly accurate",
+            WeaponAccuracyLevel.Supremely    => "supremely accurate",
+            _                                => null
+        };
+    }
+
+    private string WeaponDamageText
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => _damageLevel switch
+        {
+            WeaponDamageLevel.Ruin  => "ruin",
+            WeaponDamageLevel.Might => "might",
+            WeaponDamageLevel.Force => "force",
+            WeaponDamageLevel.Power => "power",
+            WeaponDamageLevel.Vanq  => "vanquishing",
+            _                       => null
+        };
     }
 
     public virtual int GetHitAttackSound(Mobile attacker, Mobile defender)

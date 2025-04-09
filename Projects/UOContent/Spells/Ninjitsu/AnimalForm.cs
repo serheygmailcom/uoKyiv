@@ -64,11 +64,12 @@ public class AnimalForm : NinjaSpell
         new(typeof(Reptalon), 1075202, 11669, 0, 1075222, 90.0, 0x114, 0, 0, false, false)
     };
 
-    public static void OnLogin(Mobile m)
+    [OnEvent(nameof(PlayerMobile.PlayerLoginEvent))]
+    public static void OnLogin(PlayerMobile pm)
     {
-        if (GetContext(m)?.SpeedBoost == true)
+        if (GetContext(pm)?.SpeedBoost == true)
         {
-            m.NetState.SendSpeedControl(SpeedControlSetting.Mount);
+            pm.NetState.SendSpeedControl(SpeedControlSetting.Mount);
         }
     }
 
@@ -421,7 +422,7 @@ public class AnimalForm : NinjaSpell
 
                 int y = Math.DivRem(pos, 2, out var rem) * 64 + 44;
                 int x = rem == 0 ? 14 : 264;
-                Rectangle2D b = ItemBounds.Table[entry.ItemID];
+                Rectangle2D b = ItemBounds.Bounds[entry.ItemID];
 
                 builder.AddImageTiledButton(x, y, 0x918, 0x919, i + 1, GumpButtonType.Reply, 0, entry.ItemID,
                     entry.Hue, 40 - b.Width / 2 - b.X, 30 - b.Height / 2 - b.Y, entry.Tooltip);
