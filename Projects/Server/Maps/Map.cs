@@ -1177,7 +1177,6 @@ public sealed partial class Map : IComparable<Map>, ISpanFormattable, ISpanParsa
 
 
 
-    #endregion
 
     public bool LineOfSight(object from, object dest) =>
         from == dest || (from as Mobile)?.AccessLevel > AccessLevel.Player ||
