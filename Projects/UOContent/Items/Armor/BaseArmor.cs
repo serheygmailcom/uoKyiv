@@ -1,17 +1,20 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using ModernUO.Serialization;
 using Server.Engines.Craft;
 using Server.Ethics;
 using Server.Factions;
 using Server.Network;
+using Server.Text;
 using AMA = Server.Items.ArmorMeditationAllowance;
 using AMT = Server.Items.ArmorMaterialType;
 
 namespace Server.Items
 {
     [SerializationGenerator(9, false)]
-    public abstract partial class BaseArmor : Item, IScissorable, IFactionItem, ICraftable, IWearableDurability, IAosItem
+    public abstract partial class BaseArmor
+        : Item, IScissorable, IFactionItem, ICraftable, IWearableDurability, IAosItem, IIdentifiable
     {
         [SerializedIgnoreDupe]
         [SerializableField(0, setter: "private")]
@@ -101,7 +104,7 @@ namespace Server.Items
         private string _crafter;
 
         [SerializableFieldSaveFlag(10)]
-        private bool ShouldSerializeCrafter() => _crafter != null;
+        private bool ShouldSerializeCrafter() => !string.IsNullOrEmpty(_crafter);
 
         [SerializableFieldSaveFlag(14)]
         private bool ShouldSerializeResource() => _resource != DefaultResource;
@@ -310,26 +313,35 @@ namespace Server.Items
 
                 if (_protectionLevel != ArmorProtectionLevel.Regular)
                 {
-                    ar += 10 + 5 * (int)_protectionLevel;
+                    if (Core.UOR)
+                    {
+                        ar += 10;
+                    }
+
+                    ar += 5 * (int)_protectionLevel;
                 }
 
-                ar += _resource switch
+                // Colored armor does not give a bonus until UOR+
+                if (Core.UOR)
                 {
-                    CraftResource.DullCopper    => 2,
-                    CraftResource.ShadowIron    => 4,
-                    CraftResource.Copper        => 6,
-                    CraftResource.Bronze        => 8,
-                    CraftResource.Gold          => 10,
-                    CraftResource.Agapite       => 12,
-                    CraftResource.Verite        => 14,
-                    CraftResource.Valorite      => 16,
-                    CraftResource.SpinedLeather => 10,
-                    CraftResource.HornedLeather => 13,
-                    CraftResource.BarbedLeather => 16,
-                    _                           => 0
-                };
+                    ar += _resource switch
+                    {
+                        CraftResource.DullCopper    => 2,
+                        CraftResource.ShadowIron    => 4,
+                        CraftResource.Copper        => 6,
+                        CraftResource.Bronze        => 8,
+                        CraftResource.Gold          => 10,
+                        CraftResource.Agapite       => 12,
+                        CraftResource.Verite        => 14,
+                        CraftResource.Valorite      => 16,
+                        CraftResource.SpinedLeather => 10,
+                        CraftResource.HornedLeather => 13,
+                        CraftResource.BarbedLeather => 16,
+                        _                           => 0
+                    };
+                }
 
-                ar += -8 + 8 * (int)_quality;
+                ar += 8 * (int)(_quality - 1);
                 return ScaleArmorByDurability(ar);
             }
         }
@@ -543,7 +555,7 @@ namespace Server.Items
             }
         }
 
-        public int OnCraft(
+        public virtual int OnCraft(
             int quality, bool makersMark, Mobile from, CraftSystem craftSystem, Type typeRes, BaseTool tool,
             CraftItem craftItem, int resHue
         )
@@ -559,6 +571,7 @@ namespace Server.Items
 
             Resource = CraftResources.GetFromType(resourceType);
             PlayerConstructed = true;
+            Identified = true;
 
             var context = craftSystem.GetContext(from);
 
@@ -574,8 +587,9 @@ namespace Server.Items
                 {
                     DistributeBonuses(
                         tool is BaseRunicTool ? 6 :
+                        // Not sure since when, but right now 15 points are added, not 14.
                         Core.SE ? 15 : 14
-                    ); // Not sure since when, but right now 15 points are added, not 14.
+                    );
                 }
 
                 if (Core.ML && this is not BaseShield)
@@ -587,20 +601,30 @@ namespace Server.Items
                         switch (Utility.Random(5))
                         {
                             case 0:
-                                PhysicalBonus++;
-                                break;
+                                {
+                                    PhysicalBonus++;
+                                    break;
+                                }
                             case 1:
-                                FireBonus++;
-                                break;
+                                {
+                                    FireBonus++;
+                                    break;
+                                }
                             case 2:
-                                ColdBonus++;
-                                break;
+                                {
+                                    ColdBonus++;
+                                    break;
+                                }
                             case 3:
-                                EnergyBonus++;
-                                break;
+                                {
+                                    EnergyBonus++;
+                                    break;
+                                }
                             case 4:
-                                PoisonBonus++;
-                                break;
+                                {
+                                    PoisonBonus++;
+                                    break;
+                                }
                         }
                     }
 
@@ -828,20 +852,30 @@ namespace Server.Items
                 switch (Utility.Random(5))
                 {
                     case 0:
-                        ++PhysicalBonus;
-                        break;
+                        {
+                            ++PhysicalBonus;
+                            break;
+                        }
                     case 1:
-                        ++FireBonus;
-                        break;
+                        {
+                            ++FireBonus;
+                            break;
+                        }
                     case 2:
-                        ++ColdBonus;
-                        break;
+                        {
+                            ++ColdBonus;
+                            break;
+                        }
                     case 3:
-                        ++PoisonBonus;
-                        break;
+                        {
+                            ++PoisonBonus;
+                            break;
+                        }
                     case 4:
-                        ++EnergyBonus;
-                        break;
+                        {
+                            ++EnergyBonus;
+                            break;
+                        }
                 }
             }
 
@@ -865,9 +899,12 @@ namespace Server.Items
 
         public int GetDurabilityBonus()
         {
-            var bonus = _quality == ArmorQuality.Exceptional ? 20 : 0;
+            if (!Core.UOR)
+            {
+                return (int)_durability * 5 + ((int)_quality - 1) * 10;
+            }
 
-            bonus += _durability switch
+            var bonus = _durability switch
             {
                 ArmorDurabilityLevel.Durable        => 20,
                 ArmorDurabilityLevel.Substantial    => 50,
@@ -879,23 +916,11 @@ namespace Server.Items
 
             if (Core.AOS)
             {
-                bonus += ArmorAttributes.DurabilityBonus;
-
                 var resInfo = CraftResources.GetInfo(_resource);
-                CraftAttributeInfo attrInfo = null;
-
-                if (resInfo != null)
-                {
-                    attrInfo = resInfo.AttributeInfo;
-                }
-
-                if (attrInfo != null)
-                {
-                    bonus += attrInfo.ArmorDurability;
-                }
+                bonus += ArmorAttributes.DurabilityBonus + (resInfo?.AttributeInfo?.ArmorDurability ?? 0);
             }
 
-            return bonus;
+            return _quality == ArmorQuality.Exceptional ? bonus + 20 : bonus;
         }
 
         public static void ValidateMobile(Mobile m)
@@ -1451,6 +1476,12 @@ namespace Server.Items
 
         public override void OnSingleClick(Mobile from)
         {
+            if (!Core.UOTD)
+            {
+                OnSingleClickPreUOTD(from);
+                return;
+            }
+
             var attrs = new List<EquipInfoAttribute>();
 
             if (DisplayLootType)
@@ -1482,13 +1513,12 @@ namespace Server.Items
                     attrs.Add(new EquipInfoAttribute(1038000 + (int)_durability));
                 }
 
-                if (_protectionLevel > ArmorProtectionLevel.Regular && _protectionLevel <= ArmorProtectionLevel.Invulnerability)
+                if (_protectionLevel != ArmorProtectionLevel.Regular)
                 {
                     attrs.Add(new EquipInfoAttribute(1038005 + (int)_protectionLevel));
                 }
             }
-            else if (_durability != ArmorDurabilityLevel.Regular || _protectionLevel > ArmorProtectionLevel.Regular &&
-                _protectionLevel <= ArmorProtectionLevel.Invulnerability)
+            else if (_durability != ArmorDurabilityLevel.Regular || _protectionLevel != ArmorProtectionLevel.Regular)
             {
                 attrs.Add(new EquipInfoAttribute(1038000)); // Unidentified
             }
@@ -1511,6 +1541,100 @@ namespace Server.Items
             }
 
             from.NetState.SendDisplayEquipmentInfo(Serial, number, _crafter, false, attrs);
+        }
+
+        public void OnSingleClickPreUOTD(Mobile from)
+        {
+            var isMagicItem = _durability != ArmorDurabilityLevel.Regular ||
+                              _protectionLevel != ArmorProtectionLevel.Regular;
+
+            if (isMagicItem && !_identified)
+            {
+                LabelTo(from, $"an unidentified {Name ?? Localization.GetText(LabelNumber).ToLowerInvariant()}");
+                return;
+            }
+
+            var name = Name;
+            var articleAnName = (TileData.ItemTable[ItemID].Flags & TileFlag.ArticleAn) != 0;
+
+            if (isMagicItem)
+            {
+                var builder = ValueStringBuilder.Create(128);
+
+                var durabilityText = DurabilityText(out var articleAnDurability);
+                if (durabilityText != null)
+                {
+                    builder.AppendSpaceWithArticle(durabilityText, articleAnDurability);
+                }
+
+                if (name == null)
+                {
+                    builder.AppendSpaceWithArticle(Localization.GetText(LabelNumber).ToLowerInvariant(), articleAnName);
+                }
+                else if (builder.Length != 0)
+                {
+                    builder.Append($" {name}");
+                }
+                else
+                {
+                    builder.Append(name);
+                }
+
+                var protectionText = ProtectionText;
+                if (protectionText != null)
+                {
+                    builder.Append($" of {protectionText}");
+                }
+
+                LabelTo(from, builder.ToString());
+                builder.Dispose();
+                return;
+            }
+
+            name ??= $"{(articleAnName ? "an" : "a")} {Localization.GetText(LabelNumber).ToLowerInvariant()}";
+
+            if (Crafter == null)
+            {
+                LabelTo(from, Quality == ArmorQuality.Exceptional ? $"{name} of exceptional quality" : name);
+                return;
+            }
+
+            LabelTo(
+                from,
+                Quality == ArmorQuality.Exceptional
+                    ? $"{name} crafted with exceptional quality by {Crafter}"
+                    : $"{name} crafted by {Crafter}"
+            );
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private string DurabilityText(out bool articleAn)
+        {
+            articleAn = _durability is ArmorDurabilityLevel.Indestructible;
+            return _durability switch
+            {
+                ArmorDurabilityLevel.Durable        => "durable",
+                ArmorDurabilityLevel.Substantial    => "substantial",
+                ArmorDurabilityLevel.Massive        => "massive",
+                ArmorDurabilityLevel.Fortified      => "fortified",
+                ArmorDurabilityLevel.Indestructible => "indestructible",
+                _                                   => null
+            };
+        }
+
+        private string ProtectionText
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get =>
+                _protectionLevel switch
+                {
+                    ArmorProtectionLevel.Defense         => "defense",
+                    ArmorProtectionLevel.Guarding        => "guarding",
+                    ArmorProtectionLevel.Hardening       => "hardening",
+                    ArmorProtectionLevel.Fortification   => "fortification",
+                    ArmorProtectionLevel.Invulnerability => "invulnerability",
+                    _                                    => null
+                };
         }
 
         [Flags]
